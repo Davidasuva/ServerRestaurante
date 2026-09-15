@@ -11,7 +11,7 @@ public interface ProductoInterface extends Remote {
     public Producto getProductoById(int id)throws RemoteException;
     public Producto getProductoByNombre(String nombre)throws RemoteException;
     public List<Producto> getProductosByCategoria(String categoria)throws RemoteException;
-    public List<Producto> getProductos()throws RemoteException;
+    public List<Producto> getProductos(int inicio, int finalnum)throws RemoteException;
 
     public List<Ingrediente> getIngredientesPerProduct(int id)throws RemoteException;
     public boolean validateProducto(int id)throws RemoteException;

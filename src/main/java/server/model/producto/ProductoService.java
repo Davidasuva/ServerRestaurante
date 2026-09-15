@@ -2,6 +2,7 @@ package server.model.producto;
 
 import server.model.history.History;
 import server.model.ingrediente.Ingrediente;
+import server.model.ingrediente.IngredienteInterface;
 import server.model.ingrediente.IngredienteService;
 
 import java.rmi.RemoteException;
@@ -13,9 +14,9 @@ public class ProductoService extends UnicastRemoteObject implements ProductoInte
 
     private TreeSet<Producto> productos;
     private History history;
-    private IngredienteService ingredienteService;
+    private IngredienteInterface ingredienteService;
 
-    public ProductoService(History history, IngredienteService ingredienteService) throws RemoteException {
+    public ProductoService(History history, IngredienteInterface ingredienteService) throws RemoteException {
         super();
         this.productos = new TreeSet<>();
         this.history = history;
@@ -63,8 +64,13 @@ public class ProductoService extends UnicastRemoteObject implements ProductoInte
     }
 
     @Override
-    public List<Producto> getProductos() throws RemoteException {
-        return productos.stream().toList();
+    public List<Producto> getProductos(int inicio, int finalnum) throws RemoteException {
+        if(inicio<0||finalnum<0||inicio>finalnum){
+            throw new RemoteException("Por favor ingrese un rango válido");
+        }else if(finalnum>=productos.size()){
+            throw new RemoteException("El rango final no puede ser mayor al tamaño de la lista");
+        }
+        return productos.stream().skip(inicio).limit(finalnum - inicio+1).toList();
     }
 
     @Override

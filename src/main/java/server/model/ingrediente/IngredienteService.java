@@ -33,8 +33,13 @@ public class IngredienteService extends UnicastRemoteObject implements Ingredien
     }
 
     @Override
-    public List<Ingrediente> ingredientes() throws RemoteException {
-        return ingredientes.stream().toList();
+    public List<Ingrediente> getIngredientes(int inicio, int finalnum) throws RemoteException {
+        if(inicio<0 || finalnum<0 || inicio>finalnum){
+            throw new RemoteException("Por favor ingrese un rango válido");
+        }else if(finalnum>=ingredientes.size()){
+            throw new RemoteException("El rango final no puede ser mayor al tamaño de la lista");
+        }
+        return ingredientes.stream().skip(inicio).limit(finalnum - inicio+1).toList();
     }
 
     @Override

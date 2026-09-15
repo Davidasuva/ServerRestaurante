@@ -80,6 +80,15 @@ public class EmpleadoService extends UnicastRemoteObject implements  EmpleadoInt
         empleados.add(empleado);
         history.addAction("Se modificó el empleado con cédula: "+id);
         return empleado;
+    }
 
+    @Override
+    public List<Empleado> getEmpleados(int inicio, int finalnum) throws RemoteException {
+        if(inicio<0||finalnum<0||inicio>finalnum){
+            throw new RemoteException("Por favor ingrese un rango válido");
+        }else if(finalnum>=empleados.size()){
+            throw new RemoteException("El rango final no puede ser mayor al tamaño de la lista");
+        }
+        return empleados.stream().skip(inicio).limit(finalnum - inicio+1).toList();
     }
 }

@@ -14,4 +14,6 @@ public interface EmpleadoInterface extends Remote {
 
     public boolean removeEmpleado(int id)throws RemoteException;
     public Empleado modifyEmpleado(int id, Empleado empleado)throws RemoteException;
+
+    public List<Empleado> getEmpleados(int inicio, int finalnum)throws RemoteException;
 }
