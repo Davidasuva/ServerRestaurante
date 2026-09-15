@@ -215,7 +215,20 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
     @Override
     public boolean validatePedido(int id) throws RemoteException {
         Pedido pedido=getPedidoById(id);
-        for()
-        return false;
+
+        Mesa mesa=mesaService.getMesaById(pedido.getMesaAsignada().getId());
+        List<Producto> productos=pedido.getProductos();
+        for(Producto p:productos){
+            Producto producto=productoService.getProductoById(p.getId());
+            if(!productoService.validateProducto(p.getId())){
+                throw new RemoteException("No se puede validar el producto dentro de un pedido.");
+            }
+        }
+        List<Empleado> encargados=pedido.getEncargados();
+        for(Empleado e:encargados){
+            Empleado empleado=empleadoService.getEmpleadoByCedula(e.getCedula());
+        }
+
+        return true;
     }
 }
