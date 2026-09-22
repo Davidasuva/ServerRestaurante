@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+</head>
+<body>
+    <header class="h">
+        <div class="head-productos">
+            <a href="index.html"><span class="material-symbols-outlined">arrow_back</span></a>
+            <p>Carbón y Sazón</p>
+            <label class="accent" for="">M. 1</label>
+        </div>
+        <div class="buscador-productos">
+            <input type="search" placeholder="Buscar en el menú..." aria-label="Buscar en el menú">
+        </div>
+        <div class="filtro">
+            <button class="filtro-opcion activo" type="button" data-categoria="todas">Todos</button>
+            <button class="filtro-opcion" type="button" data-categoria="hamburguesas">Hamburguesas</button>
+            <button class="filtro-opcion" type="button" data-categoria="perros">Perros Calientes</button>
+            <button class="filtro-opcion" type="button" data-categoria="acompanamientos">Acompañamientos</button>
+        </div>
+    </header>
+
+
+
+    <main class="productos">
+        <article class="producto-card" data-categoria="hamburguesas">
+            <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80" alt="Hamburguesa Sazón">
+            <div class="producto-info">
+                <h2>Hamburguesa Sazón</h2>
+                <p class="producto-precio">$32.000</p>
+                <button class="agregar-producto" type="button">+ Añadir</button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="hamburguesas">
+            <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80" alt="Hamburguesa Clásica">
+            <div class="producto-info">
+                <h2>Hamburguesa Clásica</h2>
+                <p class="producto-precio">$28.000</p>
+                <button class="agregar-producto" type="button">+ Añadir</button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="perros">
+            <img src="https://images.unsplash.com/photo-1612392062631-94dd858cba88?auto=format&fit=crop&w=600&q=80" alt="Perro Especial">
+            <div class="producto-info">
+                <h2>Perro Especial</h2>
+                <p class="producto-precio">$22.000</p>
+                <button class="agregar-producto" type="button">+ Añadir</button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="acompanamientos">
+            <img src="https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=600&q=80" alt="Papas fritas">
+            <div class="producto-info">
+                <h2>Papas Fritas</h2>
+                <p class="producto-precio">$15.000</p>
+                <button class="agregar-producto" type="button">+ Añadir</button>
+            </div>
+        </article>
+    </main>
+
+    <footer class="cont-ver-pedido">
+        <div class="pedido">
+            <span class="material-symbols-outlined">shopping_bag</span>
+            <strong>Ver pedido: <span class="cantidad-pedido">0</span></strong>
+            <strong class="total-pedido">0</strong>
+        </div>
+    </footer>
+    <script src="../js/products.js"></script>
+</body>
+</html>
