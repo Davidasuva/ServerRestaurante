@@ -1,18 +1,22 @@
 package server.model.empleado;
 
+import server.model.empleado.dao.EmpleadoDao;
+import server.model.empleado.dao.EmpleadoDaoInterface;
 import server.model.history.History;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
+import java.sql.SQLException;
 
 public class EmpleadoService extends UnicastRemoteObject implements  EmpleadoInterface {
 
-    private TreeSet<Empleado> empleados;
+    private EmpleadoDaoInterface empleadoDao;
     private History history;
+
     public EmpleadoService(History history) throws RemoteException {
-        this.empleados = new TreeSet<>();
+        this.empleadoDao=new EmpleadoDao();
         this.history = history;
         super();
     }
@@ -23,51 +27,64 @@ public class EmpleadoService extends UnicastRemoteObject implements  EmpleadoInt
             throw new RuntimeException("Por favor añada un empleado antes de registrarlo");
         }
         try{
-            empleados.add(empleado);
-            history.addAction("Se agregó el empleado con cédula: "+empleado.getCedula());
+            Empleado creado= empleadoDao.insertar(empleado);
+            history.addAction("Se agrego el empleado con cedula: "+empleado.getCedula());
             return empleado;
-        }catch (Exception e){
-            throw new RemoteException("Error al registrar empleado: " + e.getMessage());
+        }catch(SQLException e){
+            throw new RuntimeException("Error al registrar empleado. "+e.getMessage());
         }
     }
 
     @Override
     public Empleado getEmpleadoByCedula(int cedula) throws RemoteException{
-        Empleado buscado =new Empleado(cedula, "", "","");
-        if(!empleados.contains(buscado)){
-            throw new RemoteException("Empleado no encontrado");
+        try{
+            Empleado empleado=empleadoDao.buscarPorCedula(cedula);
+            if(empleado==null){
+                throw new RemoteException("No se encontro empleado con cedula: "+cedula);
+            }
+            history.addAction("Se buscó el empleado con cedula: "+cedula);
+            return empleado;
+        }catch(SQLException e){
+            throw new RuntimeException("Error al buscar el empleado: "+e.getMessage());
         }
-        history.addAction("Se buscó el empleado con cédula: "+ cedula);
-        return empleados.ceiling(buscado);
     }
 
 
     @Override
     public List<Empleado> getEmpleadosByCargo(String cargo) throws RemoteException{
         if(cargo==null){
-            throw new RemoteException("Por favor selecciona un cargo");
+            throw new RuntimeException("Por favor agregue cargo a buscar");
         }
-        return empleados.stream()
-                .filter(e -> cargo.equals(e.getCargo()))
-                .toList();
+        try{
+            return empleadoDao.buscarPorCargo(cargo);
+        }catch(SQLException e){
+            throw new RuntimeException("Error al consultar empleados por cargo: "+e.getMessage());
+        }
     }
 
     @Override
-    public Empleado getEmpleadoByNombre(String nombre) throws RemoteException {
+    public List<Empleado> getEmpleadoByNombre(String nombre) throws RemoteException {
         if(nombre==null){
             throw new RemoteException("Por favor selecciona un nombre");
         }
-        return empleados.stream().filter( e-> nombre.equals(e.getNombre())).findFirst().orElse(null);
+        try{
+            return empleadoDao.buscarPorNombre(nombre);
+        }catch(SQLException e){
+            throw new RuntimeException("Error al consultar empleados por nombre: "+e.getMessage());
+        }
     }
 
     @Override
     public boolean removeEmpleado(int id) throws RemoteException{
-        Empleado empleado = getEmpleadoByCedula(id);
-        boolean eliminado=empleados.remove(empleado);
-        if(eliminado){
-            history.addAction("Se eliminó el empleado con cédula: "+id);
+        try{
+            boolean eliminar=empleadoDao.eliminar(id);
+            if(eliminar){
+                history.addAction("Se eliminó la mesa con id: "+id);
+            }
+            return eliminar;
+        }catch(SQLException e){
+            throw new RuntimeException("No se pudó eliminar el empleado: "+e.getMessage());
         }
-        return eliminado;
     }
 
     @Override
@@ -75,20 +92,28 @@ public class EmpleadoService extends UnicastRemoteObject implements  EmpleadoInt
         if(empleado==null){
             throw new RemoteException("Por favor selecciona un empleado");
         }
-        Empleado cambiar=getEmpleadoByCedula(id);
-        empleados.remove(cambiar);
-        empleados.add(empleado);
-        history.addAction("Se modificó el empleado con cédula: "+id);
-        return empleado;
+        try{
+            Empleado actualizada=empleadoDao.actualizar(id,empleado);
+            history.addAction("Se actualizó el empleado con id: "+id);
+            return actualizada;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al actualizar empleado: "+e.getMessage());
+        }
     }
 
     @Override
     public List<Empleado> getEmpleados(int inicio, int finalnum) throws RemoteException {
-        if(inicio<0||finalnum<0||inicio>finalnum){
+        if(inicio<0 || finalnum<0 || inicio>finalnum){
             throw new RemoteException("Por favor ingrese un rango válido");
-        }else if(finalnum>=empleados.size()){
-            throw new RemoteException("El rango final no puede ser mayor al tamaño de la lista");
         }
-        return empleados.stream().skip(inicio).limit(finalnum - inicio+1).toList();
+        try{
+            int total=empleadoDao.contar();
+            if(finalnum>=total){
+                throw new RemoteException("El rango final no puede ser mayor al número de empleados");
+            }
+            return empleadoDao.buscarTodos(inicio,finalnum);
+        }catch(SQLException e){
+            throw  new RuntimeException("Error al consultar empleados: "+e.getMessage());
+        }
     }
 }

@@ -23,7 +23,7 @@ public class MesaDao implements MesaDaoInterface{
 
     @Override
     public Mesa buscarPorId(int id) throws SQLException {
-        String sql="SELECT FROM mesa WHERE id=?";
+        String sql="SELECT id FROM mesa WHERE id=?";
         try(Connection conn=Database.getConnection(); PreparedStatement stmt=conn.prepareStatement(sql)){
             stmt.setInt(1,id);
             try(ResultSet rs=stmt.executeQuery()){

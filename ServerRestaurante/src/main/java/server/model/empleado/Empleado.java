@@ -7,13 +7,13 @@ public class Empleado implements Serializable, Comparable<Empleado>{
     private int cedula;
     private String cargo;
     private String nombre;
-    private String contraseña;
+    private String contrasena;
 
-    public Empleado(int cedula, String cargo, String nombre, String contraseña) {
+    public Empleado(int cedula, String cargo, String nombre, String contrasena) {
         this.cedula = cedula;
         this.cargo = cargo;
         this.nombre = nombre;
-        this.contraseña = contraseña;
+        this.contrasena = contrasena;
     }
 
     public int getCedula() {
@@ -40,12 +40,12 @@ public class Empleado implements Serializable, Comparable<Empleado>{
         this.nombre = nombre;
     }
 
-    public String getContraseña() {
-        return contraseña;
+    public String getContrasena() {
+        return contrasena;
     }
 
-    public void setContraseña(String contraseña) {
-        this.contraseña = contraseña;
+    public void setContrasena(String contraseña) {
+        this.contrasena = contraseña;
     }
 
 

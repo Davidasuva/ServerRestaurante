@@ -6,7 +6,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 
-public interface MesaDaoInterface {
+public interface
+MesaDaoInterface {
     Mesa insertar(Mesa mesa) throws SQLException;
 
     Mesa buscarPorId(int id) throws SQLException;
