@@ -13,7 +13,7 @@ public class EmpleadoDao implements EmpleadoDaoInterface {
 
     @Override
     public Empleado insertar(Empleado empleado) throws SQLException {
-        String sql= "INSERT INTO empleado (cedula,cargo,nombre,contraseña) VALUES (?,?,?,?)";
+        String sql= "INSERT INTO empleado (cedula,cargo,nombre,contrasena) VALUES (?,?,?,?)";
         try(Connection conn=Database.getConnection(); PreparedStatement stmt=conn.prepareStatement(sql)){
             stmt.setInt(1, empleado.getCedula());
             stmt.setString(2, empleado.getCargo());
@@ -45,7 +45,7 @@ public class EmpleadoDao implements EmpleadoDaoInterface {
     public Empleado actualizar(int cedula, Empleado newEmpleado) throws SQLException {
         String sql = "UPDATE empleado SET cedula=?,cargo=?,nombre=?,contrasena=? WHERE cedula=?";
         try (Connection conn = Database.getConnection();
-        PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, newEmpleado.getCedula());
             stmt.setString(2, newEmpleado.getCargo());
             stmt.setString(3, newEmpleado.getNombre());
@@ -61,7 +61,7 @@ public class EmpleadoDao implements EmpleadoDaoInterface {
 
     @Override
     public boolean eliminar(int id) throws SQLException {
-        String sql="DELETE FROM empleado WHERE id=?";
+        String sql="DELETE FROM empleado WHERE cedula=?";
         try(Connection conn=Database.getConnection();PreparedStatement stmt=conn.prepareStatement(sql)){
             stmt.setInt(1,id);
             int filasAfectadas=stmt.executeUpdate();
@@ -105,14 +105,14 @@ public class EmpleadoDao implements EmpleadoDaoInterface {
                 while(rs.next()){
                     resultado.add(mapearEmpleado(rs));
                 }
-                return null;
             }
         }
+        return resultado;
     }
 
     @Override
     public List<Empleado> buscarPorNombre(String nombre) throws SQLException {
-        String sql="SELECT cedula, cargo, nombre, contrasena FROM empleado WHERE cargo=?";
+        String sql="SELECT cedula, cargo, nombre, contrasena FROM empleado WHERE nombre=?";
         List<Empleado> resultado=new ArrayList<>();
         try(Connection conn=Database.getConnection(); PreparedStatement stmt=conn.prepareStatement(sql)){
             stmt.setString(1,nombre);
@@ -120,9 +120,9 @@ public class EmpleadoDao implements EmpleadoDaoInterface {
                 while(rs.next()){
                     resultado.add(mapearEmpleado(rs));
                 }
-                return null;
             }
         }
+        return resultado;
     }
 
     private Empleado mapearEmpleado(ResultSet rs) throws SQLException {

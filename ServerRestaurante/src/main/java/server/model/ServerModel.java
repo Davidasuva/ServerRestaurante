@@ -115,4 +115,8 @@ public class ServerModel {
             history.addAction("Aviso unexport "+name+": "+e.getMessage());
         }
     }
+
+    public History getHistory(){
+        return history;
+    }
 }

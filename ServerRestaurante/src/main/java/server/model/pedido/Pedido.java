@@ -57,6 +57,10 @@ public class Pedido implements Serializable, Comparable<Pedido> {
         return total;
     }
 
+    public void setPrecioTotal(float precioTotal) {
+        this.precioTotal = precioTotal;
+    }
+
     public LocalDateTime getFechaPedido() {
         return fechaPedido;
     }

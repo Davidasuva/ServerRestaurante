@@ -88,7 +88,10 @@ public class MesaService extends UnicastRemoteObject implements MesaInterface {
             }
             return eliminado;
         }catch (SQLException e){
-            throw new RuntimeException("No se pudó eliminar la mesa: "+e.getMessage());
+            if (e.getErrorCode() == 1451) {
+                throw new RemoteException("No se puede eliminar la mesa: tiene pedidos asociados en su historial");
+            }
+            throw new RemoteException("Error al eliminar mesa: " + e.getMessage());
         }
     }
 }

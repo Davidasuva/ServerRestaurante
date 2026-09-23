@@ -42,9 +42,9 @@
             <version>23</version>
         </dependency>
         <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>9.1.0</version>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.4</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>

@@ -3,6 +3,7 @@ package server.model.producto;
 import server.model.ingrediente.Ingrediente;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Producto implements Serializable, Comparable<Producto>{
@@ -21,6 +22,7 @@ public class Producto implements Serializable, Comparable<Producto>{
         this.descripcion = descripcion;
         this.categoria = categoria;
         this.nombre = nombre;
+        ingredientes=new ArrayList<>();
     }
 
     public boolean addIngrediente(Ingrediente ingrediente) {
@@ -92,5 +94,9 @@ public class Producto implements Serializable, Comparable<Producto>{
         if(obj == null || getClass()!=obj.getClass()) return false;
         Producto producto=(Producto) obj;
         return (id==producto.id);
+    }
+
+    public String getNa() {
+        return null;
     }
 }

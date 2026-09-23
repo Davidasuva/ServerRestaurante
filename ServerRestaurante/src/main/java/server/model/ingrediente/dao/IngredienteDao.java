@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IngredienteDao implements IngredienteDaoInterface {
-
     @Override
     public Ingrediente insertar(Ingrediente ingrediente) throws SQLException {
         String sql="INSERT INTO ingrediente (id,descripcion,cantidad,nombre) VALUES (?,?,?,?)";
@@ -44,7 +43,7 @@ public class IngredienteDao implements IngredienteDaoInterface {
 
     @Override
     public Ingrediente actualizar(int id, Ingrediente newIngrediente) throws SQLException {
-        String sql="UPDATE ingrediente SET id=?, descripcion=?, cantidad=?,nombre=? WHERE cedula=?";
+        String sql="UPDATE ingrediente SET id=?, descripcion=?, cantidad=?,nombre=? WHERE id=?";
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)){
             stmt.setInt(1,newIngrediente.getId());
