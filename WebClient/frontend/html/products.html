@@ -28,47 +28,95 @@
 
 
     <main class="productos">
-        <article class="producto-card" data-categoria="hamburguesas">
+        <article class="producto-card" data-categoria="hamburguesas" data-descripcion="Hamburguesa artesanal al carbón con queso cheddar, vegetales frescos y salsa de la casa." data-ingredientes="Pan brioche, carne de res, queso cheddar, lechuga, tomate, cebolla y salsa de la casa.">
             <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80" alt="Hamburguesa Sazón">
             <div class="producto-info">
                 <h2>Hamburguesa Sazón</h2>
                 <p class="producto-precio">$32.000</p>
-                <button class="agregar-producto" type="button">+ Añadir</button>
+                <button class="agregar-producto" type="button"><span class="material-symbols-outlined">add</span> Añadir</button>
             </div>
         </article>
-        <article class="producto-card" data-categoria="hamburguesas">
+        <article class="producto-card" data-categoria="hamburguesas" data-descripcion="La clásica combinación de carne a la parrilla, queso y vegetales en un pan suave y tostado." data-ingredientes="Pan brioche, carne de res, queso cheddar, lechuga, tomate, cebolla y salsa especial.">
             <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&q=80" alt="Hamburguesa Clásica">
             <div class="producto-info">
                 <h2>Hamburguesa Clásica</h2>
                 <p class="producto-precio">$28.000</p>
-                <button class="agregar-producto" type="button">+ Añadir</button>
+                <button class="agregar-producto" type="button"><span class="material-symbols-outlined">add</span> Añadir</button>
             </div>
         </article>
-        <article class="producto-card" data-categoria="perros">
+        <article class="producto-card" data-categoria="perros" data-descripcion="Perro caliente cargado de sabor, con salchicha ahumada y nuestros toppings favoritos." data-ingredientes="Pan artesanal, salchicha ahumada, papa ripio, queso, cebolla y salsas.">
             <img src="https://images.unsplash.com/photo-1612392062631-94dd858cba88?auto=format&fit=crop&w=600&q=80" alt="Perro Especial">
             <div class="producto-info">
                 <h2>Perro Especial</h2>
                 <p class="producto-precio">$22.000</p>
-                <button class="agregar-producto" type="button">+ Añadir</button>
+                <button class="agregar-producto" type="button"><span class="material-symbols-outlined">add</span> Añadir</button>
             </div>
         </article>
-        <article class="producto-card" data-categoria="acompanamientos">
+        <article class="producto-card" data-categoria="acompanamientos" data-descripcion="Papas doradas y crujientes, ideales para acompañar cualquier plato del menú." data-ingredientes="Papas seleccionadas, aceite vegetal y sal.">
             <img src="https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=600&q=80" alt="Papas fritas">
             <div class="producto-info">
                 <h2>Papas Fritas</h2>
                 <p class="producto-precio">$15.000</p>
-                <button class="agregar-producto" type="button">+ Añadir</button>
+                <button class="agregar-producto" type="button"><span class="material-symbols-outlined">add</span> Añadir</button>
             </div>
         </article>
     </main>
 
     <footer class="cont-ver-pedido">
-        <div class="pedido">
+        <button class="pedido" type="button" aria-controls="panel-pedido" aria-expanded="false">
             <span class="material-symbols-outlined">shopping_bag</span>
             <strong>Ver pedido: <span class="cantidad-pedido">0</span></strong>
-            <strong class="total-pedido">0</strong>
-        </div>
+            <strong class="total-pedido">$0</strong>
+        </button>
+
     </footer>
+
+    <div class="pedido-overlay" aria-hidden="true">
+        <section class="panel-pedido" id="panel-pedido" role="dialog" aria-modal="true" aria-labelledby="titulo-pedido">
+            <header class="panel-pedido-header">
+                <button class="cerrar-pedido" type="button" aria-label="Cerrar detalles del pedido">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <h1 id="titulo-pedido">Resumen y Pago</h1>
+            </header>
+
+            <div class="lista-pedido" aria-live="polite"></div>
+            <div class="pedido-vacio">
+                <div class="pedido-vacio-icono">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                </div>
+                <h2>Tu pedido está vacío</h2>
+                <p>Agrega algunos deliciosos platos del menú para comenzar.</p>
+                <button class="volver-menu" type="button">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    Volver al Menú
+                </button>
+            </div>
+
+            <footer class="panel-pedido-footer">
+                <div class="total-panel">
+                    <span>Total a pagar</span>
+                    <strong>$0</strong>
+                </div>
+                <button class="confirmar-pedido" type="button" disabled>Confirmar y Enviar a Cocina</button>
+            </footer>
+        </section>
+    </div>
+
+    <div class="producto-overlay" aria-hidden="true">
+        <section class="producto-modal" role="dialog" aria-modal="true" aria-labelledby="titulo-producto-modal">
+            <button class="cerrar-producto" type="button" aria-label="Cerrar detalles del producto">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <img class="producto-modal-imagen" src="" alt="">
+            <div class="producto-modal-contenido">
+                <h2 id="titulo-producto-modal"></h2>
+                <p class="producto-modal-precio"></p>
+                <p class="producto-modal-descripcion"></p>
+                <button class="confirmar-producto" type="button">Añadir al pedido</button>
+            </div>
+        </section>
+    </div>
     <script src="../js/products.js"></script>
 </body>
 </html>
