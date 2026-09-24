@@ -30,10 +30,11 @@ let extraIngredients = [];
 let expandedOrderIndex = null;
 
 const availableExtras = [
-    { name: 'Tocineta', price: 4000 },
-    { name: 'Queso cheddar', price: 2500 },
-    { name: 'Huevo', price: 2500 },
-    { name: 'Papas a la francesa', price: 5000 }
+    { name: 'Porción de Papa a la Francesa', price: 8000 },
+    { name: 'Porción de Papa Criolla', price: 8000 },
+    { name: 'Extra de Queso Gratinado', price: 5000 },
+    { name: 'Extra de Tocineta', price: 6000 },
+    { name: 'Extra de Carne o Pollo', price: 9000 }
 ];
 
 function setOrderPanelOpen(isOpen) {
