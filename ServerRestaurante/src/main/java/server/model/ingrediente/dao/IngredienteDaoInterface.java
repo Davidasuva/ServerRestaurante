@@ -11,7 +11,7 @@ public interface IngredienteDaoInterface {
     Ingrediente actualizar(int id, Ingrediente newIngrediente)throws SQLException;
     boolean eliminar(int id)throws SQLException;
     int contar()throws SQLException;
+    boolean ajustarCantidad(int id, int agregado) throws SQLException;
     Ingrediente getIngredienteByNombre(String nombre)throws SQLException;
-
 
 }

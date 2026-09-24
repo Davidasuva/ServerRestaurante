@@ -35,4 +35,9 @@ public class Mesa implements Serializable, Comparable<Mesa>{
     public int compareTo(Mesa o) {
         return Integer.compare(this.id, o.getId());
     }
+
+    @Override
+    public String toString() {
+        return "Mesa con id: "+id;
+    }
 }

@@ -70,6 +70,18 @@ public class IngredienteDao implements IngredienteDaoInterface {
     }
 
     @Override
+    public boolean ajustarCantidad(int id, int agregado) throws SQLException {
+        String sql = "UPDATE ingrediente SET cantidad = cantidad + ? WHERE id = ? AND cantidad + ? >= 0";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, agregado);
+            stmt.setInt(2, id);
+            stmt.setInt(3, agregado);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    @Override
     public int contar() throws SQLException {
         String sql="SELECT COUNT(*) FROM ingrediente";
         try (Connection conn = Database.getConnection();

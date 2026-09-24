@@ -10,10 +10,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PedidoDao implements PedidoDaoInterface {
 
@@ -154,11 +157,28 @@ public class PedidoDao implements PedidoDaoInterface {
 
     @Override
     public boolean eliminar(int id) throws SQLException {
-        String sql = "DELETE FROM pedido WHERE id = ?";
-        try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            return stmt.executeUpdate() > 0;
+        try (Connection conn = Database.getConnection()) {
+            boolean autoCommitOriginal = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+            try {
+                liberarPedido(conn, id);
+                boolean eliminado;
+                try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM pedido WHERE id = ?")) {
+                    stmt.setInt(1, id);
+                    eliminado = stmt.executeUpdate() > 0;
+                }
+                if (!eliminado) {
+                    conn.rollback();
+                    return false;
+                }
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw new RuntimeException("Error al eliminar la tupla: "+e.getMessage());
+            } finally {
+                conn.setAutoCommit(autoCommitOriginal);
+            }
         }
     }
 
@@ -183,7 +203,200 @@ public class PedidoDao implements PedidoDaoInterface {
             return stmt.executeUpdate() > 0;
         }
     }
+    @Override
+    public boolean cambiarEstadoDescontandoInventario(int pedidoId, String estado) throws SQLException {
+        try (Connection conn = Database.getConnection()) {
+            boolean autoCommitOriginal = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+            try {
+                if (!reservarPedido(conn, pedidoId) || !actualizarEstado(conn, pedidoId, estado)) {
+                    conn.rollback();
+                    return false;
+                }
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw new RuntimeException("Error al cambiar el estado de un pedido");
+            } finally {
+                conn.setAutoCommit(autoCommitOriginal);
+            }
+        }
+    }
+    @Override
+    public boolean cambiarEstadoReponiendoInventario(int pedidoId, String estado) throws SQLException {
+        try (Connection conn = Database.getConnection()) {
+            boolean autoCommitOriginal = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+            try {
+                liberarPedido(conn, pedidoId);
+                if (!actualizarEstado(conn, pedidoId, estado)) {
+                    conn.rollback();
+                    return false;
+                }
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw new RuntimeException("Error al cambiar el estado de un pedido");
+            } finally {
+                conn.setAutoCommit(autoCommitOriginal);
+            }
+        }
+    }
 
+    @Override
+    public boolean agregarProductoDescontando(int pedidoId, int productoId) throws SQLException {
+        try (Connection conn = Database.getConnection()) {
+            boolean autoCommitOriginal = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+            try {
+                int requeridos;
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "SELECT COUNT(*) FROM ingrediente_Producto WHERE id_producto = ?")) {
+                    stmt.setInt(1, productoId);
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        rs.next();
+                        requeridos = rs.getInt(1);
+                    }
+                }
+
+                int descontados;
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "UPDATE ingrediente SET cantidad = cantidad - 1 " +
+                                "WHERE cantidad >= 1 AND id IN " +
+                                "(SELECT id_ingrediente FROM ingrediente_Producto WHERE id_producto = ?)")) {
+                    stmt.setInt(1, productoId);
+                    descontados = stmt.executeUpdate();
+                }
+                if (descontados < requeridos) {
+                    conn.rollback();
+                    return false;
+                }
+                boolean agregado;
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "INSERT INTO producto_pedido (id_pedido, id_producto) VALUES (?, ?)")) {
+                    stmt.setInt(1, pedidoId);
+                    stmt.setInt(2, productoId);
+                    agregado = stmt.executeUpdate() > 0;
+                }
+                if (!agregado) {
+                    conn.rollback();
+                    return false;
+                }
+
+                try (PreparedStatement stmt = conn.prepareStatement(
+                        "INSERT INTO inventario_pedido (id_pedido, id_producto, id_ingrediente, cantidad) " +
+                                "SELECT ?, ?, ip.id_ingrediente, 1 FROM ingredienteProducto ip WHERE ip.id_producto = ? " +
+                                "ON CONFLICT (id_pedido, id_producto, id_ingrediente) " +
+                                "DO UPDATE SET cantidad = inventario_pedido.cantidad + 1")) {
+                    stmt.setInt(1, pedidoId);
+                    stmt.setInt(2, productoId);
+                    stmt.setInt(3, productoId);
+                    stmt.executeUpdate();
+                }
+                recalcularPrecioTotal(conn, pedidoId);
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(autoCommitOriginal);
+            }
+        }
+    }
+    private boolean actualizarEstado(Connection conn, int pedidoId, String estado) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement("UPDATE pedido SET estado = ? WHERE id = ?")) {
+            stmt.setString(1, estado);
+            stmt.setInt(2, pedidoId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+
+    private boolean reservarPedido(Connection conn, int pedidoId) throws SQLException {
+        liberarPedido(conn, pedidoId);
+        try (PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO inventario_pedido (id_pedido, id_producto, id_ingrediente, cantidad) " +
+                        "SELECT pp.id_pedido, pp.id_producto, ip.id_ingrediente, COUNT(*) " +
+                        "FROM producto_pedido pp " +
+                        "JOIN ingrediente_Producto ip ON ip.id_producto = pp.id_producto " +
+                        "WHERE pp.id_pedido = ? " +
+                        "GROUP BY pp.id_pedido, pp.id_producto, ip.id_ingrediente")) {
+            stmt.setInt(1, pedidoId);
+            stmt.executeUpdate();
+        }
+        int requeridos;
+        try (PreparedStatement stmt = conn.prepareStatement(
+                "SELECT COUNT(DISTINCT id_ingrediente) FROM inventario_pedido WHERE id_pedido = ?")) {
+            stmt.setInt(1, pedidoId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                rs.next();
+                requeridos = rs.getInt(1);
+            }
+        }
+        int descontados;
+        try (PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE ingrediente i SET cantidad = i.cantidad - s.total " +
+                        "FROM (SELECT id_ingrediente, SUM(cantidad) AS total FROM inventario_pedido " +
+                        "      WHERE id_pedido = ? GROUP BY id_ingrediente) s " +
+                        "WHERE i.id = s.id_ingrediente AND i.cantidad >= s.total")) {
+            stmt.setInt(1, pedidoId);
+            descontados = stmt.executeUpdate();
+        }
+        return descontados >= requeridos;
+    }
+
+    private void liberarPedido(Connection conn, int pedidoId) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE ingrediente i SET cantidad = i.cantidad + s.total " +
+                        "FROM (SELECT id_ingrediente, SUM(cantidad) AS total FROM inventario_pedido " +
+                        "      WHERE id_pedido = ? GROUP BY id_ingrediente) s " +
+                        "WHERE i.id = s.id_ingrediente")) {
+            stmt.setInt(1, pedidoId);
+            stmt.executeUpdate();
+        }
+        try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM inventario_pedido WHERE id_pedido = ?")) {
+            stmt.setInt(1, pedidoId);
+            stmt.executeUpdate();
+        }
+    }
+
+    private void liberarProducto(Connection conn, int pedidoId, int productoId) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE ingrediente i SET cantidad = i.cantidad + s.total " +
+                        "FROM (SELECT id_ingrediente, SUM(cantidad) AS total FROM inventario_pedido " +
+                        "      WHERE id_pedido = ? AND id_producto = ? GROUP BY id_ingrediente) s " +
+                        "WHERE i.id = s.id_ingrediente")) {
+            stmt.setInt(1, pedidoId);
+            stmt.setInt(2, productoId);
+            stmt.executeUpdate();
+        }
+        try (PreparedStatement stmt = conn.prepareStatement(
+                "DELETE FROM inventario_pedido WHERE id_pedido = ? AND id_producto = ?")) {
+            stmt.setInt(1, pedidoId);
+            stmt.setInt(2, productoId);
+            stmt.executeUpdate();
+        }
+    }
+
+    @Override
+    public Map<Integer, Integer> buscarInventarioReservado(int pedidoId) throws SQLException {
+        String sql = "SELECT id_ingrediente, SUM(cantidad) AS total FROM inventario_pedido " +
+                "WHERE id_pedido = ? GROUP BY id_ingrediente";
+        Map<Integer, Integer> reservado = new HashMap<>();
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, pedidoId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    reservado.put(rs.getInt("id_ingrediente"), rs.getInt("total"));
+                }
+            }
+        }
+        return reservado;
+    }
     @Override
     public int contar() throws SQLException {
         String sql = "SELECT COUNT(*) FROM pedido";
@@ -260,6 +473,7 @@ public class PedidoDao implements PedidoDaoInterface {
                     eliminado = stmt.executeUpdate() > 0;
                 }
                 if (eliminado) {
+                    liberarProducto(conn, pedidoId, productoId);
                     recalcularPrecioTotal(conn, pedidoId);
                 }
                 conn.commit();

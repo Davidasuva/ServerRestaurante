@@ -26,6 +26,9 @@ public class IngredienteService extends UnicastRemoteObject implements Ingredien
         if(ingrediente==null){
             throw new RuntimeException("Por favor añada un ingrediente antes de registrarlo");
         }
+        if(ingrediente.getCantidad()<0){
+            throw new RemoteException("La cantidad del ingrediente no puede ser negativa");
+        }
         try{
             Ingrediente crear=ingredienteDao.insertar(ingrediente);
             history.addAction("Se agregó un nuevo ingrediente con id: "+ingrediente.getId());
@@ -78,6 +81,12 @@ public class IngredienteService extends UnicastRemoteObject implements Ingredien
         if(nuevoIngrediente==null){
             throw new RemoteException("Por favor selecciona un ingrediente");
         }
+        if(nuevoIngrediente.getCantidad()<0){
+            throw new RemoteException("La cantidad del ingrediente no puede ser negativa");
+        }
+        if(nuevoIngrediente.getId()!=id){
+            throw new RemoteException("No se puede cambiar el id de un ingrediente");
+        }
         try{
             Ingrediente cambiado= ingredienteDao.actualizar(id,nuevoIngrediente);
             history.addAction("Se actualizó un ingrediente con id: "+id);
@@ -97,6 +106,26 @@ public class IngredienteService extends UnicastRemoteObject implements Ingredien
             return eliminar;
         }catch(SQLException e){
             throw new RuntimeException("Error al eliminar un ingrediente: "+e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean ajustarCantidad(int id, int agregado) throws RemoteException {
+        if(agregado==0){
+            throw new RemoteException("No puede agregar 0 0");
+        }
+        try{
+            boolean ajustado=ingredienteDao.ajustarCantidad(id,agregado);
+            if(!ajustado){
+                if(ingredienteDao.buscarPorId(id)==null){
+                    throw new RemoteException("No se encontró ingrediente con id: "+id);
+                }
+                throw new RemoteException("El inventario del ingrediente "+id+" no puede quedar negativo");
+            }
+            history.addAction("Se ajustó el inventario del ingrediente "+id+" en "+agregado);
+            return true;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al ajustar ingrediente: "+e.getMessage());
         }
     }
 }

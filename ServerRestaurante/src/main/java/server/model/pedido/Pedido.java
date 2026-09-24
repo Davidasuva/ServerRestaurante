@@ -126,4 +126,9 @@ public class Pedido implements Serializable, Comparable<Pedido> {
     public boolean removeEmpleado(Empleado empleado) {
         return encargados.remove(empleado);
     }
+
+    @Override
+    public String toString() {
+        return "Pedido con id: "+id+ "Precio total: "+getPrecioTotal();
+    }
 }

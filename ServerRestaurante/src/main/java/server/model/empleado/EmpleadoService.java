@@ -6,7 +6,6 @@ import server.model.history.History;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.List;
 import java.sql.SQLException;
 
@@ -16,9 +15,9 @@ public class EmpleadoService extends UnicastRemoteObject implements  EmpleadoInt
     private History history;
 
     public EmpleadoService(History history) throws RemoteException {
+        super();
         this.empleadoDao=new EmpleadoDao();
         this.history = history;
-        super();
     }
 
     @Override

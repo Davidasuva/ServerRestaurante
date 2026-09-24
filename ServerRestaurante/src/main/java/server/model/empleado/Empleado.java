@@ -60,4 +60,9 @@ public class Empleado implements Serializable, Comparable<Empleado>{
     public int compareTo(Empleado o) {
         return Integer.compare(this.cedula, o.cedula);
     }
+
+    @Override
+    public String toString() {
+        return "Empleado: "+nombre+" Con Cedula: "+cedula;
+    }
 }

@@ -15,9 +15,9 @@ public class MesaService extends UnicastRemoteObject implements MesaInterface {
     private History history;
 
     public MesaService(History history) throws RemoteException {
+        super();
         this.mesaDAO=new MesaDao();
         this.history = history;
-        super();
     }
 
     @Override

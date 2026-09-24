@@ -99,4 +99,9 @@ public class Producto implements Serializable, Comparable<Producto>{
     public String getNa() {
         return null;
     }
+
+    @Override
+    public String toString() {
+        return "Producto: "+nombre+" Con id: "+id+" Con precio: "+precio;
+    }
 }
