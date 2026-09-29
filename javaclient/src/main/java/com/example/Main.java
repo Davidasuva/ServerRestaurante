@@ -14,7 +14,7 @@ public void start(Stage stage) throws Exception {
     Font.loadFont(getClass().getResourceAsStream("/fonts/Inter-Regular.ttf"), 14);
     Font.loadFont(getClass().getResourceAsStream("/fonts/Inter-Bold.ttf"), 14);
 
-    Parent root = FXMLLoader.load(getClass().getResource("/Login.fxml"));
+    Parent root = FXMLLoader.load(getClass().getResource("/Caja.fxml"));
     Scene scene = new Scene(root);
     scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
     stage.setScene(scene);
