@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<SplitPane dividerPositions="0.29797979797979796" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1">
+  <items>
+      <StackPane prefHeight="150.0" prefWidth="200.0">
+         <children>
+            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="20.0">
+               <children>
+                  <ToggleButton mnemonicParsing="false" text="Iniciar" />
+                  <TextArea prefHeight="319.0" prefWidth="175.0" />
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
+      <StackPane prefHeight="150.0" prefWidth="200.0">
+         <children>
+            <VBox prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <ToolBar prefHeight="40.0" prefWidth="200.0">
+                    <items>
+                      <Button fx:id="btEmpleados" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="75.0" text="Empleados" />
+                        <Button fx:id="btIngredientes" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="75.0" text="Ingredientes" />
+                        <Button fx:id="btProductos" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="75.0" text="Productos" />
+                        <Button fx:id="btPedidos" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="75.0" text="Pedidos" />
+                        <Button fx:id="btMesas" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="75.0" text=" Mesas" />
+                    </items>
+                  </ToolBar>
+                  <GridPane prefHeight="367.0" prefWidth="417.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="417.0" minWidth="10.0" prefWidth="395.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="385.0" minWidth="0.0" prefWidth="22.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints maxHeight="113.0" minHeight="0.0" prefHeight="12.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="272.0" minHeight="10.0" prefHeight="272.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" />
+                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+                           <children>
+                              <TextField fx:id="txtBarraBusqueda" prefHeight="25.0" prefWidth="245.0" />
+                              <ComboBox fx:id="cbFiltros" prefHeight="25.0" prefWidth="57.0" />
+                              <Button fx:id="btAñadir" mnemonicParsing="false" text="Añadir" />
+                           </children>
+                        </HBox>
+                        <ScrollBar orientation="VERTICAL" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                     </children>
+                  </GridPane>
+               </children>
+            </VBox>
+         </children>
+      </StackPane>
+  </items>
+</SplitPane>

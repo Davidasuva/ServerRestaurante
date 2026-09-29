@@ -1,99 +1,140 @@
 package server.controller.login;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.TranslateTransition;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+import server.factory.ServerFactory;
+import server.model.ServerModel;
 import server.model.empleado.Empleado;
 import server.model.empleado.EmpleadoInterface;
 
 import java.net.URL;
-import java.util.function.Consumer;
+
 
 public class LoginController {
 
     private static final String CARGO_ADMIN = "Administrador";
 
-    private final EmpleadoInterface empleadoService;
-    private final Consumer<Empleado> onLoginExitoso;
+    private ServerModel model;
+    private EmpleadoInterface empleadoService;
+    private boolean passwordVisible=false;
 
     @FXML private ImageView logo;
     @FXML private TextField txtUsuario;
     @FXML private PasswordField txtPassword;
+    @FXML private TextField txtPasswordVisible;
     @FXML private Label lblError;
+    @FXML private Button        btnOjo;
     @FXML private Button btLogin;
 
-    public LoginController(EmpleadoInterface empleadoService, Consumer<Empleado> onLoginExitoso) {
-        this.empleadoService = empleadoService;
-        this.onLoginExitoso = onLoginExitoso;
+    public void setModel(ServerModel model) {
+        this.model = model;
     }
 
-    // Se ejecuta sola después de cargar el FXML
     @FXML
-    private void initialize() {
-        lblError.setText("");
+    public void initialize(){
+        try{
+            empleadoService = model.getEmpleadoService();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        txtPassword.textProperty().addListener((obs, o, n) -> {
+            if (!passwordVisible) txtPasswordVisible.setText(n);
+        });
+        txtPasswordVisible.textProperty().addListener((obs, o, n) -> {
+            if (passwordVisible) txtPassword.setText(n);
+        });
 
-        // La ruta del FXML sirve en Scene Builder pero no al ejecutar, así que se carga aquí
-        URL url = getClass().getResource("/images/Logo.png");
-        if (url != null) {
-            logo.setImage(new Image(url.toExternalForm()));
+        txtUsuario.setOnAction(e->txtPassword.requestFocus());
+        txtPassword.setOnAction(e->handleLogin());
+        txtPasswordVisible.setOnAction(e->handleLogin());
+    }
+
+    @FXML
+    public void handleTogglePassword(){
+        passwordVisible = !passwordVisible;
+        txtPassword.setVisible(!passwordVisible);
+        txtPasswordVisible.setVisible(passwordVisible);
+        btnOjo.setText(passwordVisible ? "*" : "👁");
+        if (passwordVisible) {
+            txtPasswordVisible.setText(txtPassword.getText());
+            txtPasswordVisible.requestFocus();
+            txtPasswordVisible.positionCaret(txtPasswordVisible.getText().length());
+        } else {
+            txtPassword.setText(txtPasswordVisible.getText());
+            txtPassword.requestFocus();
         }
     }
-
     @FXML
-    private void onLogin() {
-        String usuario = txtUsuario.getText().trim();
-        String password = txtPassword.getText();
+    public void handleLogin() {
+        String mail     = txtUsuario.getText().trim();
+        String password = passwordVisible
+                ? txtPasswordVisible.getText()
+                : txtPassword.getText();
 
-        if (usuario.isEmpty() || password.isEmpty()) {
-            mostrarError("Ingresa un usuario y contraseña");
+        if (mail.isEmpty()) {
+            mostrarError("Ingresa tu mail.");
+            sacudir(txtUsuario);
+            return;
+        }
+        if (password.isEmpty()) {
+            mostrarError("Ingresa tu contraseña.");
+            sacudir(txtPassword);
             return;
         }
 
-        int cedula;
         try {
-            cedula = Integer.parseInt(usuario);
-        } catch (NumberFormatException e) {
-            mostrarError("El usuario debe ser un número de cédula");
-            return;
-        }
-
-        lblError.setText("");
-        btLogin.setDisable(true);
-
-        Task<Empleado> tarea = new Task<>() {
-            @Override
-            protected Empleado call() throws Exception {
-                Empleado empleado = empleadoService.getEmpleadoByCedula(cedula);
-                if (!CARGO_ADMIN.equals(empleado.getCargo())) {
-                    throw new Exception("Solo los administradores pueden iniciar sesión en el servidor");
-                }
-                if (!password.equals(empleado.getContrasena())) {
-                    throw new Exception("Contraseña incorrecta");
-                }
-                return empleado;
+            Empleado user = userService.userPerEmailAndPassword(mail, password, null);
+            if (user != null) {
+                lblError.setVisible(false);
+                abrirServerView();
+            } else {
+                mostrarError("Credenciales incorrectas.");
+                sacudir(btnIngresar);
             }
-        };
-
-        tarea.setOnSucceeded(e -> {
-            btLogin.setDisable(false);
-            onLoginExitoso.accept(tarea.getValue());
-        });
-
-        tarea.setOnFailed(e -> {
-            btLogin.setDisable(false);
-            Throwable error = tarea.getException();
-            String mensaje = error.getMessage();
-            mostrarError(mensaje != null ? mensaje : "Error inesperado: " + error);
-        });
-
-        Thread hilo = new Thread(tarea);
-        hilo.setDaemon(true);
-        hilo.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("Error interno. Revisa la consola.");
+        }
     }
 
-    private void mostrarError(String mensaje) {
-        lblError.setText(mensaje);
+
+    private void abrirServerView() {
+        try {
+            Stage stage = (Stage) btnIngresar.getScene().getWindow();
+            ServerFactory.showServerView(stage, model);
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarError("No se pudo abrir la vista del servidor.");
+        }
     }
+
+
+    private void mostrarError(String msg) {
+        lblError.setText(msg);
+        lblError.setVisible(true);
+        FadeTransition ft = new FadeTransition(Duration.millis(200), lblError);
+        ft.setFromValue(0);
+        ft.setToValue(1);
+        ft.play();
+    }
+
+    private void sacudir(Node n) {
+        TranslateTransition tt = new TranslateTransition(Duration.millis(55), n);
+        tt.setFromX(0);
+        tt.setByX(6);
+        tt.setCycleCount(6);
+        tt.setAutoReverse(true);
+        tt.play();
+    }
+
+
 }

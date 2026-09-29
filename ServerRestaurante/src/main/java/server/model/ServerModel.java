@@ -119,4 +119,24 @@ public class ServerModel {
     public History getHistory(){
         return history;
     }
+
+    public PedidoInterface getPedidoService() {
+        return pedidoService;
+    }
+
+    public ProductoInterface getProductoService() {
+        return productoService;
+    }
+
+    public EmpleadoInterface getEmpleadoService() {
+        return empleadoService;
+    }
+
+    public IngredienteInterface getIngredienteService() {
+        return ingredienteService;
+    }
+
+    public MesaInterface getMesaService() {
+        return mesaService;
+    }
 }
