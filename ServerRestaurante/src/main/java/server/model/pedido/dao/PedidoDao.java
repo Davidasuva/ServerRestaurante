@@ -137,16 +137,15 @@ public class PedidoDao implements PedidoDaoInterface {
 
     @Override
     public Pedido actualizar(int id, Pedido nuevoPedido) throws SQLException {
-        String sql = "UPDATE pedido SET id = ?, metodo = ?, precio_total=?,fecha_pedido = ?, estado = ?, id_mesa = ? WHERE id = ?";
+        String sql = "UPDATE pedido SET id = ?, metodo = ?, fecha_pedido = ?, estado = ?, id_mesa = ? WHERE id = ?";
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, nuevoPedido.getId());
             stmt.setString(2, nuevoPedido.getMetodoPago());
-            stmt.setFloat(3,nuevoPedido.getPrecioTotal());
-            stmt.setTimestamp(4, Timestamp.valueOf(nuevoPedido.getFechaPedido()));
-            stmt.setString(5, nuevoPedido.getEstado());
-            stmt.setInt(6, nuevoPedido.getMesaAsignada().getId());
-            stmt.setInt(7, id);
+            stmt.setTimestamp(3, Timestamp.valueOf(nuevoPedido.getFechaPedido()));
+            stmt.setString(4, nuevoPedido.getEstado());
+            stmt.setInt(5, nuevoPedido.getMesaAsignada().getId());
+            stmt.setInt(6, id);
             int filas = stmt.executeUpdate();
             if(filas==0){
                 return null;
@@ -238,7 +237,7 @@ public class PedidoDao implements PedidoDaoInterface {
                 return true;
             } catch (SQLException e) {
                 conn.rollback();
-                throw new RuntimeException("Error al cambiar el estado de un pedido");
+                throw new RuntimeException("Error al cambiar el estado de un pedido "+e.getMessage());
             } finally {
                 conn.setAutoCommit(autoCommitOriginal);
             }
@@ -287,7 +286,7 @@ public class PedidoDao implements PedidoDaoInterface {
 
                 try (PreparedStatement stmt = conn.prepareStatement(
                         "INSERT INTO inventario_pedido (id_pedido, id_producto, id_ingrediente, cantidad) " +
-                                "SELECT ?, ?, ip.id_ingrediente, 1 FROM ingredienteProducto ip WHERE ip.id_producto = ? " +
+                                "SELECT ?, ?, ip.id_ingrediente, 1 FROM ingrediente_Producto ip WHERE ip.id_producto = ? " +
                                 "ON CONFLICT (id_pedido, id_producto, id_ingrediente) " +
                                 "DO UPDATE SET cantidad = inventario_pedido.cantidad + 1")) {
                     stmt.setInt(1, pedidoId);

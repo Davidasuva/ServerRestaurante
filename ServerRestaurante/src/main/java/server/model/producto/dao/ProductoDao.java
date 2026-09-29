@@ -140,7 +140,7 @@ public class ProductoDao implements ProductoDaoInterface{
     public List<Ingrediente> buscarIngredientes(int productoId) throws SQLException {
         String sql = "SELECT i.id, i.descripcion, i.cantidad, i.nombre " +
                 "FROM ingrediente i " +
-                "JOIN ingredienteProducto pi ON pi.id_ingrediente = i.id " +
+                "JOIN ingrediente_Producto pi ON pi.id_ingrediente = i.id " +
                 "WHERE pi.id_producto = ?";
         List<Ingrediente> resultado = new ArrayList<>();
         try (Connection conn = Database.getConnection();
@@ -162,7 +162,7 @@ public class ProductoDao implements ProductoDaoInterface{
 
     @Override
     public boolean agregarIngrediente(int productoId, int ingredienteId) throws SQLException {
-        String sql = "INSERT INTO ingredienteProducto (id_producto , id_ingrediente) VALUES (?, ?)";
+        String sql = "INSERT INTO ingrediente_Producto (id_producto , id_ingrediente) VALUES (?, ?)";
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, productoId);
@@ -173,11 +173,32 @@ public class ProductoDao implements ProductoDaoInterface{
 
     @Override
     public boolean quitarIngrediente(int productoId, int ingredienteId) throws SQLException {
-        String sql = "DELETE FROM ingredienteProducto WHERE id_producto  = ? AND id_ingrediente = ?";
+        String sql = "DELETE FROM ingrediente_Producto WHERE id_producto  = ? AND id_ingrediente = ?";
         try (Connection conn = Database.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, productoId);
             stmt.setInt(2, ingredienteId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    @Override
+    public boolean actualizarImagen(int productoId, String imagenURL) throws SQLException {
+        String sql = "UPDATE producto SET imagen = ? WHERE id = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, imagenURL);
+            stmt.setInt(2, productoId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    @Override
+    public boolean eliminarImagen(int productoId) throws SQLException {
+        String sql = "UPDATE producto SET imagen = NULL WHERE id = ? AND imagen IS NOT NULL";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, productoId);
             return stmt.executeUpdate() > 0;
         }
     }
@@ -193,4 +214,6 @@ public class ProductoDao implements ProductoDaoInterface{
         producto.setImagenURL(rs.getString("imagen"));
         return producto;
     }
+
+
 }

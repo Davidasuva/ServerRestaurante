@@ -20,6 +20,9 @@ public interface ProductoInterface extends Remote {
     public boolean addIngredienteToProducto(int idProducto, int idIngrediente)throws RemoteException;
     public boolean removeIngredienteFromProducto(int idProducto, int idIngrediente)throws RemoteException;
 
+    public Producto addImagenToProducto(int idProducto, String imagenURL)throws RemoteException;
+    public boolean removeImagenFromProducto(int idProducto)throws RemoteException;
+
 
 
 

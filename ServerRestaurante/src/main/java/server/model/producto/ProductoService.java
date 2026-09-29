@@ -158,4 +158,35 @@ public class ProductoService extends UnicastRemoteObject implements ProductoInte
             throw new RemoteException("Error al quitar ingrediente: " + e.getMessage());
         }
     }
+
+    @Override
+    public Producto addImagenToProducto(int idProducto, String imagenURL) throws RemoteException {
+        if (imagenURL == null || imagenURL.trim().isEmpty()) {
+            throw new RemoteException("Por favor ingrese la URL de la imagen");
+        }
+        Producto producto = getProductoById(idProducto);
+        try {
+            String url = imagenURL.trim();
+            productoDAO.actualizarImagen(idProducto, url);
+            producto.setImagenURL(url);
+            history.addAction("Se añadió/actualizó la imagen del producto con id: " + idProducto);
+            return producto;
+        } catch (SQLException e) {
+            throw new RemoteException("Error al añadir imagen: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean removeImagenFromProducto(int idProducto) throws RemoteException {
+        getProductoById(idProducto);
+        try {
+            boolean eliminada = productoDAO.eliminarImagen(idProducto);
+            if (eliminada) {
+                history.addAction("Se eliminó la imagen del producto con id: " + idProducto);
+            }
+            return eliminada;
+        } catch (SQLException e) {
+            throw new RemoteException("Error al eliminar imagen: " + e.getMessage());
+        }
+    }
 }

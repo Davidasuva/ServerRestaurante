@@ -276,6 +276,9 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
                 throw new RemoteException("Para cambiar el estado use setPedidoStatus, así se actualiza el inventario");
             }
             Pedido act=pedidoDao.actualizar(id,pedido);
+            if(act!=null){
+                act=pedidoDao.buscarPorId(id);
+            }
             history.addAction("Se actualizo el pedido con id: "+id);
             return act;
         } catch (SQLException e) {
