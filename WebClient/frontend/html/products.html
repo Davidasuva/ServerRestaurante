@@ -7,7 +7,10 @@
     <title>Productos</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/products.css" />
+    <link rel="stylesheet" href="../css/order-summary.css" />
+    <link rel="stylesheet" href="../css/checkout.css" />
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" />
 </head>
@@ -241,9 +244,8 @@
                     <span class="material-symbols-outlined">shopping_bag</span>
                 </div>
                 <h2>Tu pedido está vacío</h2>
-                <p>Agrega algunos deliciosos platos del menú para comenzar.</p>
+                <p>Agrega algunos platos del menú para comenzar.</p>
                 <button class="volver-menu" type="button">
-                    <span class="material-symbols-outlined">arrow_back</span>
                     Volver al Menú
                 </button>
             </div>
@@ -265,7 +267,7 @@
                     </div>
                 </section>
                 <fieldset class="checkout-payment">
-                    <p>Selecciona el método de pago</p>
+                    <legend>Selecciona el método de pago</legend>
                     <label><input type="radio" name="metodo-pago" value="Efectivo"
                             checked /><span>Efectivo</span></label>
                     <label><input type="radio" name="metodo-pago" value="Nequi" /><span>Nequi</span></label>
@@ -279,6 +281,24 @@
                     <button class="volver-resumen" type="button">
                         Volver al resumen
                     </button>
+                </div>
+            </div>
+
+            <div class="confirm-dialog-overlay" id="confirm-volver-overlay" aria-hidden="true" hidden>
+                <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-desc">
+                    <div class="confirm-dialog-icon">
+                        <span class="material-symbols-outlined">help_outline</span>
+                    </div>
+                    <h3 id="confirm-dialog-title">¿Volver al resumen?</h3>
+                    <p id="confirm-dialog-desc">¿Deseas regresar para modificar los productos de tu pedido?</p>
+                    <div class="confirm-dialog-actions">
+                        <button class="confirm-dialog-btn cancel" id="cancelar-volver" type="button">
+                            Cancelar
+                        </button>
+                        <button class="confirm-dialog-btn confirm" id="confirmar-volver" type="button">
+                            Sí, volver
+                        </button>
+                    </div>
                 </div>
             </div>
 

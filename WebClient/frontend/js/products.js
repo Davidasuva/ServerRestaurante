@@ -24,6 +24,9 @@ const checkoutLines = document.querySelector(".checkout-lineas");
 const checkoutTotal = document.querySelector("#checkout-total");
 const finalizeCheckoutButton = document.querySelector("#finalizar-checkout");
 const backToSummaryButton = document.querySelector(".volver-resumen");
+const confirmReturnOverlay = document.querySelector("#confirm-volver-overlay");
+const cancelReturnButton = document.querySelector("#cancelar-volver");
+const acceptReturnButton = document.querySelector("#confirmar-volver");
 const tableLabel = document.querySelector("#mesa-actual");
 
 const tableNumber = new URLSearchParams(window.location.search).get("mesa");
@@ -166,20 +169,49 @@ function renderCheckout() {
 }
 
 function showCheckout() {
+  setConfirmReturnOpen(false);
   renderCheckout();
   finalizeCheckoutButton.disabled = false;
   finalizeCheckoutButton.textContent = "Enviar pedido a cocina";
+  backToSummaryButton.disabled = false;
+  const paymentFieldset = document.querySelector(".checkout-payment");
+  if (paymentFieldset) paymentFieldset.disabled = false;
+  document.querySelectorAll('input[name="metodo-pago"]').forEach((input) => {
+    input.disabled = false;
+  });
+  checkoutView.classList.remove("pedido-confirmado");
   orderList.hidden = true;
   emptyOrderState.hidden = true;
   document.querySelector(".panel-pedido-footer").hidden = true;
   checkoutView.hidden = false;
-  showToast("Pedido confirmado. Revisa tu resumen.");
+  showToast("Pedido confirmado", "success");
 }
 
 function showOrderSummary() {
+  if (backToSummaryButton.disabled) return;
+  setConfirmReturnOpen(false);
   checkoutView.hidden = true;
   document.querySelector(".panel-pedido-footer").hidden = false;
   updateOrderSummary();
+}
+
+function setConfirmReturnOpen(isOpen) {
+  if (!confirmReturnOverlay) return;
+  if (isOpen) {
+    confirmReturnOverlay.hidden = false;
+    requestAnimationFrame(() => {
+      confirmReturnOverlay.classList.add("abierto");
+      confirmReturnOverlay.setAttribute("aria-hidden", "false");
+    });
+  } else {
+    confirmReturnOverlay.classList.remove("abierto");
+    confirmReturnOverlay.setAttribute("aria-hidden", "true");
+    setTimeout(() => {
+      if (!confirmReturnOverlay.classList.contains("abierto")) {
+        confirmReturnOverlay.hidden = true;
+      }
+    }, 250);
+  }
 }
 
 function renderOrderItems(animateEditor = false) {
@@ -353,7 +385,7 @@ function ensureNoUnsavedChanges(index = null) {
     (index !== null && unsavedOrderIndex !== index)
   )
     return true;
-  showToast("Guarda los cambios del pedido abierto antes de continuar.");
+  showToast("Guarda los cambios del pedido abierto antes de continuar.", "error");
   return false;
 }
 
@@ -367,7 +399,7 @@ function animateEmptyOrderState() {
   });
 }
 
-function showToast(message) {
+function showToast(message, type = "success") {
   let toast = document.querySelector(".pedido-toast");
   if (!toast) {
     toast = document.createElement("div");
@@ -375,6 +407,8 @@ function showToast(message) {
     document.body.appendChild(toast);
   }
   toast.textContent = message;
+  toast.classList.remove("success", "error");
+  toast.classList.add(type);
   toast.classList.add("visible");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove("visible"), 3000);
@@ -482,6 +516,11 @@ productCards.forEach((card) => {
 closeProductButton.addEventListener("click", () => setProductModalOpen(false));
 
 confirmProductButton.addEventListener("click", () => {
+  if (finalizeCheckoutButton.disabled) {
+    showToast("El pedido ya fue enviado a cocina", "error");
+    setProductModalOpen(false);
+    return;
+  }
   const itemData = {
     card: selectedProductCard,
     name: selectedProductCard.querySelector("h2").textContent,
@@ -517,14 +556,48 @@ confirmOrderButton.addEventListener("click", () => {
   }
 });
 
-backToSummaryButton.addEventListener("click", showOrderSummary);
+backToSummaryButton.addEventListener("click", () => {
+  if (backToSummaryButton.disabled) return;
+  setConfirmReturnOpen(true);
+});
+
+if (cancelReturnButton) {
+  cancelReturnButton.addEventListener("click", () => {
+    setConfirmReturnOpen(false);
+  });
+}
+
+if (acceptReturnButton) {
+  acceptReturnButton.addEventListener("click", () => {
+    setConfirmReturnOpen(false);
+    showOrderSummary();
+  });
+}
+
+if (confirmReturnOverlay) {
+  confirmReturnOverlay.addEventListener("click", (event) => {
+    if (event.target === confirmReturnOverlay) {
+      setConfirmReturnOpen(false);
+    }
+  });
+}
+
 finalizeCheckoutButton.addEventListener("click", () => {
   const paymentMethod = document.querySelector(
     'input[name="metodo-pago"]:checked',
   ).value;
   finalizeCheckoutButton.disabled = true;
   finalizeCheckoutButton.textContent = "Pedido enviado";
-  showToast(`Pedido enviado a cocina · ${paymentMethod}`);
+
+  backToSummaryButton.disabled = true;
+  const paymentFieldset = document.querySelector(".checkout-payment");
+  if (paymentFieldset) paymentFieldset.disabled = true;
+  document.querySelectorAll('input[name="metodo-pago"]').forEach((input) => {
+    input.disabled = true;
+  });
+  checkoutView.classList.add("pedido-confirmado");
+
+  showToast(`Pedido enviado a cocina · ${paymentMethod}`, "success");
 });
 
 orderOverlay.addEventListener("click", (event) => {
@@ -535,6 +608,14 @@ orderOverlay.addEventListener("click", (event) => {
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
+    if (
+      confirmReturnOverlay &&
+      !confirmReturnOverlay.hidden &&
+      confirmReturnOverlay.classList.contains("abierto")
+    ) {
+      setConfirmReturnOpen(false);
+      return;
+    }
     setOrderPanelOpen(false);
     setProductModalOpen(false);
   }
@@ -561,6 +642,10 @@ function markProductAsAdded(button) {
 
 addProductButtons.forEach((button) => {
   button.addEventListener("click", () => {
+    if (finalizeCheckoutButton.disabled) {
+      showToast("El pedido ya fue enviado a cocina", "error");
+      return;
+    }
     const card = button.closest(".producto-card");
     const existingItem = orderItems.find((item) => item.card === card);
     if (existingItem) {

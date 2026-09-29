@@ -1,0 +1,59 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+
+/* Paleta del proyecto y variables globales */
+:root {
+    --color-background: #1e1e1e;
+    --color-surface: #272727;
+    --color-surface-dark: #111;
+    --color-surface-icon: #29292b;
+    --color-surface-disabled: #252527;
+    --color-text-primary: #f4f4f4;
+    --color-text-on-accent: #fff;
+    --color-text-muted: #89898f;
+    --color-text-secondary: #94949a;
+    --color-text-disabled: #96969c;
+    --color-text-total: #a6a6ad;
+    --color-icon-muted: #9b9ba1;
+    --color-accent: #ff5722;
+    --color-accent-hover: #ff5622be;
+    --color-accent-soft: #ff562238;
+    --color-accent-subtle: #ff562225;
+    --color-accent-dark: #2c1913;
+    --color-accent-border: #5e2919;
+    --color-success: #00c950;
+    --color-error: #ff3b30;
+    --color-border: #272727;
+    --color-border-light: #f4f4f43a;
+    --color-overlay: rgb(0 0 0 / 68%);
+}
+
+/* Base y reseteo */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Inter", sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+}
+
+body.page-salida {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+a {
+    color: var(--color-text-on-accent);
+    text-decoration: none;
+}
+
+.accent {
+    color: var(--color-accent);
+}
