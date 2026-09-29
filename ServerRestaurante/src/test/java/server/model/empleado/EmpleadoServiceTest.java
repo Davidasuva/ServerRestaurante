@@ -92,7 +92,7 @@ class EmpleadoServiceTest {
         Empleado empleado3=new Empleado(102,"Mesero","Adrian","123");
         //Si quiere agregar los de arriba, coloca service.registrar(empleado) Si estos ya estan en la BD saldrá error, si no se agregaran normal
         try{
-            List<Empleado> empleados=service.getEmpleados(0,3);
+            List<Empleado> empleados=service.getEmpleados(0,2);
             assertNotNull(empleados,"La lista salio mala");
             for(Empleado e: empleados){
                 System.out.println(e);
