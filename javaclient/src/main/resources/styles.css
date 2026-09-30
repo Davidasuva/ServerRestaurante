@@ -1,4 +1,3 @@
-
 .root {
     /* Paleta */
     -color-background: #1e1e1e;
@@ -61,4 +60,140 @@
 
 .button:hover {
     -fx-background-color: -color-accent-hover;
+}
+
+/* Barra superior */
+.app-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-text-fill: -color-accent;
+}
+
+.tab-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -color-text-secondary;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.tab-button:hover {
+    -fx-background-color: -color-surface;
+}
+
+.tab-active {
+    -fx-background-color: -color-accent;
+    -fx-text-fill: -color-text-on-accent;
+}
+
+/* Títulos de sección */
+.section-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.field-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-secondary;
+}
+
+/* Historial de pedidos */
+.historial-container {
+    -fx-background-color: transparent;
+}
+
+.tarjeta-pedido {
+    -fx-background-color: -color-surface;
+    -fx-background-radius: 12;
+    -fx-padding: 16;
+}
+
+.id-pedido {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.badge-pagado {
+    -fx-background-color: -color-success;
+    -fx-background-radius: 12;
+    -fx-padding: 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.badge-pendiente {
+    -fx-background-color: #b8860b;
+    -fx-background-radius: 12;
+    -fx-padding: 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.texto-secundario {
+    -fx-text-fill: -color-text-secondary;
+}
+
+.precio {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-text-fill: -color-accent;
+}
+
+/* Tarjetas de producto */
+.product-card {
+    -fx-background-color: -color-surface;
+    -fx-background-radius: 12;
+}
+
+.product-image {
+    -fx-background-radius: 12 12 0 0;
+}
+
+.product-name {
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-primary;
+    -fx-font-size: 13px;
+}
+
+.product-price {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-accent;
+}
+
+.qty-button {
+    -fx-background-color: -color-surface-icon;
+    -fx-text-fill: -color-text-primary;
+    -fx-background-radius: 6;
+    -fx-min-width: 22;
+    -fx-min-height: 22;
+    -fx-max-width: 22;
+    -fx-max-height: 22;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.qty-button:hover {
+    -fx-background-color: -color-surface-disabled;
+}
+
+.qty-value {
+    -fx-text-fill: -color-text-primary;
+    -fx-font-weight: bold;
+}
+
+/* ScrollPane transparente */
+.scroll-transparent,
+.scroll-transparent > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-transparent .scroll-bar:vertical {
+    -fx-background-color: transparent;
 }
