@@ -34,7 +34,6 @@
     border: 2px solid transparent;
     border-radius: 10px;
     background-color: var(--color-surface);
-    color: var(--color-text-on-accent);
     cursor: pointer;
     font-size: 20px;
     font-weight: 500;
@@ -44,5 +43,6 @@
 .btn-mesa:hover {
     border-color: var(--color-accent);
     background-color: var(--color-accent-soft);
+    color: var(--color-accent);
     transition: all 0.3s ease;
 }

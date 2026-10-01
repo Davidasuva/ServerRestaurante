@@ -3,6 +3,7 @@
 /* Paleta del proyecto y variables globales */
 :root {
     --color-background: #1e1e1e;
+    --color-background-dark: #121212;
     --color-surface: #272727;
     --color-surface-dark: #111;
     --color-surface-icon: #29292b;
@@ -52,6 +53,11 @@ body.page-salida {
 a {
     color: var(--color-text-on-accent);
     text-decoration: none;
+    transition: all 0.3s ease-in-out;
+}
+
+a:hover {
+    color: var(--color-accent);
 }
 
 .accent {
