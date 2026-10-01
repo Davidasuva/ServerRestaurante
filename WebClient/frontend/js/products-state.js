@@ -2,6 +2,7 @@ export const elements = {
   filterOptions: document.querySelectorAll(".filtro-opcion"),
   productCards: document.querySelectorAll(".producto-card"),
   searchInput: document.querySelector(".buscador-productos input"),
+  clearSearchButton: document.querySelector(".limpiar-busqueda"),
   addProductButtons: document.querySelectorAll(".agregar-producto"),
   orderButton: document.querySelector(".pedido"),
   orderOverlay: document.querySelector(".pedido-overlay"),

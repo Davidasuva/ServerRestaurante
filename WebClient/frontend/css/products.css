@@ -31,6 +31,7 @@
 
 /* Buscador y filtro */
 .buscador-productos {
+    position: relative;
     padding: 10px;
 }
 
@@ -38,7 +39,7 @@
     display: block;
     width: 100%;
     margin: 0 auto;
-    padding: 16px 20px;
+    padding: 16px 56px 16px 20px;
     border: 1px solid var(--color-border);
     border-radius: 20px;
     outline: none;
@@ -48,8 +49,48 @@
     font-size: 16px;
 }
 
+.buscador-productos input::-webkit-search-cancel-button {
+    appearance: none;
+}
+
+.limpiar-busqueda {
+    position: absolute;
+    top: 50%;
+    right: 18px;
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background-color: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    line-height: 1;
+    transform: translateY(-50%);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.limpiar-busqueda .material-symbols-outlined {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.limpiar-busqueda:hover,
+.limpiar-busqueda:focus-visible {
+    background-color: var(--color-accent-soft);
+    color: var(--color-accent);
+    outline: 0;
+}
+
+.limpiar-busqueda[hidden] {
+    display: none;
+}
+
 .buscador-productos input::placeholder {
     color: var(--color-text-primary);
+    opacity: 0.55;
 }
 
 .filtro {

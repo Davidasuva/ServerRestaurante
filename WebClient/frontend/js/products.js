@@ -19,6 +19,7 @@ function openProductModal(card, orderItem = null) {
 function updateProducts() {
   const selectedCategory = document.querySelector(".filtro-opcion.activo").dataset.categoria;
   const searchText = elements.searchInput.value.trim().toLowerCase();
+  elements.clearSearchButton.hidden = searchText.length === 0;
   elements.productCards.forEach((card) => {
     const matchesCategory = selectedCategory === "todas" || card.dataset.categoria === selectedCategory;
     const matchesSearch = card.textContent.toLowerCase().includes(searchText);
@@ -92,6 +93,11 @@ function bindProductEvents() {
     updateProducts();
   }));
   elements.searchInput.addEventListener("input", updateProducts);
+  elements.clearSearchButton.addEventListener("click", () => {
+    elements.searchInput.value = "";
+    updateProducts();
+    elements.searchInput.focus();
+  });
   elements.productCards.forEach((card) => card.addEventListener("click", (event) => {
     if (!event.target.closest(".agregar-producto")) openProductModal(card);
   }));
