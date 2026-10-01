@@ -23,6 +23,7 @@ export function createOrderPayload(items, tableNumber, paymentMethod) {
       nombre: item.name,
       cantidad: item.quantity,
       precio: item.price,
+      opcionBebida: item.drinkOption || null,
       ingredientesExcluidos: item.removedIngredients,
       adicionales: item.extraIngredients,
     })),
@@ -57,9 +58,7 @@ export function normalizeOrder(order = {}) {
   const requestedStatus = normalizeStatus(order.estado ?? order.status);
   return {
     id: order.id ?? order.orderId ?? order.pedidoId ?? order.idPedido,
-    estado: requestedStatus === "EN_PREPARACION" && ordersInPreparation > 0
-      ? "EN_COLA"
-      : requestedStatus,
+    estado: requestedStatus,
     mesa: order.mesa ?? order.tableNumber,
     pedidosEnPreparacion: ordersInPreparation,
     posicionCola: Number(order.posicionCola ?? order.queuePosition ?? 1),

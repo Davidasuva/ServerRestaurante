@@ -21,6 +21,7 @@ window.RESTAURANT_CONFIG = {
       "nombre": "Hamburguesa Rustica",
       "cantidad": 1,
       "precio": 28000,
+      "opcionBebida": null,
       "ingredientesExcluidos": [],
       "adicionales": []
     }
@@ -44,7 +45,7 @@ La respuesta debe incluir el identificador del pedido como `id`, `orderId`, `ped
 }
 ```
 
-Estados aceptados por la vista: `EN_COLA`, `EN_PREPARACION` y `LISTO`. Tambien se normalizan `PENDIENTE` y `PREPARANDO`.
+Estados aceptados por la vista: `EN_COLA`, `EN_PREPARACION` y `LISTO`. Tambien se normalizan `PENDIENTE` y `PREPARANDO`. Para bebidas con alternativas, `opcionBebida` contiene una sola seleccion, por ejemplo `Agua` o `Leche entera`.
 
 ## Eventos Web Components
 

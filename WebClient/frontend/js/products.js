@@ -26,6 +26,10 @@ function updateProducts() {
   });
 }
 
+function getInitialDrinkOption(card) {
+  return card.dataset.opcionesBebida?.split(",")[0].trim() || null;
+}
+
 function markProductAsAdded(button) {
   const resetTimer = productResetTimers.get(button);
   clearTimeout(resetTimer);
@@ -96,7 +100,7 @@ function bindProductEvents() {
     const card = button.closest(".producto-card");
     const existingItem = state.orderItems.find((item) => item.card === card);
     if (existingItem) existingItem.quantity += 1;
-    else state.orderItems.push({ card, name: card.querySelector("h2").textContent, image: card.querySelector("img").src, price: parseProductPrice(card), quantity: 1, removedIngredients: [], extraIngredients: [] });
+    else state.orderItems.push({ card, name: card.querySelector("h2").textContent, image: card.querySelector("img").src, price: parseProductPrice(card), quantity: 1, drinkOption: getInitialDrinkOption(card), removedIngredients: [], extraIngredients: [] });
     calculateOrderSummary();
     markProductAsAdded(button);
   }));
@@ -108,7 +112,7 @@ function bindModalEvents() {
   elements.confirmProductButton.addEventListener("click", () => {
     if (elements.finalizeCheckoutButton.disabled) { showToast("El pedido ya fue enviado a cocina", "error"); setProductModalOpen(false); return; }
     const card = state.selectedProductCard;
-    const itemData = { card, name: card.querySelector("h2").textContent, image: card.querySelector("img").src, price: parseProductPrice(card), quantity: state.productQuantity, removedIngredients: [], extraIngredients: [] };
+    const itemData = { card, name: card.querySelector("h2").textContent, image: card.querySelector("img").src, price: parseProductPrice(card), quantity: state.productQuantity, drinkOption: getInitialDrinkOption(card), removedIngredients: [], extraIngredients: [] };
     if (state.selectedOrderItem) Object.assign(state.selectedOrderItem, itemData);
     else state.orderItems.push(itemData);
     markProductAsAdded(card.querySelector(".agregar-producto"));

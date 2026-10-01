@@ -14,8 +14,14 @@ class OrderStatus extends HTMLElement {
         this.statusCard = this.querySelector(".status-card");
         this.statusStepper = this.querySelector("#status-stepper");
         this.kitchenNote = this.querySelector("#status-kitchen-note");
+        this.confirmation = this.querySelector("#status-confirmation");
+        this.confirmButton = this.querySelector("#confirm-order-ready");
+        this.closeNote = this.querySelector("#status-close-note");
+        this.confirmed = false;
         this.orderMesaLabel.textContent = tableNumber;
         this.orderIdLabel.textContent = orderId;
+
+        this.confirmButton.addEventListener("click", () => this.confirmReady());
 
         const ordersInPreparation = Number(this.dataset.ordersInPreparation || 0);
         const requestedState = this.dataset.state || "EN_COLA";
@@ -31,10 +37,25 @@ class OrderStatus extends HTMLElement {
             this.refreshStatus();
             this.refreshTimer = window.setInterval(() => this.refreshStatus(), 10000);
         }
+
     }
 
     disconnectedCallback() {
         window.clearInterval(this.refreshTimer);
+    }
+
+    confirmReady() {
+        if (this.dataset.state !== "LISTO" || this.confirmed) return;
+        this.confirmed = true;
+        this.dataset.confirmed = "true";
+        this.confirmButton.disabled = true;
+        this.confirmation.classList.add("confirmado");
+        this.closeNote.hidden = false;
+        this.dispatchEvent(new CustomEvent("order-confirmed", {
+            bubbles: true,
+            detail: { orderId, tableNumber }
+        }));
+        window.setTimeout(() => window.close(), 150);
     }
 
     async refreshStatus() {
@@ -75,6 +96,13 @@ class OrderStatus extends HTMLElement {
             ? `${content.note} Posición en cola: ${queuePosition}.`
             : content.note;
         this.kitchenNote.hidden = false;
+        this.confirmation.classList.remove("visible");
+        this.confirmation.hidden = nextState !== "LISTO" || this.confirmed;
+        if (nextState === "LISTO" && !this.confirmed) {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => this.confirmation.classList.add("visible"));
+            });
+        }
         this.dataset.state = nextState;
         this.dispatchEvent(new CustomEvent("order-status-change", {
             bubbles: true,
@@ -85,6 +113,13 @@ class OrderStatus extends HTMLElement {
 
 customElements.define("order-status", OrderStatus);
 const orderStatus = document.querySelector("order-status");
-const btnVolver = document.querySelector("#btn-volver-productos");
-if (btnVolver) btnVolver.href = `products.html?mesa=${encodeURIComponent(tableNumber)}`;
+
+document.addEventListener("restaurant-order-status", (event) => {
+    const detail = event.detail || {};
+    orderStatus.setState(detail.estado || detail.state, {
+        ordersInPreparation: detail.pedidosEnPreparacion ?? detail.ordersInPreparation,
+        queuePosition: detail.posicionCola ?? detail.queuePosition
+    });
+});
+
 window.orderStatus = orderStatus;

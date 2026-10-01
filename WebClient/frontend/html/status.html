@@ -15,13 +15,6 @@
 
 <body class="status-body">
     <order-status class="status-screen" data-state="EN_COLA" data-orders-in-preparation="0" data-queue-position="1">
-        <header class="status-top-bar">
-            <a href="products.html" id="btn-volver-productos" class="status-nav-back" aria-label="Volver al menú">
-                <span class="material-symbols-outlined">arrow_back</span>
-            </a>
-            <span class="status-header-title">Estado pedido</span>
-        </header>
-
         <main class="status-main">
             <!-- Icono principal con Material Symbols de Google -->
             <div class="status-badge" id="status-badge" aria-hidden="true">
@@ -84,6 +77,15 @@
             </section>
 
             <p class="status-kitchen-note" id="status-kitchen-note" hidden></p>
+            <div class="status-confirmation" id="status-confirmation" hidden>
+                <button class="status-confirm-button" id="confirm-order-ready" type="button">
+                    <span class="material-symbols-outlined">task_alt</span>
+                    Confirmar pedido recibido
+                </button>
+                <p class="status-close-note" id="status-close-note" hidden>
+                    Pedido confirmado. Puedes cerrar esta ventana.
+                </p>
+            </div>
         </main>
     </order-status>
 

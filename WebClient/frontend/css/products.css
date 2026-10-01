@@ -16,6 +16,13 @@
     font-weight: 600;
 }
 
+.restaurant-logo {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    flex: 0 0 auto;
+}
+
 .head-productos label {
     padding: 10px;
     border-radius: 15px;

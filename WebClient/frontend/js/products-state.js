@@ -54,7 +54,8 @@ export const availableExtras = [
   { name: "Porción de Papa Criolla", price: 8000 },
   { name: "Extra de Queso Gratinado", price: 5000 },
   { name: "Extra de Tocineta", price: 6000 },
-  { name: "Extra de Carne o Pollo", price: 9000 },
+  { name: "Extra de Carne", price: 9000 },
+  { name: "Extra de Pollo", price: 9000 },
 ];
 
 if (elements.tableLabel && /^\d+$/.test(tableNumber || "")) {

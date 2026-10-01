@@ -75,19 +75,41 @@ export function setExtraQuantity(item, extraName, quantity) {
 
 export function renderOrderEditor(item, index, animateEditor) {
   const ingredients = item.card.dataset.ingredientes.split(",").map((ingredient) => ingredient.trim());
+  const fixedIngredients = new Set((item.card.dataset.ingredientesFijos || "").split(",").map((ingredient) => ingredient.trim()).filter(Boolean));
   return `<div class="pedido-editor ${animateEditor ? "animar" : ""}" data-editor-index="${index}">
     <h3>Ingredientes</h3>
-    <div class="ingredientes-lista">${ingredients.map((ingredient) => `<label class="ingrediente-fila"><input type="radio" data-ingrediente="${ingredient}" ${item.removedIngredients.includes(ingredient) ? "" : "checked"}><span>${ingredient}</span></label>`).join("")}</div>
+    <div class="ingredientes-lista">${ingredients.map((ingredient) => {
+      const isFixed = fixedIngredients.has(ingredient);
+      return `<label class="ingrediente-fila ${isFixed ? "ingrediente-base" : ""}"><input type="radio" data-ingrediente="${ingredient}" ${isFixed || !item.removedIngredients.includes(ingredient) ? "checked" : ""} ${isFixed ? "disabled" : ""}><span>${ingredient}</span>${isFixed ? '<small>Base</small>' : ""}</label>`;
+    }).join("")}</div>
     <h3>Adicionales</h3>
     <div class="adicionales-lista">${availableExtras.map((extra) => `<div class="adicional-fila ${getExtraQuantity(item, extra.name) > 0 ? "seleccionado" : ""}" data-extra="${extra.name}"><span class="adicional-info"><strong>${extra.name}</strong><small>+$${extra.price.toLocaleString("es-CO")}</small></span><span class="selector-adicional" aria-label="Cantidad de ${extra.name}"><button class="cambiar-adicional disminuir-adicional" type="button" aria-label="Disminuir ${extra.name}" ${getExtraQuantity(item, extra.name) === 0 ? "disabled" : ""}>−</button><strong class="cantidad-adicional">${getExtraQuantity(item, extra.name)}</strong><button class="cambiar-adicional aumentar-adicional" type="button" aria-label="Aumentar ${extra.name}">+</button></span></div>`).join("")}</div>
     <div class="pedido-editor-footer"><button class="guardar-edicion" type="button">Guardar cambios</button></div>
   </div>`;
 }
 
+export function renderDrinkOptions(item, index) {
+  const options = item.card.dataset.opcionesBebida
+    ?.split(",")
+    .map((option) => option.trim())
+    .filter(Boolean) || [];
+  if (options.length < 2) return "";
+  if (!item.drinkOption || !options.includes(item.drinkOption)) item.drinkOption = options[0];
+  return `<fieldset class="bebida-opciones">
+    <legend>Selecciona una opción</legend>
+    ${options.map((option) => `<label class="ingrediente-fila bebida-opcion"><input type="radio" name="bebida-${index}" value="${option}" ${item.drinkOption === option ? "checked" : ""}><span>${option}</span></label>`).join("")}
+  </fieldset>`;
+}
+
 export function renderOrderItems(animateEditor = false) {
-  elements.orderList.innerHTML = state.orderItems.map((item, index) => `<div class="pedido-item ${state.expandedOrderIndex === index ? "expandido" : ""}" data-index="${index}">
-    <div class="pedido-item-resumen" role="button" tabindex="0" aria-expanded="${state.expandedOrderIndex === index}"><img src="${item.image}" alt="${item.name}"><span class="pedido-item-info"><strong>${item.name}</strong><span>$${item.price.toLocaleString("es-CO")}</span></span><span class="pedido-item-cantidad">x${item.quantity}</span><button class="eliminar-pedido" type="button" aria-label="Eliminar ${item.name}"><span class="material-symbols-outlined">delete</span></button></div>
-    ${state.expandedOrderIndex === index ? renderOrderEditor(item, index, animateEditor) : ""}</div>`).join("");
+  elements.orderList.innerHTML = state.orderItems.map((item, index) => {
+    const isDrink = item.card.dataset.categoria === "bebidas";
+    const isExpanded = state.expandedOrderIndex === index && !isDrink;
+    const isDrinkExpanded = state.expandedOrderIndex === index && isDrink;
+    return `<div class="pedido-item ${isExpanded || isDrinkExpanded ? "expandido" : ""} ${isDrink ? "sin-edicion" : ""}" data-index="${index}">
+      <div class="pedido-item-resumen" role="button" tabindex="0" aria-expanded="${isExpanded || isDrinkExpanded}"><img src="${item.image}" alt="${item.name}"><span class="pedido-item-info"><strong>${item.name}</strong><span>$${item.price.toLocaleString("es-CO")}</span></span><span class="pedido-item-cantidad">x${item.quantity}</span><button class="eliminar-pedido" type="button" aria-label="Eliminar ${item.name}"><span class="material-symbols-outlined">delete</span></button></div>
+      ${isDrinkExpanded ? `<div class="pedido-item-descripcion animar"><p>${item.card.dataset.descripcion}</p>${renderDrinkOptions(item, index)}</div>` : isExpanded ? renderOrderEditor(item, index, animateEditor) : ""}</div>`;
+  }).join("");
   elements.orderList.querySelectorAll(".pedido-item-resumen").forEach((itemButton) => {
     const toggleItem = (event) => {
       if (event.target.closest(".eliminar-pedido")) return;
@@ -102,6 +124,7 @@ export function renderOrderItems(animateEditor = false) {
     itemButton.querySelector(".eliminar-pedido").addEventListener("click", () => removeOrderItem(Number(itemButton.closest(".pedido-item").dataset.index)));
   });
   bindOrderEditor();
+  bindDrinkOptions();
 }
 
 export function bindOrderEditor() {
@@ -111,7 +134,12 @@ export function bindOrderEditor() {
   const item = state.orderItems[index];
   editor.querySelectorAll(".ingrediente-fila").forEach((row) => {
     const input = row.querySelector("input");
-    row.addEventListener("click", (event) => { event.preventDefault(); input.checked = !input.checked; state.unsavedOrderIndex = index; });
+    row.addEventListener("click", (event) => {
+      if (input.disabled) return;
+      event.preventDefault();
+      input.checked = !input.checked;
+      state.unsavedOrderIndex = index;
+    });
   });
   editor.querySelectorAll(".adicional-fila").forEach((row) => {
     const extra = row.dataset.extra;
@@ -119,10 +147,19 @@ export function bindOrderEditor() {
     row.querySelector(".aumentar-adicional").addEventListener("click", () => { setExtraQuantity(item, extra, getExtraQuantity(item, extra) + 1); state.unsavedOrderIndex = index; calculateOrderSummary(); });
   });
   editor.querySelector(".guardar-edicion").addEventListener("click", () => {
-    item.removedIngredients = [...editor.querySelectorAll(".ingrediente-fila input:not(:checked)")].map((input) => input.dataset.ingrediente);
+    item.removedIngredients = [...editor.querySelectorAll(".ingrediente-fila input:not(:checked):not(:disabled)")].map((input) => input.dataset.ingrediente);
     editor.querySelector(".guardar-edicion").disabled = true;
     state.unsavedOrderIndex = null;
     collapseOrderItem(index);
+  });
+}
+
+export function bindDrinkOptions() {
+  elements.orderList.querySelectorAll(".bebida-opcion input").forEach((input) => {
+    input.addEventListener("change", () => {
+      const index = Number(input.closest(".pedido-item").dataset.index);
+      state.orderItems[index].drinkOption = input.value;
+    });
   });
 }
 
@@ -135,16 +172,22 @@ export function ensureNoUnsavedChanges(index = null) {
 export function collapseOrderItem(index) {
   if (!ensureNoUnsavedChanges(index)) return;
   const editor = elements.orderList.querySelector(`[data-editor-index="${index}"]`);
-  if (!editor) return;
-  editor.classList.add("cerrando");
+  const description = elements.orderList.querySelector(".pedido-item-descripcion");
+  const expandable = editor || description;
+  if (!expandable) {
+    state.expandedOrderIndex = null;
+    renderOrderItems();
+    return;
+  }
+  expandable.classList.add("cerrando");
   setTimeout(() => { state.expandedOrderIndex = null; calculateOrderSummary(); }, 380);
 }
 
 export function openOrderItem(index) {
   if (!ensureNoUnsavedChanges()) return;
-  const currentEditor = elements.orderList.querySelector(".pedido-editor");
-  if (state.expandedOrderIndex === null || !currentEditor) { state.expandedOrderIndex = index; renderOrderItems(true); return; }
-  currentEditor.classList.add("cerrando");
+  const currentExpandable = elements.orderList.querySelector(".pedido-editor, .pedido-item-descripcion");
+  if (state.expandedOrderIndex === null || !currentExpandable) { state.expandedOrderIndex = index; renderOrderItems(true); return; }
+  currentExpandable.classList.add("cerrando");
   setTimeout(() => { state.expandedOrderIndex = index; renderOrderItems(true); }, 380);
 }
 
