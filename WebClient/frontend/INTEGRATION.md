@@ -29,7 +29,7 @@ window.RESTAURANT_CONFIG = {
 }
 ```
 
-La respuesta debe incluir el identificador del pedido como `id`, `orderId`, `pedidoId` o `idPedido`, y opcionalmente `estado`.
+La respuesta debe incluir el numero generado por la base de datos como `id`, `orderId`, `pedidoId` o `idPedido`, y opcionalmente `estado`. El frontend muestra ese valor con el prefijo fijo `PE-` y tres digitos (por ejemplo, la respuesta `1` se muestra como `PE-001`). El backend no debe enviar ni generar el prefijo visual.
 
 ## Contrato de estado
 

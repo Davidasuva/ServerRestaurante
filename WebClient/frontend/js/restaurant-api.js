@@ -11,8 +11,8 @@ function normalizeStatus(status) {
   return STATUS_VALUES.includes(value) ? value : "EN_COLA";
 }
 
-function localOrderId() {
-  return `PE${String(Math.floor(Math.random() * 900 + 100))}`;
+export function normalizeOrderNumber(value = "000") {
+  return String(value).replace(/^(?:PE-?)+/i, "");
 }
 
 export function createOrderPayload(items, tableNumber, paymentMethod) {
@@ -32,7 +32,7 @@ export function createOrderPayload(items, tableNumber, paymentMethod) {
 
 export async function submitOrder(payload) {
   const apiBaseUrl = getApiBaseUrl();
-  if (!apiBaseUrl) return { id: localOrderId(), estado: "EN_COLA", modo: "local" };
+  if (!apiBaseUrl) return { id: "000", estado: "EN_COLA", modo: "local" };
 
   const response = await fetch(`${apiBaseUrl}/api/pedidos`, {
     method: "POST",
@@ -46,7 +46,8 @@ export async function submitOrder(payload) {
 export async function getOrderStatus(orderId) {
   const apiBaseUrl = getApiBaseUrl();
   if (!apiBaseUrl) return null;
-  const response = await fetch(`${apiBaseUrl}/api/pedidos/${encodeURIComponent(orderId)}/estado`);
+  const backendOrderId = normalizeOrderNumber(orderId);
+  const response = await fetch(`${apiBaseUrl}/api/pedidos/${encodeURIComponent(backendOrderId)}/estado`);
   if (!response.ok) throw new Error("No fue posible consultar el estado del pedido.");
   return normalizeOrder(await response.json());
 }

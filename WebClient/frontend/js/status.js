@@ -1,13 +1,13 @@
-import { getOrderStatus, isApiConfigured } from "./restaurant-api.js";
+import { getOrderStatus, isApiConfigured, normalizeOrderNumber } from "./restaurant-api.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const tableNumber = urlParams.get("mesa") || sessionStorage.getItem("currentOrderMesa") || "4";
-const orderId = urlParams.get("id") || sessionStorage.getItem("currentOrderId") || "PE001";
+const orderNumber = normalizeOrderNumber(urlParams.get("id") || sessionStorage.getItem("currentOrderId") || "000");
 
 class OrderStatus extends HTMLElement {
     connectedCallback() {
         this.orderMesaLabel = this.querySelector("#order-mesa-label");
-        this.orderIdLabel = this.querySelector("#order-id-label");
+        this.orderNumberLabel = this.querySelector("#order-number-label");
         this.statusBadge = this.querySelector("#status-badge");
         this.badgeIcon = this.querySelector("#badge-icon");
         this.statusTitulo = this.querySelector("#status-titulo");
@@ -19,7 +19,7 @@ class OrderStatus extends HTMLElement {
         this.closeNote = this.querySelector("#status-close-note");
         this.confirmed = false;
         this.orderMesaLabel.textContent = tableNumber;
-        this.orderIdLabel.textContent = orderId;
+        this.orderNumberLabel.textContent = orderNumber.padStart(3, "0");
 
         this.confirmButton.addEventListener("click", () => this.confirmReady());
 
@@ -33,7 +33,7 @@ class OrderStatus extends HTMLElement {
             queuePosition: Number(this.dataset.queuePosition || 1)
         });
 
-        if (isApiConfigured() && orderId) {
+        if (isApiConfigured() && orderNumber) {
             this.refreshStatus();
             this.refreshTimer = window.setInterval(() => this.refreshStatus(), 10000);
         }
@@ -53,14 +53,14 @@ class OrderStatus extends HTMLElement {
         this.closeNote.hidden = false;
         this.dispatchEvent(new CustomEvent("order-confirmed", {
             bubbles: true,
-            detail: { orderId, tableNumber }
+            detail: { orderId: orderNumber, orderReference: `PE-${orderNumber.padStart(3, "0")}`, tableNumber }
         }));
         window.setTimeout(() => window.close(), 150);
     }
 
     async refreshStatus() {
         try {
-            const order = await getOrderStatus(orderId);
+            const order = await getOrderStatus(orderNumber);
             if (!order) return;
             this.setState(order.estado, {
                 ordersInPreparation: order.pedidosEnPreparacion,

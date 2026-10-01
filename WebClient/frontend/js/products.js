@@ -1,7 +1,16 @@
 import { elements, productResetTimers, state, tableNumber } from "./products-state.js";
 import { parseProductPrice, setConfirmReturnOpen, setOrderPanelOpen, setProductModalOpen, showToast } from "./products-ui.js";
 import { calculateOrderSummary, ensureNoUnsavedChanges, showCheckout, showOrderSummary } from "./products-order.js";
-import { createOrderPayload, submitOrder } from "./restaurant-api.js";
+import { createOrderPayload, normalizeOrderNumber, submitOrder } from "./restaurant-api.js";
+
+function lockProductNavigation() {
+  const productUrl = window.location.href;
+  window.history.replaceState({ productPage: true }, "", productUrl);
+  window.history.pushState({ productPageGuard: true }, "", productUrl);
+  window.addEventListener("popstate", () => {
+    window.history.pushState({ productPageGuard: true }, "", productUrl);
+  });
+}
 
 function openProductModal(card, orderItem = null) {
   state.selectedProductCard = card;
@@ -156,11 +165,11 @@ async function sendOrderToKitchen() {
   elements.checkoutView.classList.add("pedido-confirmado");
   try {
     const order = await submitOrder(payload);
-    const orderId = order.id;
-    sessionStorage.setItem("currentOrderId", orderId);
+    const orderNumber = normalizeOrderNumber(order.id ?? "000");
+    sessionStorage.setItem("currentOrderId", orderNumber);
     sessionStorage.setItem("currentOrderMesa", currentMesa);
     showToast(`Pedido enviado a cocina · ${paymentMethod}`, "success");
-    setTimeout(() => { window.location.href = `status.html?mesa=${encodeURIComponent(currentMesa)}&id=${encodeURIComponent(orderId)}`; }, 1600);
+    setTimeout(() => { window.location.href = `status.html?mesa=${encodeURIComponent(currentMesa)}&id=${encodeURIComponent(orderNumber)}`; }, 1600);
   } catch (error) {
     elements.finalizeCheckoutButton.disabled = false;
     elements.finalizeCheckoutButton.textContent = "Enviar pedido a cocina";
@@ -171,6 +180,7 @@ async function sendOrderToKitchen() {
 }
 
 elements.finalizeCheckoutButton.addEventListener("click", sendOrderToKitchen);
+lockProductNavigation();
 bindProductEvents();
 bindModalEvents();
 bindOrderEvents();

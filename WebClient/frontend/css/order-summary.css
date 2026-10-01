@@ -651,7 +651,7 @@ body.pedido-abierto {
     position: fixed;
     z-index: 50;
     right: 16px;
-    bottom: calc(86px + env(safe-area-inset-bottom));
+    bottom: calc(128px + env(safe-area-inset-bottom));
     left: 16px;
     padding: 12px 16px;
     border: 1px solid var(--color-accent-border);
