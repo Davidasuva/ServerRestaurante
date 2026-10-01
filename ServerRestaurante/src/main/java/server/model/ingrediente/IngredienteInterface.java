@@ -13,4 +13,5 @@ public interface IngredienteInterface extends Remote {
     public Ingrediente modifyIngrediente(int id, Ingrediente nuevoIngrediente) throws RemoteException;
     public boolean removeIngrediente(int id) throws RemoteException;
     public boolean ajustarCantidad(int id, int agregado) throws RemoteException;
+    public int contar()throws RemoteException;
 }

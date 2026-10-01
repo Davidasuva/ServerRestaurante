@@ -2,57 +2,147 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
 
-<SplitPane dividerPositions="0.29797979797979796" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1">
-  <items>
-      <StackPane prefHeight="150.0" prefWidth="200.0">
-         <children>
-            <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="20.0">
-               <children>
-                  <ToggleButton mnemonicParsing="false" text="Iniciar" />
-                  <TextArea prefHeight="319.0" prefWidth="175.0" />
-               </children>
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="server.controller.employees.EmpleadosController"
+      styleClass="raiz-admin"
+      prefWidth="1100" prefHeight="700">
+
+   <VBox HBox.hgrow="ALWAYS" spacing="0">
+
+      <HBox styleClass="navbar" alignment="CENTER_LEFT" spacing="20">
+         <HBox alignment="CENTER" spacing="8">
+            <ImageView fitWidth="28" fitHeight="28" preserveRatio="true">
+               <image>
+                  <Image url="@/images/Logo.png"/>
+               </image>
+            </ImageView>
+            <Label text="Carbón y Sazón" styleClass="nav-brand"/>
+         </HBox>
+         <Region HBox.hgrow="ALWAYS"/>
+         <Button text="mesas"        styleClass="nav-link" onAction="#handleIrMesas"/>
+         <Button text="pedidos"      styleClass="nav-link" onAction="#handleIrPedidos"/>
+         <Button text="productos"    styleClass="nav-link" onAction="#handleIrProductos"/>
+         <Button text="ingredientes" styleClass="nav-link" onAction="#handleIrIngredientes"/>
+         <Button text="empleados"    styleClass="nav-link-active"/>
+      </HBox>
+
+      <VBox VBox.vgrow="ALWAYS" spacing="0">
+         <VBox.margin><Insets top="28" left="28" right="28" bottom="28"/></VBox.margin>
+
+         <!-- ── Encabezado + control del servidor ── -->
+         <HBox alignment="CENTER_LEFT" spacing="10">
+            <VBox spacing="4">
+               <Label text="Empleados" styleClass="seccion-titulo"/>
+               <Label text="Gestiona el personal del restaurante: meseros, cocina y caja."
+                      styleClass="seccion-subtitulo"/>
             </VBox>
-         </children>
-      </StackPane>
-      <StackPane prefHeight="150.0" prefWidth="200.0">
-         <children>
-            <VBox prefHeight="200.0" prefWidth="100.0">
-               <children>
-                  <ToolBar prefHeight="40.0" prefWidth="200.0">
-                    <items>
-                      <Button fx:id="btEmpleados" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="75.0" text="Empleados" />
-                        <Button fx:id="btIngredientes" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="75.0" text="Ingredientes" />
-                        <Button fx:id="btProductos" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="75.0" text="Productos" />
-                        <Button fx:id="btPedidos" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="75.0" text="Pedidos" />
-                        <Button fx:id="btMesas" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="75.0" text=" Mesas" />
-                    </items>
-                  </ToolBar>
-                  <GridPane prefHeight="367.0" prefWidth="417.0">
-                    <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="417.0" minWidth="10.0" prefWidth="395.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="385.0" minWidth="0.0" prefWidth="22.0" />
-                    </columnConstraints>
-                    <rowConstraints>
-                      <RowConstraints maxHeight="113.0" minHeight="0.0" prefHeight="12.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="272.0" minHeight="10.0" prefHeight="272.0" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                    </rowConstraints>
-                     <children>
-                        <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" />
-                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
-                           <children>
-                              <TextField fx:id="txtBarraBusqueda" prefHeight="25.0" prefWidth="245.0" />
-                              <ComboBox fx:id="cbFiltros" prefHeight="25.0" prefWidth="57.0" />
-                              <Button fx:id="btAñadir" mnemonicParsing="false" text="Añadir" />
-                           </children>
-                        </HBox>
-                        <ScrollBar orientation="VERTICAL" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                     </children>
-                  </GridPane>
-               </children>
-            </VBox>
-         </children>
-      </StackPane>
-  </items>
-</SplitPane>
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <HBox alignment="CENTER" spacing="8" styleClass="estado-caja">
+               <Region fx:id="indicador" styleClass="indicador, indicador-apagado"/>
+               <Label fx:id="lblEstado" text="Servidor apagado" styleClass="estado-texto"/>
+            </HBox>
+            <Button fx:id="btnConsola" text="Consola ▾" styleClass="btn-consola"
+                    onAction="#handleToggleConsola"/>
+            <Button fx:id="btnServidor" text="▶  Iniciar servidor" styleClass="btn-iniciar"
+                    minWidth="180" onAction="#handleToggleServidor"/>
+         </HBox>
+
+         <!-- ── Consola desplegable (arranca cerrada, el controlador anima el alto) ── -->
+         <VBox fx:id="panelConsola" styleClass="panel-consola"
+               minHeight="0" prefHeight="0" maxHeight="0">
+            <HBox alignment="CENTER_LEFT">
+               <Label text="Consola del servidor" styleClass="consola-titulo"/>
+               <Region HBox.hgrow="ALWAYS"/>
+               <Button text="Limpiar" styleClass="btn-link" onAction="#handleLimpiarConsola"/>
+            </HBox>
+            <TextArea fx:id="txtConsola" styleClass="consola"
+                      editable="false" wrapText="true"
+                      promptText="Esperando eventos..."
+                      minHeight="170" VBox.vgrow="ALWAYS"/>
+         </VBox>
+
+         <Region minHeight="20" maxHeight="20"/>
+
+         <!-- ── Barra de acciones ── -->
+         <HBox styleClass="barra-acciones" spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="txtBuscar"
+                       promptText="Buscar por nombre, cédula o cargo..."
+                       styleClass="campo-busqueda"
+                       prefWidth="340"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Actualizar" styleClass="btn-secundario" onAction="#handleRecargar"/>
+            <Button text="+ Nuevo Empleado" styleClass="btn-primario" onAction="#handleNuevo"/>
+         </HBox>
+
+         <Region minHeight="14" maxHeight="14"/>
+
+         <!-- ── Tabla ── -->
+         <TableView fx:id="tablaEmpleados" styleClass="tabla" VBox.vgrow="ALWAYS">
+            <columns>
+               <TableColumn fx:id="colCedula" text="Cédula" prefWidth="140"/>
+               <TableColumn fx:id="colNombre" text="Nombre" prefWidth="260"/>
+               <TableColumn fx:id="colCargo"  text="Cargo"  prefWidth="180"/>
+            </columns>
+            <placeholder>
+               <Label text="No hay empleados registrados." styleClass="seccion-subtitulo"/>
+            </placeholder>
+         </TableView>
+      </VBox>
+   </VBox>
+
+   <!-- ── Panel derecho: formulario ── -->
+   <VBox fx:id="panelForm" visible="false" managed="false" styleClass="panel-form" prefWidth="320" minWidth="320" maxWidth="320" spacing="0">
+
+      <HBox alignment="CENTER_LEFT" spacing="8">
+         <Label fx:id="lblTituloForm" text="Nuevo empleado" HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="form-titulo"/>
+         <Button text="✕ Cerrar" styleClass="btn-link" onAction="#handleCerrarForm"/>
+      </HBox>
+      <Region minHeight="22" maxHeight="22"/>
+
+      <Label text="Cédula" styleClass="form-label"/>
+      <Region minHeight="5" maxHeight="5"/>
+      <TextField fx:id="txtCedula" promptText="Ej: 1234567890" styleClass="campo"/>
+
+      <Region minHeight="14" maxHeight="14"/>
+
+      <Label text="Nombre" styleClass="form-label"/>
+      <Region minHeight="5" maxHeight="5"/>
+      <TextField fx:id="txtNombre" promptText="Ej: Juan Pérez" styleClass="campo"/>
+
+      <Region minHeight="14" maxHeight="14"/>
+
+      <Label text="Cargo" styleClass="form-label"/>
+      <Region minHeight="5" maxHeight="5"/>
+      <ComboBox fx:id="cmbCargo" styleClass="combo-campo" maxWidth="Infinity"
+                editable="true" promptText="Selecciona o escribe el cargo..."/>
+
+      <Region minHeight="14" maxHeight="14"/>
+
+      <Label text="Contraseña" styleClass="form-label"/>
+      <Region minHeight="5" maxHeight="5"/>
+      <PasswordField fx:id="txtContrasena" promptText="Contraseña" styleClass="campo"/>
+
+      <Region minHeight="6" maxHeight="6"/>
+
+      <Label fx:id="lblMensaje" styleClass="form-label" wrapText="true"
+             visible="false" managed="false"/>
+
+      <Region VBox.vgrow="ALWAYS"/>
+      <Pane styleClass="separador"/>
+      <Region minHeight="16" maxHeight="16"/>
+
+      <HBox spacing="10">
+         <Button fx:id="btnGuardar" text="Registrar" styleClass="btn-primario"
+                 onAction="#handleGuardar" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+         <Button text="Limpiar" styleClass="btn-secundario" onAction="#handleNuevo"/>
+      </HBox>
+      <Region minHeight="10" maxHeight="10"/>
+      <Button fx:id="btnEliminar" text="Eliminar empleado" styleClass="btn-peligro"
+              disable="true" maxWidth="Infinity" onAction="#handleEliminar"/>
+   </VBox>
+</HBox>

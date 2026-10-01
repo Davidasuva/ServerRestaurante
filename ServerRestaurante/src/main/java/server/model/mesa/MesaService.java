@@ -94,4 +94,13 @@ public class MesaService extends UnicastRemoteObject implements MesaInterface {
             throw new RemoteException("Error al eliminar mesa: " + e.getMessage());
         }
     }
+
+    @Override
+    public int contar()throws RemoteException{
+        try{
+            return mesaDAO.contar();
+        }catch(SQLException e){
+            throw new RuntimeException("Error al consultar empleados: "+e.getMessage());
+        }
+    }
 }

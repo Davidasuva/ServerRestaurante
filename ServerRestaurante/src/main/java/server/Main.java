@@ -1,43 +1,23 @@
 package server;
-
 import javafx.application.Application;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 import server.factory.ServerFactory;
-import server.model.ServerModel;
-import server.model.empleado.Empleado;
 
 public class Main extends Application {
 
-    private ServerModel server;
-
     @Override
-    public void start(Stage primaryStage) {
-        server = ServerFactory.crearServer();
+    public void start(Stage stage) throws Exception {
 
-        Parent login = ServerFactory.crearLoginView(
-                server,
-                empleado -> abrirVistaPrincipal(primaryStage, empleado));
-
-        primaryStage.setTitle("Servidor Restaurante");
-        primaryStage.setScene(new Scene(login));
-        primaryStage.show();
-    }
-
-    // TEMPORAL: reemplázalo por la vista real (pedir a la factory la vista que quieras)
-    private void abrirVistaPrincipal(Stage stage, Empleado empleado) {
-        Label mensaje = new Label("Sesión iniciada como " + empleado.getNombre());
-        stage.setScene(new Scene(new StackPane(mensaje), 500, 400));
+        ServerFactory.start(stage);
     }
 
     @Override
-    public void stop() {
-        // Cuando tengas el botón de apagar, aquí llamas a server.stop().
-        // System.exit es necesario porque EmpleadoService queda exportado por RMI
-        // y eso mantiene viva la JVM aunque cierres la ventana.
+    public void stop() throws Exception {
+        // stop() se llama automáticamente al cerrar la última ventana.
+        // Forzar salida del proceso para matar los hilos RMI no-daemon.
+        System.out.println("Aplicación cerrada — liberando puertos RMI.");
+        Platform.exit();
         System.exit(0);
     }
 

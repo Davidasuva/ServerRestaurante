@@ -189,4 +189,13 @@ public class ProductoService extends UnicastRemoteObject implements ProductoInte
             throw new RemoteException("Error al eliminar imagen: " + e.getMessage());
         }
     }
+
+    @Override
+    public int contar()throws RemoteException{
+        try{
+            return productoDAO.contar();
+        }catch(SQLException e){
+            throw new RuntimeException("Error al consultar empleados: "+e.getMessage());
+        }
+    }
 }

@@ -23,6 +23,7 @@ public interface ProductoInterface extends Remote {
     public Producto addImagenToProducto(int idProducto, String imagenURL)throws RemoteException;
     public boolean removeImagenFromProducto(int idProducto)throws RemoteException;
 
+    public int contar()throws RemoteException;
 
 
 

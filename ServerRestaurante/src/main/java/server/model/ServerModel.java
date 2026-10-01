@@ -35,6 +35,7 @@ public class ServerModel {
     private MesaInterface mesaService;
     private Registry registry;
     private final History history;
+    private boolean running;
 
 
     public ServerModel(String ip, int port, String serviceName) {
@@ -49,6 +50,10 @@ public class ServerModel {
         this.history=new History();
 
         history.addAction("ServerModel listo - URI base: "+pedidoUri);
+    }
+
+    public boolean isRunning(){
+        return running;
     }
 
     public boolean deploy(){
@@ -74,7 +79,7 @@ public class ServerModel {
             history.addAction("EmpleadoService   activo en: " + empleadoUri);
             history.addAction("MesaService   activo en: " + mesaUri);
             history.addAction("IngredienteService   activo en: " + ingredienteUri);
-
+            running=true;
             return true;
         }catch (Exception e){
             history.addAction("Error al desplegar: "+ e.getMessage());
@@ -95,6 +100,7 @@ public class ServerModel {
         tryUnexport(empleadoService, "EmpleadoService");
         tryUnexport(ingredienteService, "IngredienteService");
         tryUnexport(registry,      "Registry (puerto " + port + ")");
+        running=false;
     }
 
     private void tryUnbind(String uri) {

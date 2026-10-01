@@ -5,26 +5,48 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane  fx:controller="server.controller.login.LoginController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="500.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1">
-   <padding>
-      <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-   </padding>
-   <children>
-      <VBox alignment="CENTER" maxWidth="-Infinity" prefHeight="200.0" prefWidth="320.0" spacing="30.0">
-         <children>
-            <ImageView id="logo" fx:id="logo" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../../../resources/images/Logo.png" />
-               </image>
-            </ImageView>
-            <TextField id="txtUsuario" fx:id="txtUsuario" alignment="CENTER" promptText="Usuario" style="-fx-background-color: black;" />
-            <PasswordField id="txtPasword" fx:id="txtPassword" alignment="BOTTOM_CENTER" promptText="Contraseña" style="-fx-background-color: black;" />
-            <Label id="lblError" fx:id="lblError" minHeight="-Infinity" prefHeight="10.0" style="-fx-text-fill: red;" wrapText="true" />
-            <Button id="btLoggin" fx:id="btLogin" mnemonicParsing="false" onAction="#onLogin" prefHeight="25.0" prefWidth="162.0" style="-fx-background-color: orange;" text="Iniciar Sesión" textAlignment="CENTER" />
-         </children>
-         <padding>
-            <Insets bottom="30.0" left="30.0" right="30.0" />
-         </padding>
-      </VBox>
-   </children>
+<StackPane styleClass="raiz" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="server.controller.login.LoginController">
+
+   <VBox alignment="CENTER" maxWidth="420" spacing="0" styleClass="card">
+
+      <!-- Logo -->
+      <HBox alignment="CENTER" spacing="10">
+         <ImageView fitHeight="52" fitWidth="52" preserveRatio="true">
+            <image>
+               <Image url="@/images/Logo.png" />
+            </image>
+         </ImageView>
+         <Label styleClass="logo-texto" text="Carbón y Sazón" />
+      </HBox>
+
+      <Region maxHeight="30" minHeight="30" />
+
+      <!-- Usuario -->
+      <TextField fx:id="txtUsuario" maxWidth="340" promptText="Usuario" styleClass="campo" />
+
+      <Region maxHeight="12" minHeight="12" />
+
+      <!-- Contraseña -->
+      <StackPane maxWidth="340">
+         <PasswordField fx:id="txtPassword" promptText="Contraseña" styleClass="campo" />
+         <TextField fx:id="txtPasswordVisible" promptText="Contraseña" styleClass="campo" visible="false" />
+         <Button fx:id="btnOjo" onAction="#handleTogglePassword" styleClass="btn-ojo" text="👁" StackPane.alignment="CENTER_RIGHT">
+            <StackPane.margin><Insets right="10" /></StackPane.margin>
+         </Button>
+      </StackPane>
+
+      <!-- Error -->
+      <Label fx:id="lblError" maxWidth="340" styleClass="label-error" visible="false" wrapText="true">
+         <VBox.margin><Insets top="5" /></VBox.margin>
+      </Label>
+
+      <Region maxHeight="18" minHeight="18" />
+
+      <!-- Botón -->
+      <Button fx:id="btnIngresar" maxWidth="340" onAction="#handleLogin" prefHeight="44" styleClass="btn-ingresar" text="Iniciar sesión" />
+
+      <Region maxHeight="26" minHeight="26" />
+
+   </VBox>
+
 </StackPane>

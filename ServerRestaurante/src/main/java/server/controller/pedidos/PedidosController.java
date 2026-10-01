@@ -1,4 +1,371 @@
 package server.controller.pedidos;
 
-public class PedidosController {
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.util.StringConverter;
+import server.controller.SeccionBaseController;
+import server.model.mesa.Mesa;
+import server.model.mesa.MesaInterface;
+import server.model.pedido.Pedido;
+import server.model.pedido.PedidoInterface;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+
+public class PedidosController extends SeccionBaseController {
+
+    /**
+     * Estados que se ofrecen en el combo. Solo "Pendiente" y "Cancelado" existen en el código del servidor
+     * (PedidoService); el resto son sugerencias: ajústalos a los estados que use tu app cliente.
+     * Cualquier estado distinto de esos dos descuenta inventario al confirmarse.
+     */
+    private static final List<String> ESTADOS_BASE =
+            List.of("Pendiente", "En preparación", "Listo", "Entregado", "Pagado", "Cancelado");
+    private static final List<String> METODOS_PAGO = List.of("Ninguno", "Efectivo", "Tarjeta");
+    private static final String TODOS = "Todos";
+    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    private record Carga(List<Pedido> pedidos, List<Mesa> mesas) {}
+    private record Detalle(List<String> productos, List<String> encargados) {}
+
+    private static final StringConverter<Mesa> CONVERTIDOR_MESA = new StringConverter<>() {
+        @Override public String toString(Mesa m) { return m == null ? "" : "Mesa " + m.getId(); }
+        @Override public Mesa fromString(String s) { return null; }
+    };
+
+    private final ObservableList<Pedido> datos = FXCollections.observableArrayList();
+    private final ObservableList<Mesa> mesas = FXCollections.observableArrayList();
+    private final ObservableList<String> productosPedido = FXCollections.observableArrayList();
+    private final ObservableList<String> encargadosPedido = FXCollections.observableArrayList();
+    private FilteredList<Pedido> filtrados;
+    private Pedido seleccionado;
+
+    @FXML private TextField txtBuscar;
+    @FXML private ComboBox<String> cmbFiltroEstado;
+    @FXML private TableView<Pedido> tablaPedidos;
+    @FXML private TableColumn<Pedido, Integer> colId;
+    @FXML private TableColumn<Pedido, String> colFecha;
+    @FXML private TableColumn<Pedido, Integer> colMesa;
+    @FXML private TableColumn<Pedido, String> colEstado;
+    @FXML private TableColumn<Pedido, String> colPago;
+    @FXML private TableColumn<Pedido, Float> colTotal;
+
+    @FXML private Label lblTituloForm;
+    @FXML private TextField txtId;
+    @FXML private ComboBox<Mesa> cmbMesa;
+    @FXML private Label lblFecha;
+    @FXML private Label lblTotal;
+    @FXML private ComboBox<String> cmbEstado;
+    @FXML private ComboBox<String> cmbPago;
+    @FXML private ListView<String> lstProductos;
+    @FXML private ListView<String> lstEncargados;
+    @FXML private Button btnGuardar;
+    @FXML private Button btnEliminar;
+
+    @Override
+    protected void alIniciar() {
+        configurarTabla();
+        configurarFormulario();
+        limpiarFormulario();
+        refrescar();
+    }
+
+    private void configurarTabla() {
+        colId.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getId()));
+        colFecha.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(formatearFecha(c.getValue().getFechaPedido())));
+        colMesa.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(idMesa(c.getValue())));
+        colEstado.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getEstado()));
+        colPago.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getMetodoPago()));
+        colTotal.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getPrecioTotal()));
+        colTotal.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Float total, boolean vacio) {
+                super.updateItem(total, vacio);
+                setText(vacio || total == null ? null : MONEDA.format(total));
+            }
+        });
+        tablaPedidos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        tablaPedidos.setPlaceholder(new Label("No hay pedidos para mostrar"));
+
+        filtrados = new FilteredList<>(datos, p -> true);
+        SortedList<Pedido> ordenados = new SortedList<>(filtrados);
+        ordenados.comparatorProperty().bind(tablaPedidos.comparatorProperty());
+        tablaPedidos.setItems(ordenados);
+
+        txtBuscar.textProperty().addListener((obs, o, n) -> aplicarFiltro());
+        cmbFiltroEstado.valueProperty().addListener((obs, o, n) -> aplicarFiltro());
+
+        tablaPedidos.getSelectionModel().selectedItemProperty().addListener((obs, anterior, nuevo) -> {
+            if (nuevo != null) {
+                cargarEnFormulario(nuevo);
+            }
+        });
+    }
+
+    private void configurarFormulario() {
+        cmbMesa.setItems(mesas);
+        cmbMesa.setConverter(CONVERTIDOR_MESA);
+        cmbPago.getItems().setAll(METODOS_PAGO);
+        lstProductos.setItems(productosPedido);
+        lstProductos.setPlaceholder(new Label("Sin productos"));
+        lstEncargados.setItems(encargadosPedido);
+        lstEncargados.setPlaceholder(new Label("Sin encargados"));
+        actualizarEstados(List.of());
+        cmbFiltroEstado.setValue(TODOS);
+    }
+
+    private void aplicarFiltro() {
+        String q = txtBuscar.getText() == null ? "" : txtBuscar.getText().trim().toLowerCase();
+        String estado = cmbFiltroEstado.getValue();
+        boolean todos = estado == null || TODOS.equals(estado);
+        filtrados.setPredicate(p -> (todos || estado.equalsIgnoreCase(p.getEstado()))
+                && (q.isEmpty()
+                || String.valueOf(p.getId()).contains(q)
+                || String.valueOf(idMesa(p)).contains(q)
+                || nvl(p.getEstado()).toLowerCase().contains(q)
+                || nvl(p.getMetodoPago()).toLowerCase().contains(q)));
+    }
+
+    /** Combina los estados base con los que ya existen en los pedidos cargados. */
+    private void actualizarEstados(List<Pedido> pedidos) {
+        Set<String> estados = new LinkedHashSet<>(ESTADOS_BASE);
+        pedidos.stream().map(Pedido::getEstado).filter(e -> e != null && !e.isBlank()).forEach(estados::add);
+
+        String filtroActual = cmbFiltroEstado.getValue();
+        String estadoActual = cmbEstado.getEditor().getText(); // setAll puede borrar el valor de un combo editable
+        cmbEstado.getItems().setAll(estados);
+        if (estadoActual != null && !estadoActual.isBlank()) {
+            cmbEstado.setValue(estadoActual);
+        }
+
+        List<String> filtro = new java.util.ArrayList<>();
+        filtro.add(TODOS);
+        filtro.addAll(estados);
+        cmbFiltroEstado.getItems().setAll(filtro);
+        cmbFiltroEstado.setValue(filtroActual != null && filtro.contains(filtroActual) ? filtroActual : TODOS);
+    }
+
+    private static String nvl(String s) {
+        return s == null ? "" : s;
+    }
+
+    private static String formatearFecha(LocalDateTime f) {
+        return f == null ? "" : f.format(FORMATO_FECHA);
+    }
+
+    private static int idMesa(Pedido p) {
+        return p.getMesaAsignada() == null ? 0 : p.getMesaAsignada().getId();
+    }
+
+    // ───────────────────────── Formulario ─────────────────────────
+
+    private void cargarEnFormulario(Pedido p) {
+        abrirForm();
+        seleccionado = p;
+        lblTituloForm.setText("Pedido #" + p.getId());
+        txtId.setText(String.valueOf(p.getId()));
+        txtId.setDisable(true);
+        cmbMesa.setValue(mesas.stream().filter(m -> m.getId() == idMesa(p)).findFirst().orElse(p.getMesaAsignada()));
+        cmbMesa.setDisable(true); // la mesa no se cambia desde aquí
+        lblFecha.setText(formatearFecha(p.getFechaPedido()));
+        lblTotal.setText(MONEDA.format(p.getPrecioTotal()));
+        cmbEstado.setDisable(false);
+        cmbEstado.setValue(p.getEstado());
+        cmbPago.setDisable(false);
+        cmbPago.setValue(p.getMetodoPago());
+        btnGuardar.setText("Aplicar cambios");
+        btnEliminar.setDisable(false);
+        ocultarMensaje();
+        cargarDetalle(p.getId());
+    }
+
+    private void limpiarFormulario() {
+        seleccionado = null;
+        tablaPedidos.getSelectionModel().clearSelection();
+        lblTituloForm.setText("Nuevo pedido");
+        txtId.clear();
+        txtId.setDisable(false);
+        cmbMesa.setValue(null);
+        cmbMesa.setDisable(false);
+        lblFecha.setText("Se asigna al registrar");
+        lblTotal.setText(MONEDA.format(0));
+        // Un pedido nuevo siempre nace Pendiente y sin pago (así no consume inventario).
+        cmbEstado.setValue("Pendiente");
+        cmbEstado.setDisable(true);
+        cmbPago.setValue("Ninguno");
+        cmbPago.setDisable(true);
+        productosPedido.clear();
+        encargadosPedido.clear();
+        btnGuardar.setText("Registrar");
+        btnEliminar.setDisable(true);
+        ocultarMensaje();
+    }
+
+    @Override
+    protected void alCerrarForm() {
+        limpiarFormulario();
+    }
+
+    @FXML
+    private void handleNuevo() {
+        limpiarFormulario();
+        abrirForm();
+        txtId.requestFocus();
+    }
+
+    @FXML
+    public void handleRecargar() {
+        refrescar();
+    }
+
+    // ───────────────────────── Datos ─────────────────────────
+
+    @Override
+    public void refrescar() {
+        cargar(null, null);
+    }
+
+    /** Recarga pedidos y mesas; si se indica, reselecciona ese pedido y muestra el mensaje de éxito. */
+    private void cargar(Integer idASeleccionar, String mensajeOk) {
+        ejecutar(() -> {
+            PedidoInterface ps = servicio(model.getPedidoService());
+            MesaInterface ms = servicio(model.getMesaService());
+            int totalP = ps.contar();
+            int totalM = ms.contar();
+            return new Carga(
+                    totalP == 0 ? List.<Pedido>of() : ps.getPedidos(0, totalP - 1),
+                    totalM == 0 ? List.<Mesa>of() : ms.getMesa(0, totalM - 1));
+        }, carga -> {
+            datos.setAll(carga.pedidos());
+            mesas.setAll(carga.mesas());
+            actualizarEstados(carga.pedidos());
+            if (idASeleccionar != null) {
+                carga.pedidos().stream().filter(p -> p.getId() == idASeleccionar).findFirst()
+                        .ifPresent(p -> tablaPedidos.getSelectionModel().select(p));
+            }
+            if (mensajeOk != null) {
+                mostrarMensaje(mensajeOk, false); // después de seleccionar, porque cargarEnFormulario oculta el mensaje
+            }
+        });
+    }
+
+    /** Productos y encargados del pedido (solo lectura). */
+    private void cargarDetalle(int idPedido) {
+        ejecutar(() -> {
+            PedidoInterface s = servicio(model.getPedidoService());
+            List<String> productos = listaOVacia(() -> s.getProductosPerPedido(idPedido).stream()
+                    .map(p -> p.getNombre() + " — " + MONEDA.format(p.getPrecio()))
+                    .toList());
+            List<String> encargados = listaOVacia(() -> s.getEncargadosPerPedido(idPedido).stream()
+                    .map(e -> e.getNombre() + " (" + e.getCargo() + ")")
+                    .toList());
+            return new Detalle(productos, encargados);
+        }, detalle -> {
+            if (seleccionado != null && seleccionado.getId() == idPedido) {
+                productosPedido.setAll(detalle.productos());
+                encargadosPedido.setAll(detalle.encargados());
+            }
+        });
+    }
+
+    /**
+     * PedidoService lanza excepción cuando un pedido no tiene productos o encargados,
+     * y aquí eso es un caso normal (lista vacía), no un error para el usuario.
+     */
+    private static List<String> listaOVacia(Callable<List<String>> consulta) {
+        try {
+            return consulta.call();
+        } catch (Exception e) {
+            return List.of();
+        }
+    }
+
+    // ───────────────────────── Acciones ─────────────────────────
+
+    @FXML
+    private void handleGuardar() {
+        if (seleccionado == null) {
+            registrarNuevo();
+        } else {
+            aplicarCambios();
+        }
+    }
+
+    private void registrarNuevo() {
+        int id;
+        try {
+            id = Integer.parseInt(txtId.getText().trim());
+            if (id <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException ex) {
+            mostrarMensaje("El id debe ser un entero positivo.", true);
+            return;
+        }
+        Mesa mesa = cmbMesa.getValue();
+        if (mesa == null) {
+            mostrarMensaje("Selecciona la mesa del pedido.", true);
+            return;
+        }
+
+        final Pedido nuevo = new Pedido(id, LocalDateTime.now(), mesa);
+        ejecutar(() -> servicio(model.getPedidoService()).registrarPedido(nuevo),
+                r -> cargar(r.getId(), "Pedido registrado."));
+    }
+
+    private void aplicarCambios() {
+        final Pedido original = seleccionado;
+        final String estado = cmbEstado.getEditor().getText().trim();
+        final String pago = cmbPago.getEditor().getText().trim();
+
+        if (estado.isEmpty()) { mostrarMensaje("Selecciona o escribe un estado.", true); return; }
+        if (pago.isEmpty()) { mostrarMensaje("Selecciona o escribe un método de pago.", true); return; }
+
+        final boolean cambiaEstado = !estado.equals(original.getEstado());
+        final boolean cambiaPago = !pago.equals(original.getMetodoPago());
+        if (!cambiaEstado && !cambiaPago) {
+            mostrarMensaje("No hay cambios que aplicar.", true);
+            return;
+        }
+
+        ejecutar(() -> {
+            PedidoInterface s = servicio(model.getPedidoService());
+            // Cambiar el estado pasa por setPedidoStatus para que se ajuste el inventario.
+            if (cambiaEstado && !s.setPedidoStatus(original.getId(), estado)) {
+                throw new IllegalStateException("No se pudo cambiar el estado del pedido.");
+            }
+            if (cambiaPago && !s.setPaymentMethodPerPedido(original.getId(), pago)) {
+                throw new IllegalStateException("No se pudo cambiar el método de pago.");
+            }
+            return original.getId();
+        }, id -> cargar(id, "Pedido actualizado."));
+    }
+
+    @FXML
+    private void handleEliminar() {
+        if (seleccionado == null) {
+            return;
+        }
+        final Pedido objetivo = seleccionado;
+        confirmar("Eliminar pedido", "¿Eliminar el pedido #" + objetivo.getId() + "?", () ->
+                ejecutar(() -> servicio(model.getPedidoService()).removePedido(objetivo.getId()), ok -> {
+                    limpiarFormulario();
+                    mostrarMensaje(ok ? "Pedido eliminado." : "No se eliminó ningún pedido.", !ok);
+                    refrescar();
+                }));
+    }
 }

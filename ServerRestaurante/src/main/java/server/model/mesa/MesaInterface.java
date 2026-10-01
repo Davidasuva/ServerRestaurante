@@ -11,6 +11,6 @@ public interface MesaInterface extends Remote  {
     public Mesa getMesaById(int id) throws RemoteException;
     public Mesa modifyMesa(Mesa newMesa, int id) throws RemoteException;
     public boolean removeMesa(int id) throws RemoteException;
-
+    public int contar()throws RemoteException;
 
 }

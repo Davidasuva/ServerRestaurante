@@ -6,18 +6,21 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import server.controller.SeccionBaseController;
 import server.controller.employees.EmpleadosController;
 import server.controller.ingredientes.IngredientesController;
-import server.controller.login.LoginController;
 import server.controller.mesas.MesasController;
 import server.controller.pedidos.PedidosController;
 import server.controller.productos.ProductosController;
 import server.model.ServerModel;
-
 import server.view.login.LoginView;
 
 import java.io.IOException;
+import java.net.URL;
+
 public class ServerFactory {
+
+    private static final String RUTA_VISTAS = "/server/view/";
 
     private ServerFactory() {
     }
@@ -30,19 +33,20 @@ public class ServerFactory {
 
     private static ServerModel compartido;
 
-    private static EmpleadosController empleadosController = new EmpleadosController();
-    private static IngredientesController ingredientesController = new IngredientesController();
-    private static LoginController loginController = new LoginController();
-    private static PedidosController pedidosController = new PedidosController();
-    private static MesasController mesasController = new MesasController();
-    private static ProductosController productosController= new ProductosController();
+    private static EmpleadosController empleadosController;
+    private static IngredientesController ingredientesController;
+    private static PedidosController pedidosController;
+    private static MesasController mesasController;
+    private static ProductosController productosController;
 
-    public static void start(Stage stage){
-        try{
-            Environment env=Environment.getInstance();
-            ServerModel model= new ServerModel(env.getIp(),env.getPort(),env.getServerName());
+    public static void start(Stage stage) {
+        try {
+            Environment env = Environment.getInstance();
+            ServerModel model = new ServerModel(env.getIp(), env.getPort(), env.getServerName());
+            compartido = model;
 
             LoginView.show(stage);
+            buildMenuScenes(model);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -50,83 +54,88 @@ public class ServerFactory {
         }
     }
 
-    public static void buildMenuScenes(ServerModel model){
-        compartido=model;
-        try{
-            sceneEmpleados=buildScene("/server/view/empleados/EmpleadosView.fxm",server.view.empleados.EmpleadosView.class,"Empleados");
-            sceneIngredientes=buildScene("/server/view/ingredientes/IngredientesView.fxm",server.view.ingredientes.IngredientesView.class,"Ingredientes");
-            sceneMesas=buildScene("/server/view/mesas/MesasView.fxm",server.view.mesas.MesasView.class,"Mesas");
-            scenePedidos=buildScene("/server/view/pedidos/PedidosView.fxm",server.view.pedidos.PedidosView.class,"Pedidos");
-            sceneProductos=buildScene("/server/view/productos/ProductosView.fxm",server.view.productos.ProductosView.class,"Productos");
+    public static void buildMenuScenes(ServerModel model) {
+        compartido = model;
+        try {
+            sceneEmpleados = buildScene("empleados/EmpleadosView.fxml");
+            sceneIngredientes = buildScene("ingredientes/IngredientesView.fxml");
+            sceneMesas = buildScene("mesas/MesasView.fxml");
+            scenePedidos = buildScene("pedidos/PedidosView.fxml");
+            sceneProductos = buildScene("productos/ProductosView.fxml");
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Error al pre-crear excenarios "+e.getMessage());
+            throw new RuntimeException("Error al pre-crear escenarios: " + e.getMessage());
         }
     }
 
-    private static Scene buildScene(String fxmlPath,Class<?> refClass, String tipo)throws Exception{
-        FXMLLoader loader = new FXMLLoader(refClass.getResource(fxmlPath));
-        if (loader.getLocation() == null)
-            loader = new FXMLLoader(ServerFactory.class.getResource(fxmlPath));
-
-        Parent root  = loader.load();
-        Scene  scene = new Scene(root, 1280, 800);
-
-        Object ctrl = loader.getController();
-
-        switch (tipo){
-            case "Empleados" -> {empleadosController=(EmpleadosController) ctrl; empleadosController.setModel(compartido);}
-            case "Ingredientes" -> {ingredientesController=(IngredientesController) ctrl; ingredientesController.setModel(compartido);}
-            case "Mesas" -> {mesasController=(MesasController) ctrl; mesasController.setModel(compartido);}
-            case "Pedidos" -> {pedidosController=(PedidosController) ctrl; pedidosController.setModel(compartido);}
-            case "Productos" -> {productosController=(ProductosController) ctrl; productosController.setModel(compartido);}
+    private static Scene buildScene(String fxml) throws Exception {
+        URL url = ServerFactory.class.getResource(RUTA_VISTAS + fxml);
+        if (url == null) {
+            throw new IOException("No se encontró " + RUTA_VISTAS + fxml);
         }
 
+        FXMLLoader loader = new FXMLLoader(url);
+
+        loader.setControllerFactory(tipo -> {
+            try {
+                Object controller = tipo.getDeclaredConstructor().newInstance();
+                return controller;
+            } catch (ReflectiveOperationException ex) {
+                throw new RuntimeException("No se pudo crear el controller " + tipo.getName(), ex);
+            }
+        });
+
+        Parent root = loader.load();
+        Scene scene = new Scene(root, 1280, 800);
+
+
+        switch (loader.getController()) {
+            case EmpleadosController c -> { empleadosController = c; c.setModel(compartido); }
+            case IngredientesController c -> { ingredientesController = c; c.setModel(compartido); }
+            case MesasController c -> { mesasController = c; c.setModel(compartido); }
+            case PedidosController c -> { pedidosController = c; c.setModel(compartido); }
+            case ProductosController c -> { productosController = c; c.setModel(compartido); }
+            default -> throw new IllegalStateException("Controller desconocido: " + loader.getController());
+        }
         return scene;
     }
 
-    private static void applySceneAndMaximize(Stage stage, javafx.scene.Scene scene,String title){
-        if(stage.isMaximized()){
+    private static void applySceneAndMaximize(Stage stage, Scene scene, String title) {
+        if (scene == null) {
+            throw new IllegalStateException("Las escenas no están creadas: llama a buildMenuScenes(model) primero.");
+        }
+        if (stage.isMaximized()) {
             stage.setMaximized(false);
         }
         stage.setTitle(title);
         stage.setScene(scene);
-        Platform.runLater(()->stage.setMaximized(true));
+        Platform.runLater(() -> stage.setMaximized(true));
     }
 
-    public static void navigateToEmpleados(Stage stage){
-        if(empleadosController!=null){
-            empleadosController.refreshEmpleados();
+    private static void irA(Stage stage, Scene scene, SeccionBaseController controller, String titulo) {
+        if (controller != null) {
+            controller.refrescar();
         }
-        applySceneAndMaximize(stage,sceneEmpleados,"Restaurante - Sección Empleados");
-    }
-    public static void navigateToMesas(Stage stage){
-        if(empleadosController!=null){
-            empleadosController.refreshEmpleados();
-        }
-        applySceneAndMaximize(stage,sceneEmpleados,"Restaurante - Sección Empleados");
-
-    }
-    public static void navigateToIngredientes(Stage stage){
-        if(ingredientesController!=null){
-            ingredientesController.refreshEmpleados();
-        }
-        applySceneAndMaximize(stage,sceneEmpleados,"Restaurante - Sección Ingredientes");
-
-    }
-    public static void navigateToPedidos(Stage stage){
-        if(pedidosController!=null){
-            pedidosController.refreshEmpleados();
-        }
-        applySceneAndMaximize(stage,sceneEmpleados,"Restaurante - Sección Pedidos");
-
-    }
-    public static void navigateToProductos(Stage stage){
-        if(productosController!=null){
-            productosController.refreshEmpleados();
-        }
-        applySceneAndMaximize(stage,sceneEmpleados,"Restaurante - Sección Productos");
-
+        applySceneAndMaximize(stage, scene, titulo);
     }
 
+    public static void navigateToEmpleados(Stage stage) {
+        irA(stage, sceneEmpleados, empleadosController, "Restaurante - Sección Empleados");
+    }
+
+    public static void navigateToMesas(Stage stage) {
+        irA(stage, sceneMesas, mesasController, "Restaurante - Sección Mesas");
+    }
+
+    public static void navigateToIngredientes(Stage stage) {
+        irA(stage, sceneIngredientes, ingredientesController, "Restaurante - Sección Ingredientes");
+    }
+
+    public static void navigateToPedidos(Stage stage) {
+        irA(stage, scenePedidos, pedidosController, "Restaurante - Sección Pedidos");
+    }
+
+    public static void navigateToProductos(Stage stage) {
+        irA(stage, sceneProductos, productosController, "Restaurante - Sección Productos");
+    }
 }

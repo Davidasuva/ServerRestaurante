@@ -14,8 +14,11 @@ import server.factory.ServerFactory;
 import server.model.ServerModel;
 import server.model.empleado.Empleado;
 import server.model.empleado.EmpleadoInterface;
+import server.model.empleado.EmpleadoService;
+import server.model.history.History;
 
 import java.net.URL;
+import java.rmi.RemoteException;
 
 
 public class LoginController {
@@ -32,16 +35,17 @@ public class LoginController {
     @FXML private TextField txtPasswordVisible;
     @FXML private Label lblError;
     @FXML private Button        btnOjo;
-    @FXML private Button btLogin;
+    @FXML private Button btnIngresar;
 
     public void setModel(ServerModel model) {
         this.model = model;
     }
 
     @FXML
-    public void initialize(){
+    public void initialize() {
+
         try{
-            empleadoService = model.getEmpleadoService();
+            empleadoService=new EmpleadoService(new History());
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -75,13 +79,13 @@ public class LoginController {
     }
     @FXML
     public void handleLogin() {
-        String mail     = txtUsuario.getText().trim();
+        String cedula     = txtUsuario.getText().trim();
         String password = passwordVisible
                 ? txtPasswordVisible.getText()
                 : txtPassword.getText();
 
-        if (mail.isEmpty()) {
-            mostrarError("Ingresa tu mail.");
+        if (cedula.isEmpty()) {
+            mostrarError("Ingresa tu usuario.");
             sacudir(txtUsuario);
             return;
         }
@@ -92,10 +96,10 @@ public class LoginController {
         }
 
         try {
-            Empleado user = userService.userPerEmailAndPassword(mail, password, null);
-            if (user != null) {
+            Empleado user = empleadoService.getEmpleadoByCedula(Integer.parseInt(cedula));
+            if (user.getContrasena().equals(password)) {
                 lblError.setVisible(false);
-                abrirServerView();
+                abrirEmpleadosView();
             } else {
                 mostrarError("Credenciales incorrectas.");
                 sacudir(btnIngresar);
@@ -107,10 +111,10 @@ public class LoginController {
     }
 
 
-    private void abrirServerView() {
+    private void abrirEmpleadosView() {
         try {
             Stage stage = (Stage) btnIngresar.getScene().getWindow();
-            ServerFactory.showServerView(stage, model);
+            ServerFactory.navigateToEmpleados(stage);
         } catch (Exception e) {
             e.printStackTrace();
             mostrarError("No se pudo abrir la vista del servidor.");

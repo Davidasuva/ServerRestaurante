@@ -417,4 +417,12 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         history.addAction("Se validó el pedido con id: "+id);
         return true;
     }
+    @Override
+    public int contar()throws RemoteException{
+        try{
+            return pedidoDao.contar();
+        }catch(SQLException e){
+            throw new RuntimeException("Error al consultar empleados: "+e.getMessage());
+        }
+    }
 }

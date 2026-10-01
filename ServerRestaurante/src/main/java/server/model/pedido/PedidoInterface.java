@@ -41,4 +41,5 @@ public interface PedidoInterface extends Remote {
 
     boolean validatePedido(int id) throws RemoteException;
 
+    public int contar()throws RemoteException;
 }
