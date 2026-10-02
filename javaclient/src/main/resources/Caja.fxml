@@ -2,16 +2,17 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" styleClass="root" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1150.0" styleClass="root" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
    <children>
 
       <!-- Barra superior: título + pestañas Caja/Cocina -->
@@ -43,21 +44,16 @@
       <HBox VBox.vgrow="ALWAYS">
          <children>
 
-            <!-- ===== Columna izquierda: Buscador + Historial ===== -->
+            <!--Columna izquierda: Buscador + Historial -->
             <VBox maxWidth="350.0" prefWidth="350.0">
                <children>
 
                   <!-- Buscador de Pedidos -->
                   <HBox alignment="CENTER_LEFT" prefHeight="50.0">
                      <children>
-                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                        <Label styleClass="section-title" text="Toma de pedidos">
                            <HBox.margin>
-                              <Insets bottom="0.0" left="20.0" right="0.0" top="0.0" />
-                           </HBox.margin>
-                        </ImageView>
-                        <Label styleClass="section-title" text="Buscador de Pedidos">
-                           <HBox.margin>
-                              <Insets bottom="0.0" left="10.0" right="0.0" top="0.0" />
+                              <Insets left="30.0" />
                            </HBox.margin>
                         </Label>
                      </children>
@@ -69,46 +65,21 @@
                   <!-- Campo: Buscar por ID Pedido -->
                   <VBox prefHeight="50.0">
                      <children>
-                        <Label styleClass="field-label" text="BUSCAR POR ID PEDIDO">
+                        <Label styleClass="field-label" text="SELECCIONE UNA MESA">
                            <VBox.margin>
-                              <Insets left="30.0" top="20.0" />
+                              <Insets left="30.0" top="10.0" />
                            </VBox.margin>
                         </Label>
-                        <TextField maxWidth="300.0" prefHeight="28.0" prefWidth="300.0" promptText="Ej. PE001">
+                        <ChoiceBox maxWidth="300.0" prefWidth="300.0" styleClass="choice-box">
                            <VBox.margin>
-                              <Insets bottom="0.0" left="20.0" right="0.0" top="8.0" />
+                              <Insets left="20.0" top="8.0" />
                            </VBox.margin>
-                        </TextField>
+                        </ChoiceBox>
                      </children>
                   </VBox>
 
-                  <!-- Campo: Mesa + Botón Buscar -->
-                  <HBox prefHeight="100.0">
-                     <children>
-                        <VBox prefHeight="100.0" prefWidth="210.0">
-                           <children>
-                              <Label styleClass="field-label" text="MESA">
-                                 <VBox.margin>
-                                    <Insets left="30.0" top="10.0" />
-                                 </VBox.margin>
-                              </Label>
-                              <TextField maxWidth="200.0" prefHeight="28.0" promptText="Ej. 04">
-                                 <VBox.margin>
-                                    <Insets bottom="0.0" left="20.0" right="0.0" top="8.0" />
-                                 </VBox.margin>
-                              </TextField>
-                           </children>
-                        </VBox>
-                        <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="32.0" prefWidth="94.0" text="Buscar">
-                           <HBox.margin>
-                              <Insets left="15.0" top="36.0" />
-                           </HBox.margin>
-                        </Button>
-                     </children>
-                  </HBox>
-
-                  <!-- Historial Reciente (scrolleable) -->
-                  <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-transparent" VBox.vgrow="ALWAYS">
+                  <!-- Factura -->
+                  <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="319.0" prefWidth="351.0" styleClass="scroll-transparent" VBox.vgrow="ALWAYS">
                      <content>
                         <VBox spacing="10.0" styleClass="historial-container">
                            <children>
@@ -116,59 +87,85 @@
                               <!-- Encabezado -->
                               <HBox alignment="CENTER_LEFT" prefHeight="30.0">
                                  <children>
-                                    <ImageView fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
+                                    <ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true" preserveRatio="true">
                                        <HBox.margin>
                                           <Insets bottom="0.0" left="20.0" right="0.0" top="0.0" />
                                        </HBox.margin>
                                     </ImageView>
-                                    <Label styleClass="field-label" text="HISTORIAL RECIENTE">
+                                    <Label styleClass="field-label" text="FACTURA">
                                        <HBox.margin>
-                                          <Insets bottom="0.0" left="8.0" right="0.0" top="0.0" />
+                                          <Insets left="8.0" />
                                        </HBox.margin>
                                     </Label>
                                  </children>
+                                 <VBox.margin>
+                                    <Insets top="15.0" />
+                                 </VBox.margin>
                               </HBox>
 
-                              <!-- Tarjeta PE004 -->
+                              <!-- Tarjeta Factura -->
                               <VBox spacing="10.0" styleClass="tarjeta-pedido">
                                  <children>
-                                    <HBox alignment="CENTER_LEFT">
-                                       <children>
-                                          <Label styleClass="id-pedido" text="PE004" />
-                                          <Region HBox.hgrow="ALWAYS" />
-                                          <Label styleClass="badge-pagado" text="PAGADO" />
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT">
-                                       <children>
-                                          <Label styleClass="texto-secundario" text="Mesa 04" />
-                                          <Region HBox.hgrow="ALWAYS" />
-                                          <Label styleClass="precio" text="\$47.000" />
-                                       </children>
-                                    </HBox>
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets bottom="0.0" left="20.0" right="20.0" top="0.0" />
-                                 </VBox.margin>
-                              </VBox>
 
-                              <!-- Tarjeta PE005 -->
-                              <VBox spacing="10.0" styleClass="tarjeta-pedido">
-                                 <children>
+                                    <Label styleClass="factura-title" text="Pedido PE-004" />
+                                    <Label styleClass="factura-subtitle" text="Mesa 04">
+                                       <VBox.margin>
+                                          <Insets bottom="4.0" />
+                                       </VBox.margin>
+                                    </Label>
+
+                                    <!-- Encabezado de tabla -->
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
-                                          <Label styleClass="id-pedido" text="PE005" />
+                                          <Label styleClass="factura-header-label" text="PRODUCTO" />
                                           <Region HBox.hgrow="ALWAYS" />
-                                          <Label styleClass="badge-pendiente" text="PENDIENTE" />
+                                          <Label styleClass="factura-header-label" text="VALOR" />
+                                       </children>
+                                    </HBox>
+
+                                    <!-- Productos -->
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Label styleClass="factura-item-name" text="Hamburguesa Clásica" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Label styleClass="factura-item-value" text="\$25.000" />
                                        </children>
                                     </HBox>
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
-                                          <Label styleClass="texto-secundario" text="Mesa 12" />
+                                          <Label styleClass="factura-item-name" text="Perro Especial" />
                                           <Region HBox.hgrow="ALWAYS" />
-                                          <Label styleClass="precio" text="\$25.000" />
+                                          <Label styleClass="factura-item-value" text="\$22.000" />
                                        </children>
                                     </HBox>
+
+                                    <Region maxWidth="Infinity" prefHeight="1.0" styleClass="divider">
+                                       <VBox.margin>
+                                          <Insets bottom="2.0" top="4.0" />
+                                       </VBox.margin>
+                                    </Region>
+
+                                    <!-- Subtotal -->
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Label styleClass="texto-secundario" text="Subtotal" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Label styleClass="factura-item-value" text="\$47.000" />
+                                       </children>
+                                    </HBox>
+
+                                    <!-- Total -->
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Label styleClass="factura-total-label" text="Total del pedido" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Label styleClass="factura-total-value" text="\$47.000" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets top="2.0" />
+                                       </VBox.margin>
+                                    </HBox>
+
                                  </children>
                                  <VBox.margin>
                                     <Insets bottom="0.0" left="20.0" right="20.0" top="0.0" />
@@ -186,7 +183,7 @@
             <!-- ===== Columna derecha: Tomar pedido (scrolleable) ===== -->
             <VBox HBox.hgrow="ALWAYS">
                <children>
-                  <Label styleClass="section-title" text="Tomar pedido">
+                  <Label styleClass="section-title" text="Productos">
                      <VBox.margin>
                         <Insets bottom="10.0" left="20.0" right="0.0" top="20.0" />
                      </VBox.margin>
@@ -204,15 +201,18 @@
                               <VBox prefWidth="170.0" styleClass="product-card">
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/hamburguesa-rustica.jpg" />
+                                       </image>
                                     </ImageView>
-                                    <Label styleClass="product-name" text="Hamburguesa Clásica">
+                                    <Label styleClass="product-name" text="Hamburguesa Rústica">
                                        <VBox.margin>
                                           <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
                                        </VBox.margin>
                                     </Label>
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
-                                          <Label styleClass="product-price" text="\$25.000" />
+                                          <Label styleClass="product-price" text="\$28.000" />
                                           <Region HBox.hgrow="ALWAYS" />
                                           <Button styleClass="qty-button" text="-" />
                                           <Label styleClass="qty-value" text="1">
@@ -233,8 +233,139 @@
                               <VBox prefWidth="170.0" styleClass="product-card">
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/hamburguesa-carbon-queso.jpg" />
+                                       </image>
                                     </ImageView>
-                                    <Label styleClass="product-name" text="Hamburguesa Clásica">
+                                    <Label styleClass="product-name" text="Ham. Carbón &amp; Queso">
+                                       <VBox.margin>
+                                          <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Label styleClass="product-price" text="\$32.000 " />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Button styleClass="qty-button" text="-" />
+                                          <Label styleClass="qty-value" text="1">
+                                             <HBox.margin>
+                                                <Insets bottom="0.0" left="6.0" right="6.0" top="0.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <Button styleClass="qty-button" text="+" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+
+                              <!-- Tarjeta de producto: Perro Especial -->
+                              <VBox prefWidth="170.0" styleClass="product-card">
+                                 <children>
+                                    <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/perro-especial-carbon.jpg" />
+                                       </image>
+                                    </ImageView>
+                                    <Label styleClass="product-name" text="Perro Especial Carbón">
+                                       <VBox.margin>
+                                          <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Label styleClass="product-price" text="\$20.000" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Button styleClass="qty-button" text="-" />
+                                          <Label styleClass="qty-value" text="1">
+                                             <HBox.margin>
+                                                <Insets bottom="0.0" left="6.0" right="6.0" top="0.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <Button styleClass="qty-button" text="+" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+
+                              <!-- Tarjeta de producto: Perro Especial (2) -->
+                              <VBox prefWidth="170.0" styleClass="product-card">
+                                 <children>
+                                    <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/perro-suizo-ahumado.jpg" />
+                                       </image>
+                                    </ImageView>
+                                    <Label styleClass="product-name" text="Perro Suizo Ahumado">
+                                       <VBox.margin>
+                                          <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Label styleClass="product-price" text="\$23.000 " />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Button styleClass="qty-button" text="-" />
+                                          <Label styleClass="qty-value" text="1">
+                                             <HBox.margin>
+                                                <Insets bottom="0.0" left="6.0" right="6.0" top="0.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <Button styleClass="qty-button" text="+" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+
+                              <!-- Tarjeta de producto: Salchipapa -->
+                              <VBox prefWidth="170.0" styleClass="product-card">
+                                 <children>
+                                    <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/salchipapa-clasica.jpg" />
+                                       </image>
+                                    </ImageView>
+                                    <Label styleClass="product-name" text="Salchipapa Clásica">
+                                       <VBox.margin>
+                                          <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Label styleClass="product-price" text="\$18.000" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Button styleClass="qty-button" text="-" />
+                                          <Label styleClass="qty-value" text="1">
+                                             <HBox.margin>
+                                                <Insets bottom="0.0" left="6.0" right="6.0" top="0.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <Button styleClass="qty-button" text="+" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+
+                              <!-- Tarjeta de producto: Mojito -->
+                              <VBox prefWidth="170.0" styleClass="product-card">
+                                 <children>
+                                    <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/salchipapa-sazonada.jpg" />
+                                       </image>
+                                    </ImageView>
+                                    <Label styleClass="product-name" text="Salchipapa Sazonada">
                                        <VBox.margin>
                                           <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
                                        </VBox.margin>
@@ -257,20 +388,21 @@
                                     </HBox>
                                  </children>
                               </VBox>
-
-                              <!-- Tarjeta de producto: Perro Especial -->
                               <VBox prefWidth="170.0" styleClass="product-card">
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/papa-loca-carbon-sazon.jpg" />
+                                       </image>
                                     </ImageView>
-                                    <Label styleClass="product-name" text="Perro Especial">
+                                    <Label styleClass="product-name" text="Papa Loca Carbón y Sazón">
                                        <VBox.margin>
                                           <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
                                        </VBox.margin>
                                     </Label>
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
-                                          <Label styleClass="product-price" text="\$22.000" />
+                                          <Label styleClass="product-price" text="\$34.000" />
                                           <Region HBox.hgrow="ALWAYS" />
                                           <Button styleClass="qty-button" text="-" />
                                           <Label styleClass="qty-value" text="1">
@@ -286,20 +418,21 @@
                                     </HBox>
                                  </children>
                               </VBox>
-
-                              <!-- Tarjeta de producto: Perro Especial (2) -->
                               <VBox prefWidth="170.0" styleClass="product-card">
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/papa-loca-bbq-pork.jpg" />
+                                       </image>
                                     </ImageView>
-                                    <Label styleClass="product-name" text="Perro Especial">
+                                    <Label styleClass="product-name" text="Papa Loca BBQ Pork">
                                        <VBox.margin>
                                           <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
                                        </VBox.margin>
                                     </Label>
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
-                                          <Label styleClass="product-price" text="\$22.000" />
+                                          <Label styleClass="product-price" text="\$31.000" />
                                           <Region HBox.hgrow="ALWAYS" />
                                           <Button styleClass="qty-button" text="-" />
                                           <Label styleClass="qty-value" text="1">
@@ -315,20 +448,21 @@
                                     </HBox>
                                  </children>
                               </VBox>
-
-                              <!-- Tarjeta de producto: Salchipapa -->
                               <VBox prefWidth="170.0" styleClass="product-card">
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/desgranado-mixto.jpg" />
+                                       </image>
                                     </ImageView>
-                                    <Label styleClass="product-name" text="Salchipapa">
+                                    <Label styleClass="product-name" text="Desgranado Mixto">
                                        <VBox.margin>
                                           <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
                                        </VBox.margin>
                                     </Label>
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
-                                          <Label styleClass="product-price" text="\$22.000" />
+                                          <Label styleClass="product-price" text="\$26.000" />
                                           <Region HBox.hgrow="ALWAYS" />
                                           <Button styleClass="qty-button" text="-" />
                                           <Label styleClass="qty-value" text="1">
@@ -344,13 +478,104 @@
                                     </HBox>
                                  </children>
                               </VBox>
-
-                              <!-- Tarjeta de producto: Mojito -->
                               <VBox prefWidth="170.0" styleClass="product-card">
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/desgranado-ranchero.jpg" />
+                                       </image>
                                     </ImageView>
-                                    <Label styleClass="product-name" text="Mojito">
+                                    <Label styleClass="product-name" text="Desgranado Ranchero">
+                                       <VBox.margin>
+                                          <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Label styleClass="product-price" text="\$28.000" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Button styleClass="qty-button" text="-" />
+                                          <Label styleClass="qty-value" text="1">
+                                             <HBox.margin>
+                                                <Insets bottom="0.0" left="6.0" right="6.0" top="0.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <Button styleClass="qty-button" text="+" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <VBox prefWidth="170.0" styleClass="product-card">
+                                 <children>
+                                    <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/limonada-coco.jpg" />
+                                       </image>
+                                    </ImageView>
+                                    <Label styleClass="product-name" text="Limonada de Coco ">
+                                       <VBox.margin>
+                                          <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Label styleClass="product-price" text="\$10.000" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Button styleClass="qty-button" text="-" />
+                                          <Label styleClass="qty-value" text="1">
+                                             <HBox.margin>
+                                                <Insets bottom="0.0" left="6.0" right="6.0" top="0.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <Button styleClass="qty-button" text="+" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <VBox prefWidth="170.0" styleClass="product-card">
+                                 <children>
+                                    <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/limonada-cerezada.jpg" />
+                                       </image>
+                                    </ImageView>
+                                    <Label styleClass="product-name" text="Limonada Cerezada">
+                                       <VBox.margin>
+                                          <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Label styleClass="product-price" text="\$9.000" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Button styleClass="qty-button" text="-" />
+                                          <Label styleClass="qty-value" text="1">
+                                             <HBox.margin>
+                                                <Insets bottom="0.0" left="6.0" right="6.0" top="0.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <Button styleClass="qty-button" text="+" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <VBox prefWidth="170.0" styleClass="product-card">
+                                 <children>
+                                    <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/gaseosa-personal.jpg" />
+                                       </image>
+                                    </ImageView>
+                                    <Label styleClass="product-name" text="Gaseosa Personal">
                                        <VBox.margin>
                                           <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
                                        </VBox.margin>
@@ -358,6 +583,66 @@
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
                                           <Label styleClass="product-price" text="\$5.000" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Button styleClass="qty-button" text="-" />
+                                          <Label styleClass="qty-value" text="1">
+                                             <HBox.margin>
+                                                <Insets bottom="0.0" left="6.0" right="6.0" top="0.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <Button styleClass="qty-button" text="+" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <VBox prefWidth="170.0" styleClass="product-card">
+                                 <children>
+                                    <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/jugo-natural-agua.jpg" />
+                                       </image>
+                                    </ImageView>
+                                    <Label styleClass="product-name" text="Jugo Natural en Agua">
+                                       <VBox.margin>
+                                          <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Label styleClass="product-price" text="\$8.000" />
+                                          <Region HBox.hgrow="ALWAYS" />
+                                          <Button styleClass="qty-button" text="-" />
+                                          <Label styleClass="qty-value" text="1">
+                                             <HBox.margin>
+                                                <Insets bottom="0.0" left="6.0" right="6.0" top="0.0" />
+                                             </HBox.margin>
+                                          </Label>
+                                          <Button styleClass="qty-button" text="+" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                              <VBox prefWidth="170.0" styleClass="product-card">
+                                 <children>
+                                    <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
+                                       <image>
+                                          <Image url="@/images/jugo-natural-leche.jpg" />
+                                       </image>
+                                    </ImageView>
+                                    <Label styleClass="product-name" text="Jugo Natural en Leche ">
+                                       <VBox.margin>
+                                          <Insets bottom="0.0" left="10.0" right="10.0" top="8.0" />
+                                       </VBox.margin>
+                                    </Label>
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Label styleClass="product-price" text="\$8.000" />
                                           <Region HBox.hgrow="ALWAYS" />
                                           <Button styleClass="qty-button" text="-" />
                                           <Label styleClass="qty-value" text="1">

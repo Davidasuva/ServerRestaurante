@@ -197,3 +197,61 @@
 .scroll-transparent .scroll-bar:vertical {
     -fx-background-color: transparent;
 }
+
+/* ChoiceBox (selector de mesa) */
+.choice-box {
+    -fx-background-color: -color-surface;
+    -fx-background-radius: 20;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 20;
+    -fx-mark-color: -color-text-primary;
+}
+
+.choice-box .label {
+    -fx-text-fill: -color-text-primary;
+    -fx-padding: 4 10;
+}
+
+/* Factura */
+.factura-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 17px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.factura-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: -color-text-secondary;
+}
+
+.factura-header-label {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-muted;
+}
+
+.factura-item-name {
+    -fx-font-size: 13px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.factura-item-value {
+    -fx-font-size: 13px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.factura-total-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.factura-total-value {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-text-fill: -color-accent;
+}
+
+.divider {
+    -fx-background-color: -color-border-light;
+}
