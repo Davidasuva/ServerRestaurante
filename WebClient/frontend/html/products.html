@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Productos</title>
+    <link rel="icon" type="image/png" href="../assets/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/products.css" />
+    <link rel="stylesheet" href="../css/order-summary.css" />
+    <link rel="stylesheet" href="../css/checkout.css" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" />
+</head>
+
+<body>
+    <header class="h">
+        <div class="head-productos">
+            <img class="restaurant-logo" src="../assets/logo.png" alt="Carbón y Sazón" />
+            <p>Carbón y Sazón</p>
+            <label class="accent" for="" id="mesa-actual">M. 1</label>
+        </div>
+        <div class="buscador-productos">
+            <input type="search" placeholder="Buscar en el menú..." aria-label="Buscar en el menú" />
+            <button class="limpiar-busqueda" type="button" aria-label="Borrar búsqueda" hidden>
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="filtro">
+            <button class="filtro-opcion activo" type="button" data-categoria="todas">
+                Todos
+            </button>
+            <button class="filtro-opcion" type="button" data-categoria="hamburguesas">
+                Hamburguesas
+            </button>
+            <button class="filtro-opcion" type="button" data-categoria="perros">
+                Perros Calientes
+            </button>
+            <button class="filtro-opcion" type="button" data-categoria="salchipapas">
+                Salchipapas
+            </button>
+            <button class="filtro-opcion" type="button" data-categoria="papas-locas">
+                Papas Locas
+            </button>
+            <button class="filtro-opcion" type="button" data-categoria="desgranados">
+                Desgranados
+            </button>
+            <button class="filtro-opcion" type="button" data-categoria="bebidas">
+                Bebidas
+            </button>
+        </div>
+    </header>
+
+    <main class="productos">
+        <article class="producto-card" data-categoria="hamburguesas"
+            data-descripcion="Carne de res al carbón con cheddar ahumado, tocineta crocante y cebolla caramelizada."
+            data-ingredientes="Carne de res al carbón (200g), Queso cheddar ahumado, Tocineta crocante, Cebolla caramelizada, Lechuga crespa, Tomate chonto, Salsa BBQ con toque de miel, Pan brioche artesanal"
+            data-ingredientes-fijos="Carne de res al carbón (200g), Pan brioche artesanal">
+            <img src="../assets/productos/1.jpg" alt="Hamburguesa Rústica" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Hamburguesa Rústica</h2>
+                <p class="producto-precio">$28.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="hamburguesas"
+            data-descripcion="Doble carne de res con doble queso fundido, pepinillos dulces y salsa de la casa."
+            data-ingredientes="Doble carne de res (300g), Doble queso doble crema fundido, Pepinillos dulces, Cebolla picada, Salsa de la casa, Pan brioche artesanal"
+            data-ingredientes-fijos="Doble carne de res (300g), Pan brioche artesanal">
+            <img src="../assets/productos/2.jpg" alt="Hamburguesa Carbón y Queso" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Hamburguesa Carbón y Queso</h2>
+                <p class="producto-precio">$32.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="perros"
+            data-descripcion="Salchicha manguera a la parrilla con queso costeño, tocineta, fósforos de papa y salsas."
+            data-ingredientes="Salchicha manguera a la parrilla, Queso costeño rallado, Tocineta picada, Cebolla cabezona picada, Fósforos de papa, Salsa tártara, Salsa de piña, Pan de perro artesanal"
+            data-ingredientes-fijos="Salchicha manguera a la parrilla, Pan de perro artesanal">
+            <img src="../assets/productos/3.jpg" alt="Perro Caliente Especial Carbón" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Perro Caliente Especial Carbón</h2>
+                <p class="producto-precio">$20.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="perros"
+            data-descripcion="Salchicha suiza ahumada a la parrilla con queso fundido, maíz y tocineta."
+            data-ingredientes="Salchicha Suiza a la parrilla, Queso doble crema fundido, Maíz tierno, Tocineta picada, Salsa showy, Pan de perro artesanal"
+            data-ingredientes-fijos="Salchicha Suiza a la parrilla, Pan de perro artesanal">
+            <img src="../assets/productos/4.jpg" alt="Perro Suizo Ahumado" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Perro Suizo Ahumado</h2>
+                <p class="producto-precio">$23.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="salchipapas"
+            data-descripcion="Papa a la francesa crocante con salchicha manguera, queso costeño y salsas clásicas."
+            data-ingredientes="Papa a la francesa crocante, Salchicha manguera salteada, Queso costeño rallado, Salsa de tomate, Mayonesa, Salsa rosada"
+            data-ingredientes-fijos="Papa a la francesa crocante, Salchicha manguera salteada">
+            <img src="../assets/productos/5.jpg" alt="Salchipapa Clásica" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Salchipapa Clásica</h2>
+                <p class="producto-precio">$18.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="salchipapas"
+            data-descripcion="Papa criolla dorada con salchicha suiza, chorizo artesanal, queso y maíz dulce."
+            data-ingredientes="Papa criolla dorada, Salchicha suiza, Chorizo artesanal al carbón, Queso doble crema fundido, Maíz dulce tierno, Salsa tártara de la casa"
+            data-ingredientes-fijos="Papa criolla dorada, Salchicha suiza, Chorizo artesanal al carbón">
+            <img src="../assets/productos/6.jpg" alt="Salchipapa Sazonada" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Salchipapa Sazonada</h2>
+                <p class="producto-precio">$25.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="papas-locas"
+            data-descripcion="Doble cama de papas con carnes al carbón, tocineta, queso gratinado y guacamole."
+            data-ingredientes="Cama doble de papa a la francesa y papa criolla, Carne desmechada de res, Pollo desmechado al carbón, Tocineta crocante, Queso doble crema gratinado, Maíz tierno, Fósforos de papa, Guacamole fresco, Salsa de la casa"
+            data-ingredientes-fijos="Cama doble de papa a la francesa y papa criolla, Carne desmechada de res, Pollo desmechado al carbón">
+            <img src="../assets/productos/7.jpg" alt="Papa Loca Carbón y Sazón" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Papa Loca Carbón y Sazón</h2>
+                <p class="producto-precio">$34.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="papas-locas"
+            data-descripcion="Papa a la francesa con cerdo desmechado en BBQ ahumada, cheddar y cebolla crispy."
+            data-ingredientes="Papa a la francesa, Cerdo desmechado en salsa BBQ ahumada, Queso cheddar fundido, Cebolla en crispy, Salsa showy, Cilantro fresco"
+            data-ingredientes-fijos="Papa a la francesa, Cerdo desmechado en salsa BBQ ahumada">
+            <img src="../assets/productos/8.jpg" alt="Papa Loca BBQ Pork" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Papa Loca BBQ Pork</h2>
+                <p class="producto-precio">$31.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="desgranados"
+            data-descripcion="Maíz dulce a la parrilla con pollo y res al carbón, quesos, tocineta y salsas."
+            data-ingredientes="Maíz dulce tierno desgranado a la parrilla, Pollo al carbón picado, Carne de res picada, Queso costeño rallado, Queso doble crema derretido, Fósforos de papa, Tocineta picada, Salsa tártara, Salsa de piña"
+            data-ingredientes-fijos="Maíz dulce tierno desgranado a la parrilla, Pollo al carbón picado, Carne de res picada">
+            <img src="../assets/productos/9.jpg" alt="Desgranado Mixto" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Desgranado Mixto</h2>
+                <p class="producto-precio">$26.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="desgranados"
+            data-descripcion="Maíz dulce con chorizo y carne al carbón, jalapeños, queso gratinado y BBQ ahumada."
+            data-ingredientes="Maíz dulce tierno desgranado, Chorizo artesanal al carbón, Carne de res en cubos, Jalapeños picados, Queso doble crema gratinado, Fósforos de papa, Salsa BBQ ahumada"
+            data-ingredientes-fijos="Maíz dulce tierno desgranado, Chorizo artesanal al carbón, Carne de res en cubos">
+            <img src="../assets/productos/10.jpg" alt="Desgranado Ranchero" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Desgranado Ranchero</h2>
+                <p class="producto-precio">$28.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="bebidas"
+            data-descripcion="Limonada cremosa y refrescante con coco, leche condensada y hielo frappé."
+            data-ingredientes="Zumo de limón criollo, Crema de coco, Leche condensada, Hielo frappé">
+            <img src="../assets/productos/11.jpg" alt="Limonada de Coco Artesanal" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Limonada de Coco Artesanal</h2>
+                <p class="producto-precio">$10.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="bebidas"
+            data-descripcion="Limonada fresca con jarabe artesanal de cereza y cerezas al marrasquino."
+            data-ingredientes="Zumo de limón fresco, Jarabe artesanal de cereza, Cerezas al marrasquino, Hielo">
+            <img src="../assets/productos/12.jpg" alt="Limonada Cerezada" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Limonada Cerezada</h2>
+                <p class="producto-precio">$9.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="bebidas"
+            data-descripcion="Gaseosa personal de 400 ml, con sabor a elección."
+            data-ingredientes="Coca-Cola, Pepsi, Colombiana, Sprite, Quatro"
+            data-opciones-bebida="Coca-Cola, Pepsi, Colombiana, Sprite, Quatro">
+            <img src="../assets/productos/13.jpg" alt="Gaseosa Personal" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Gaseosa Personal</h2>
+                <p class="producto-precio">$5.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+        <article class="producto-card" data-categoria="bebidas"
+            data-descripcion="Jugo natural preparado con fruta, disponible en agua o leche y endulzado al gusto."
+            data-ingredientes="Pulpa natural de fruta (Mora, Mango, Lulo, Maracuyá), Agua, Leche entera, Endulzante al gusto, Hielo"
+            data-opciones-bebida="Agua, Leche entera">
+            <img src="../assets/productos/14.jpg" alt="Jugo Natural en Agua o Leche" loading="lazy" decoding="async" />
+            <div class="producto-info">
+                <h2>Jugo Natural en Agua o Leche</h2>
+                <p class="producto-precio">$8.000</p>
+                <button class="agregar-producto" type="button">
+                    <span class="material-symbols-outlined">add</span> Añadir
+                </button>
+            </div>
+        </article>
+    </main>
+
+    <footer class="cont-ver-pedido">
+        <button class="pedido" type="button" aria-controls="panel-pedido" aria-expanded="false">
+            <span class="material-symbols-outlined">shopping_bag</span>
+            <strong>Ver pedido: <span class="cantidad-pedido">0</span></strong>
+            <strong class="total-pedido">$0</strong>
+        </button>
+    </footer>
+
+    <div class="pedido-overlay" aria-hidden="true">
+        <section class="panel-pedido" id="panel-pedido" role="dialog" aria-modal="true" aria-labelledby="titulo-pedido">
+            <button class="arrastre-pedido" type="button" aria-label="Deslizar para cerrar detalles del pedido">
+                <span></span>
+            </button>
+            <header class="panel-pedido-header">
+                <h1 id="titulo-pedido">Resumen y Pago</h1>
+            </header>
+
+            <div class="lista-pedido" aria-live="polite"></div>
+            <div class="pedido-vacio">
+                <div class="pedido-vacio-icono">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                </div>
+                <h2>Tu pedido está vacío</h2>
+                <p>Agrega algunos platos del menú para comenzar.</p>
+                <button class="volver-menu" type="button">
+                    Volver al Menú
+                </button>
+            </div>
+
+            <div class="checkout-vista" hidden>
+                <div class="checkout-status" role="status">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <strong id="checkout-titulo">Tu pedido está listo</strong>
+                </div>
+                <section class="checkout-order" aria-labelledby="checkout-order-title">
+                    <div class="checkout-section-heading">
+                        <h2 id="checkout-order-title">Tu pedido</h2>
+                    </div>
+                    <div class="checkout-lineas" id="checkout-lineas"></div>
+                    <div class="checkout-totales">
+                        <div class="checkout-total">
+                            <span>Total</span><strong id="checkout-total">$0</strong>
+                        </div>
+                    </div>
+                </section>
+                <fieldset class="checkout-payment">
+                    <legend>Selecciona el método de pago</legend>
+                    <label><input type="radio" name="metodo-pago" value="Efectivo"
+                            checked /><span>Efectivo</span></label>
+                    <label><input type="radio" name="metodo-pago" value="Nequi" /><span>Nequi</span></label>
+                    <label><input type="radio" name="metodo-pago"
+                            value="Transferencia" /><span>Transferencia</span></label>
+                </fieldset>
+                <div class="checkout-actions">
+                    <button class="finalizar-checkout" id="finalizar-checkout" type="button">
+                        Enviar pedido a cocina
+                    </button>
+                    <button class="volver-resumen" type="button">
+                        Volver al resumen
+                    </button>
+                </div>
+            </div>
+
+            <div class="confirm-dialog-overlay" id="confirm-volver-overlay" aria-hidden="true" hidden>
+                <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-desc">
+                    <div class="confirm-dialog-icon">
+                        <span class="material-symbols-outlined">help_outline</span>
+                    </div>
+                    <h3 id="confirm-dialog-title">¿Volver al resumen?</h3>
+                    <p id="confirm-dialog-desc">¿Deseas regresar para modificar los productos de tu pedido?</p>
+                    <div class="confirm-dialog-actions">
+                        <button class="confirm-dialog-btn cancel" id="cancelar-volver" type="button">
+                            Cancelar
+                        </button>
+                        <button class="confirm-dialog-btn confirm" id="confirmar-volver" type="button">
+                            Sí, volver
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="panel-pedido-footer">
+                <div class="total-panel">
+                    <span>Total a pagar</span>
+                    <strong>$0</strong>
+                </div>
+                <button class="confirmar-pedido" type="button" disabled>
+                    Confirmar Pedido
+                </button>
+            </footer>
+        </section>
+    </div>
+
+    <div class="producto-overlay" aria-hidden="true">
+        <section class="producto-modal" role="dialog" aria-modal="true" aria-labelledby="titulo-producto-modal">
+            <button class="cerrar-producto" type="button" aria-label="Cerrar detalles del producto">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <img class="producto-modal-imagen" src="" alt="" />
+            <div class="producto-modal-contenido">
+                <h2 id="titulo-producto-modal"></h2>
+                <p class="producto-modal-precio"></p>
+                <p class="producto-modal-descripcion"></p>
+                <button class="confirmar-producto" type="button">
+                    Añadir al pedido
+                </button>
+            </div>
+        </section>
+    </div>
+    <script src="../js/restaurant-config.js"></script>
+    <script type="module" src="../js/products.js"></script>
+</body>
+
+</html>

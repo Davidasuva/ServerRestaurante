@@ -1,0 +1,544 @@
+/* ==========================================================================
+   PANTALLA DE ESTADO DEL PEDIDO (STATUS) - CICLO DE COCINA
+   ========================================================================== */
+
+.status-body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.status-screen {
+    display: flex;
+    flex-direction: column;
+    width: min(100%, 460px);
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 16px 20px 28px;
+    margin: 0 auto;
+}
+
+/* Barra superior */
+.status-top-bar {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: calc(6px + env(safe-area-inset-top)) 0 12px;
+}
+
+.status-header-title {
+    font-size: 13px;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    margin-left: 6px;
+}
+
+/* Contenido principal */
+.status-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 10px 0 20px;
+}
+
+.status-kitchen-note {
+    max-width: 34ch;
+    margin: -10px 0 0;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.status-confirmation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.status-confirmation.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.status-confirmation[hidden] {
+    display: none;
+}
+
+.status-confirm-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 12px;
+    background-color: var(--color-success);
+    color: var(--color-text-on-accent);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgb(0 201 80 / 22%);
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.status-confirm-button:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+.status-confirm-button:disabled {
+    cursor: default;
+    opacity: 0.75;
+    transform: none;
+}
+
+.status-close-note {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    text-align: center;
+}
+
+/* Badge con Icono de Google */
+.status-badge {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background-color: var(--color-accent-dark);
+    color: var(--color-accent);
+    display: grid;
+    place-items: center;
+    transition: background-color 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                color 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.4s ease,
+                box-shadow 0.5s ease;
+}
+
+.status-badge-icon {
+    font-size: 46px;
+    transition: transform 0.4s ease;
+}
+
+.status-badge.listo {
+    background-color: rgb(0 201 80 / 14%);
+    color: var(--color-success);
+    transform: scale(1.05);
+}
+
+/* Título de estado */
+.status-titulo {
+    font-size: clamp(22px, 5.5vw, 26px);
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.25;
+    color: var(--color-accent);
+    letter-spacing: -0.01em;
+    transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.4s ease;
+}
+
+.status-titulo.listo {
+    color: var(--color-success);
+}
+
+/* Tarjeta informativa */
+.status-card {
+    width: 100%;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 22px;
+    padding: 26px 20px 28px;
+    box-shadow: 0 16px 36px rgb(0 0 0 / 40%);
+    transition: border-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+.status-card.listo {
+    border-color: rgb(0 201 80 / 30%);
+    box-shadow: 0 16px 36px rgb(0 201 80 / 10%);
+}
+
+.status-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 34px;
+    padding: 0 4px;
+}
+
+.status-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.status-info-right {
+    align-items: flex-end;
+}
+
+.status-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.status-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--color-text-primary);
+    letter-spacing: -0.02em;
+}
+
+.status-value.accent {
+    color: var(--color-accent);
+    transition: color 0.5s ease;
+}
+
+.status-card.listo .status-value.accent {
+    color: var(--color-success);
+}
+
+/* Stepper y barras de progreso */
+.status-stepper {
+    position: relative;
+    width: 100%;
+}
+
+.stepper-track-bg {
+    position: absolute;
+    top: 18px;
+    left: 36px;
+    right: 36px;
+    height: 4px;
+    background-color: #323236;
+    border-radius: 999px;
+    z-index: 1;
+}
+
+.stepper-track-fill {
+    position: absolute;
+    top: 18px;
+    left: 36px;
+    height: 4px;
+    width: 0%;
+    background-color: var(--color-accent);
+    border-radius: 999px;
+    z-index: 2;
+    transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                background-color 0.6s ease;
+}
+
+/* Destello en la punta de la barra */
+.stepper-track-fill::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 18px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 65%));
+    border-radius: 999px;
+    opacity: 0.8;
+}
+
+/* Posición de la barra según estado */
+.status-stepper.estado-en-cola .stepper-track-fill {
+    width: 0%;
+    background-color: var(--color-accent);
+}
+
+.status-stepper.estado-en-preparacion .stepper-track-fill {
+    width: calc(50% - 18px);
+    background-color: var(--color-accent);
+}
+
+.status-stepper.estado-listo .stepper-track-fill {
+    width: calc(100% - 72px);
+    background-color: var(--color-success);
+}
+
+/* Pasos */
+.stepper-steps {
+    list-style: none;
+    position: relative;
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0;
+    margin: 0;
+}
+
+.stepper-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 82px;
+    text-align: center;
+    gap: 10px;
+}
+
+/* Indicador circular */
+.step-indicator {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: #323236;
+    display: grid;
+    place-items: center;
+    color: var(--color-text-on-accent);
+    position: relative;
+    transition: background-color 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.4s ease,
+                box-shadow 0.4s ease;
+}
+
+.step-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    letter-spacing: 0.05em;
+    line-height: 1.35;
+    text-transform: uppercase;
+    transition: color 0.5s ease;
+}
+
+/* Iconos de checkmark dentro del indicador */
+.step-check-icon {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--color-text-on-accent);
+    opacity: 0;
+    transform: scale(0.4);
+    transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    position: absolute;
+}
+
+/* Punto blanco pulsante */
+.step-pulsing-dot {
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    box-shadow: 0 0 8px rgb(255 255 255 / 90%);
+    opacity: 0;
+    transform: scale(0);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.step-pulsing-dot::before {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    background-color: rgb(255 255 255 / 45%);
+    animation: pulse-ring 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% {
+        transform: scale(0.92);
+        opacity: 0.95;
+    }
+    50% {
+        transform: scale(1.18);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.85);
+        opacity: 0.85;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+/* ==========================================================================
+   CONFIGURACIÓN DE CADA ESTADO
+   ========================================================================== */
+
+/* ESTADO 1: EN COLA */
+.status-stepper.estado-en-cola #step-cola .step-indicator {
+    background-color: var(--color-accent);
+    box-shadow: 0 0 16px rgb(255 87 34 / 45%);
+}
+
+.status-stepper.estado-en-cola #step-cola #dot-cola {
+    opacity: 1;
+    transform: scale(1);
+    animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+.status-stepper.estado-en-cola #step-cola .step-label {
+    color: var(--color-text-primary);
+}
+
+/* ESTADO 2: EN PREPARACIÓN */
+.status-stepper.estado-en-preparacion #step-cola .step-indicator {
+    background-color: var(--color-accent);
+}
+
+.status-stepper.estado-en-preparacion #step-cola #check-cola {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.status-stepper.estado-en-preparacion #step-cola .step-label {
+    color: var(--color-accent);
+}
+
+.status-stepper.estado-en-preparacion #step-preparacion .step-indicator {
+    background-color: var(--color-accent);
+    box-shadow: 0 0 16px rgb(255 87 34 / 45%);
+}
+
+.status-stepper.estado-en-preparacion #step-preparacion #dot-preparacion {
+    opacity: 1;
+    transform: scale(1);
+    animation: pulse-dot 1.6s ease-in-out infinite;
+}
+
+.status-stepper.estado-en-preparacion #step-preparacion .step-label {
+    color: var(--color-text-primary);
+}
+
+/* ESTADO 3: LISTO (TODO VERDE CON CHECKS) */
+.status-stepper.estado-listo #step-cola .step-indicator,
+.status-stepper.estado-listo #step-preparacion .step-indicator,
+.status-stepper.estado-listo #step-listo .step-indicator {
+    background-color: var(--color-success);
+    box-shadow: 0 0 14px rgb(0 201 80 / 35%);
+}
+
+.status-stepper.estado-listo #step-cola .step-label,
+.status-stepper.estado-listo #step-preparacion .step-label,
+.status-stepper.estado-listo #step-listo .step-label {
+    color: var(--color-success);
+}
+
+.status-stepper.estado-listo #step-cola #check-cola,
+.status-stepper.estado-listo #step-preparacion #check-preparacion,
+.status-stepper.estado-listo #step-listo #check-listo {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.status-stepper.estado-listo #step-preparacion #dot-preparacion {
+    opacity: 0;
+    transform: scale(0);
+    animation: none;
+}
+
+.status-stepper.estado-listo #step-listo .step-indicator {
+    transform: scale(1.08);
+    box-shadow: 0 0 18px rgb(0 201 80 / 45%);
+}
+
+/* ==========================================================================
+   SELECTOR DE SIMULACIÓN PARA DESARROLLO Y WEBCONENTS / SPRING BOOT
+   ========================================================================== */
+
+.status-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.status-actions-hint {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.status-state-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background-color: var(--color-surface);
+}
+
+.state-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 999px;
+    background-color: transparent;
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.22s ease;
+}
+
+.state-pill .material-symbols-outlined {
+    font-size: 15px;
+}
+
+.state-pill:hover {
+    color: var(--color-text-primary);
+}
+
+.state-pill.activo {
+    background-color: var(--color-accent);
+    color: var(--color-text-on-accent);
+    box-shadow: 0 4px 12px rgb(255 87 34 / 28%);
+}
+
+.state-pill.activo[data-state="LISTO"] {
+    background-color: var(--color-success);
+    box-shadow: 0 4px 12px rgb(0 201 80 / 28%);
+}
+
+/* Responsive */
+@media (max-width: 380px) {
+    .status-card {
+        padding: 20px 14px 22px;
+    }
+    .stepper-step {
+        width: 72px;
+    }
+    .stepper-track-bg,
+    .stepper-track-fill {
+        left: 28px;
+        right: 28px;
+    }
+    .status-state-selector {
+        flex-wrap: wrap;
+        border-radius: 14px;
+        justify-content: center;
+    }
+}
