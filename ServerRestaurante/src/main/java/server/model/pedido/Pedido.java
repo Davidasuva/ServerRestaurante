@@ -49,12 +49,19 @@ public class Pedido implements Serializable, Comparable<Pedido> {
     }
 
     public float getPrecioTotal() {
+        return precioTotal;
+    }
+
+    private void recalcularPrecioTotal() {
         float total = 0;
         for (Producto producto : productos) {
             total += producto.getPrecio();
         }
-        this.precioTotal=total;
-        return total;
+        this.precioTotal = total;
+    }
+
+    public void setPrecioTotal(float precioTotal) {
+        this.precioTotal = precioTotal;
     }
 
     public LocalDateTime getFechaPedido() {
@@ -110,10 +117,18 @@ public class Pedido implements Serializable, Comparable<Pedido> {
     }
 
     public boolean addProducto(Producto producto) {
-        return productos.add(producto);
+        boolean agregado = productos.add(producto);
+        if (agregado) {
+            recalcularPrecioTotal();
+        }
+        return agregado;
     }
     public boolean removeProducto(Producto producto) {
-        return productos.remove(producto);
+        boolean quitado = productos.remove(producto);
+        if (quitado) {
+            recalcularPrecioTotal();
+        }
+        return quitado;
     }
     public boolean addEncargado(Empleado empleado) {
         return encargados.add(empleado);
@@ -121,5 +136,10 @@ public class Pedido implements Serializable, Comparable<Pedido> {
 
     public boolean removeEmpleado(Empleado empleado) {
         return encargados.remove(empleado);
+    }
+
+    @Override
+    public String toString() {
+        return "Pedido con id: "+id+ "Precio total: "+getPrecioTotal();
     }
 }

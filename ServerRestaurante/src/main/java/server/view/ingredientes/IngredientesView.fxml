@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="server.controller.ingredientes.IngredientesController"
+      styleClass="raiz-admin"
+      prefWidth="1100" prefHeight="700">
+
+    <VBox HBox.hgrow="ALWAYS" spacing="0">
+
+        <HBox styleClass="navbar" alignment="CENTER_LEFT" spacing="20">
+            <HBox alignment="CENTER" spacing="8">
+                <ImageView fitWidth="28" fitHeight="28" preserveRatio="true">
+                    <image>
+                        <Image url="@/images/Logo.png"/>
+                    </image>
+                </ImageView>
+                <Label text="Carbón y Sazón" styleClass="nav-brand"/>
+            </HBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="mesas" styleClass="nav-link" onAction="#handleIrMesas"/>
+            <Button text="pedidos" styleClass="nav-link" onAction="#handleIrPedidos"/>
+            <Button text="productos" styleClass="nav-link" onAction="#handleIrProductos"/>
+            <Button text="ingredientes" styleClass="nav-link-active"/>
+            <Button text="empleados" styleClass="nav-link" onAction="#handleIrEmpleados"/>
+        </HBox>
+
+        <VBox VBox.vgrow="ALWAYS" spacing="0">
+            <VBox.margin><Insets top="28" left="28" right="28" bottom="28"/></VBox.margin>
+
+            <!-- ── Encabezado + control del servidor ── -->
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <VBox spacing="4">
+                    <Label text="Ingredientes" styleClass="seccion-titulo"/>
+                    <Label text="Controla el inventario de insumos que usan los productos."
+                           styleClass="seccion-subtitulo"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <HBox alignment="CENTER" spacing="8" styleClass="estado-caja">
+                    <Region fx:id="indicador" styleClass="indicador, indicador-apagado"/>
+                    <Label fx:id="lblEstado" text="Servidor apagado" styleClass="estado-texto"/>
+                </HBox>
+                <Button fx:id="btnConsola" text="Consola ▾" styleClass="btn-consola"
+                        onAction="#handleToggleConsola"/>
+                <Button fx:id="btnServidor" text="▶  Iniciar servidor" styleClass="btn-iniciar"
+                        minWidth="180" onAction="#handleToggleServidor"/>
+            </HBox>
+
+            <!-- ── Consola desplegable (arranca cerrada, el controlador anima el alto) ── -->
+            <VBox fx:id="panelConsola" styleClass="panel-consola"
+                  minHeight="0" prefHeight="0" maxHeight="0">
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Consola del servidor" styleClass="consola-titulo"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Limpiar" styleClass="btn-link" onAction="#handleLimpiarConsola"/>
+                </HBox>
+                <TextArea fx:id="txtConsola" styleClass="consola"
+                          editable="false" wrapText="true"
+                          promptText="Esperando eventos..."
+                          minHeight="170" VBox.vgrow="ALWAYS"/>
+            </VBox>
+
+            <Region minHeight="20" maxHeight="20"/>
+
+            <!-- ── Barra de acciones ── -->
+            <HBox styleClass="barra-acciones" spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="txtBuscar"
+                           promptText="Buscar por nombre, descripción o id..."
+                           styleClass="campo-busqueda"
+                           prefWidth="340"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Actualizar" styleClass="btn-secundario" onAction="#handleRecargar"/>
+                <Button text="+ Nuevo Ingrediente" styleClass="btn-primario" onAction="#handleNuevo"/>
+            </HBox>
+
+            <Region minHeight="14" maxHeight="14"/>
+
+            <!-- ── Tabla ── -->
+            <TableView fx:id="tablaIngredientes" styleClass="tabla" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colId" text="Id" prefWidth="80"/>
+                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="220"/>
+                    <TableColumn fx:id="colCantidad" text="Cantidad" prefWidth="110"/>
+                    <TableColumn fx:id="colDescripcion" text="Descripción" prefWidth="300"/>
+                </columns>
+                <placeholder>
+                    <Label text="No hay ingredientes registrados." styleClass="seccion-subtitulo"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+    </VBox>
+
+    <!-- ── Panel derecho: formulario ── -->
+    <VBox fx:id="panelForm" visible="false" managed="false" styleClass="panel-form" prefWidth="320" minWidth="320" maxWidth="320" spacing="0">
+
+        <HBox alignment="CENTER_LEFT" spacing="8">
+            <Label fx:id="lblTituloForm" text="Nuevo ingrediente" HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="form-titulo"/>
+            <Button text="✕ Cerrar" styleClass="btn-link" onAction="#handleCerrarForm"/>
+        </HBox>
+        <Region minHeight="22" maxHeight="22"/>
+
+        <Label text="Id" styleClass="form-label"/>
+        <Region minHeight="5" maxHeight="5"/>
+        <TextField fx:id="txtId" promptText="Ej: 101" styleClass="campo"/>
+
+        <Region minHeight="14" maxHeight="14"/>
+        <Label text="Nombre" styleClass="form-label"/>
+        <Region minHeight="5" maxHeight="5"/>
+        <TextField fx:id="txtNombre" promptText="Ej: Tomate" styleClass="campo"/>
+
+        <Region minHeight="14" maxHeight="14"/>
+        <Label text="Cantidad en inventario" styleClass="form-label"/>
+        <Region minHeight="5" maxHeight="5"/>
+        <TextField fx:id="txtCantidad" promptText="Ej: 50" styleClass="campo"/>
+
+        <Region minHeight="14" maxHeight="14"/>
+        <Label text="Descripción" styleClass="form-label"/>
+        <Region minHeight="5" maxHeight="5"/>
+        <TextArea fx:id="txtDescripcion" promptText="Detalle opcional" styleClass="campo" wrapText="true" prefRowCount="3"/>
+
+        <Region minHeight="14" maxHeight="14"/>
+        <Label text="Ajustar inventario (+ o -)" styleClass="form-label"/>
+        <Region minHeight="5" maxHeight="5"/>
+        <HBox spacing="8">
+            <TextField fx:id="txtAjuste" promptText="Ej: 10 o -3" styleClass="campo" HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnAjustar" text="Aplicar" styleClass="btn-secundario" onAction="#handleAjustar"/>
+        </HBox>
+
+        <Region minHeight="6" maxHeight="6"/>
+
+        <Label fx:id="lblMensaje" styleClass="form-label" wrapText="true"
+               visible="false" managed="false"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+        <Pane styleClass="separador"/>
+        <Region minHeight="16" maxHeight="16"/>
+
+        <HBox spacing="10">
+            <Button fx:id="btnGuardar" text="Registrar" styleClass="btn-primario"
+                    onAction="#handleGuardar" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            <Button text="Limpiar" styleClass="btn-secundario" onAction="#handleNuevo"/>
+        </HBox>
+        <Region minHeight="10" maxHeight="10"/>
+        <Button fx:id="btnEliminar" text="Eliminar ingrediente" styleClass="btn-peligro"
+                disable="true" maxWidth="Infinity" onAction="#handleEliminar"/>
+    </VBox>
+</HBox>

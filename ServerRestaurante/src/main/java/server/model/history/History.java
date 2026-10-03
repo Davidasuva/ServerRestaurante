@@ -1,6 +1,9 @@
 package server.model.history;
 
 import server.model.observer.Subject;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class History extends Subject {
@@ -23,6 +26,10 @@ public class History extends Subject {
 
         Action lastAction=actions.peek();
         return lastAction.getTimestamp()+": "+lastAction.getDescription();
+    }
+
+    public List<Action> getActions(){
+        return new ArrayList<>(actions);
     }
 
 }
