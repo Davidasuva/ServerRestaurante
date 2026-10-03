@@ -191,6 +191,22 @@ public class ProductoService extends UnicastRemoteObject implements ProductoInte
     }
 
     @Override
+    public boolean removeProducto(int id) throws RemoteException {
+        try {
+            boolean eliminado = productoDAO.eliminar(id);
+            if (eliminado) {
+                history.addAction("Se eliminó el producto con id: " + id);
+            }
+            return eliminado;
+        } catch (SQLException e) {
+            if ("23503".equals(e.getSQLState())) {
+                throw new RemoteException("No se puede eliminar el producto: está asociado a pedidos en su historial");
+            }
+            throw new RemoteException("Error al eliminar producto: " + e.getMessage());
+        }
+    }
+
+    @Override
     public int contar()throws RemoteException{
         try{
             return productoDAO.contar();

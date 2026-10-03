@@ -61,6 +61,7 @@ public class ProductosController extends SeccionBaseController {
     @FXML private ComboBox<Ingrediente> cmbIngrediente;
 
     @FXML private Button btnGuardar;
+    @FXML private Button btnEliminar;
 
     @Override
     protected void alIniciar() {
@@ -137,6 +138,7 @@ public class ProductosController extends SeccionBaseController {
         txtImagen.setText(nvl(p.getImagenURL()));
         btnGuardar.setText("Actualizar");
         boxIngredientes.setDisable(false);
+        btnEliminar.setDisable(false);
         ocultarMensaje();
         cargarIngredientesDe(p.getId());
     }
@@ -157,6 +159,7 @@ public class ProductosController extends SeccionBaseController {
         cmbIngrediente.setValue(null);
         boxIngredientes.setDisable(true); // primero hay que registrar el producto
         btnGuardar.setText("Registrar");
+        btnEliminar.setDisable(true);
         ocultarMensaje();
     }
 
@@ -268,6 +271,21 @@ public class ProductosController extends SeccionBaseController {
                 cargar(r.getId(), "Producto actualizado.");
             }
         });
+    }
+
+    @FXML
+    private void handleEliminar() {
+        if (seleccionado == null) {
+            return;
+        }
+        final Producto objetivo = seleccionado;
+        confirmar("Eliminar producto",
+                "¿Eliminar \"" + objetivo.getNombre() + "\" (id " + objetivo.getId() + ")?", () ->
+                        ejecutar(() -> servicio(model.getProductoService()).removeProducto(objetivo.getId()), ok -> {
+                            limpiarFormulario();
+                            mostrarMensaje(ok ? "Producto eliminado." : "No se eliminó ningún producto.", !ok);
+                            refrescar();
+                        }));
     }
 
     @FXML

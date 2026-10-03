@@ -143,13 +143,24 @@
         <Region minHeight="10" maxHeight="10"/>
         <Label text="Productos" styleClass="form-label"/>
         <Region minHeight="5" maxHeight="5"/>
-        <ListView fx:id="lstProductos" styleClass="tabla" prefHeight="100" minHeight="100" maxHeight="100"/>
+        <VBox fx:id="boxProductos" spacing="0">
+            <ListView fx:id="lstProductos" styleClass="tabla" prefHeight="84" minHeight="84" maxHeight="84"/>
+            <Region minHeight="6" maxHeight="6"/>
+            <Button text="Quitar seleccionado" styleClass="btn-secundario" maxWidth="Infinity"
+                    onAction="#handleQuitarProducto"/>
+            <Region minHeight="8" maxHeight="8"/>
+            <HBox spacing="8">
+                <ComboBox fx:id="cmbProducto" styleClass="combo-campo" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                          promptText="Producto..."/>
+                <Button text="Agregar" styleClass="btn-secundario" onAction="#handleAgregarProducto"/>
+            </HBox>
+        </VBox>
 
         <Region minHeight="10" maxHeight="10"/>
 
         <Label text="Encargados" styleClass="form-label"/>
         <Region minHeight="5" maxHeight="5"/>
-        <ListView fx:id="lstEncargados" styleClass="tabla" prefHeight="70" minHeight="70" maxHeight="70"/>
+        <ListView fx:id="lstEncargados" styleClass="tabla" prefHeight="56" minHeight="56" maxHeight="56"/>
 
         <Region minHeight="6" maxHeight="6"/>
 
