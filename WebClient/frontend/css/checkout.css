@@ -82,6 +82,64 @@
     display: none;
 }
 
+.checkout-vista.estado-loading .checkout-status {
+    color: var(--color-text-muted);
+}
+
+.checkout-vista.estado-success .checkout-status {
+    color: var(--color-success);
+}
+
+.checkout-vista.estado-error .checkout-status {
+    color: var(--color-error);
+}
+
+/* Mientras se espera la respuesta del servidor el icono se reemplaza por un aro giratorio (CSS puro, sin depender de la fuente de iconos) */
+.checkout-vista.estado-loading .checkout-status .material-symbols-outlined {
+    box-sizing: border-box;
+    width: 18px;
+    height: 18px;
+    margin: 1px;
+    flex: 0 0 auto;
+    border: 2px solid var(--color-border-light);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    font-size: 0;
+    animation: checkout-spin 0.9s linear infinite;
+}
+
+.checkout-vista.estado-success .checkout-status .material-symbols-outlined {
+    color: var(--color-success);
+}
+
+.checkout-vista.estado-error .checkout-status .material-symbols-outlined {
+    color: var(--color-error);
+}
+
+@keyframes checkout-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .checkout-vista.estado-loading .checkout-status .material-symbols-outlined {
+        animation: none;
+    }
+}
+
+/* Mensaje bajo el estado: aviso de espera o motivo del error */
+.checkout-hint {
+    padding: 0 4px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.checkout-vista.estado-error .checkout-hint {
+    color: var(--color-error);
+}
+
 .checkout-content {
     display: flex;
     min-height: 0;

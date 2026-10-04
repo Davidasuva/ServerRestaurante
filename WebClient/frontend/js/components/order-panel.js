@@ -91,7 +91,10 @@ class OrderPanel extends BaseElement {
   get isOpen() { return this.overlay.classList.contains("abierto"); }
 
   open() { this.#setOpen(true); }
-  close() { this.#setOpen(false); }
+  close() {
+    if (this.checkout.isBusy) return; // enviando el pedido: la pantalla de carga no se puede cerrar
+    this.#setOpen(false);
+  }
 
   #setOpen(open) {
     if (open) this.panel.style.transform = "";
@@ -152,7 +155,7 @@ class OrderPanel extends BaseElement {
       const url = `${this.getAttribute("status-url") || "status.html"}?mesa=${encodeURIComponent(tableId)}&id=${encodeURIComponent(number)}`;
       setTimeout(() => { window.location.href = url; }, 1600);
     } catch (error) {
-      this.checkout.status = "idle";
+      this.checkout.showError(error.message);
       showToast(error.message, "error");
     }
   }
@@ -178,7 +181,7 @@ class OrderPanel extends BaseElement {
   #endDrag() {
     if (!this.#drag.active) return;
     this.panel.classList.remove("arrastrando");
-    if (this.#drag.distance > 100 && this.list.ensureSaved()) this.close();
+    if (this.#drag.distance > 100 && !this.checkout.isBusy && this.list.ensureSaved()) this.close();
     else this.panel.style.transform = "";
     this.#drag = { active: false, startY: 0, distance: 0 };
   }

@@ -1,7 +1,11 @@
 // Valores por defecto + lo que el usuario defina en window.RESTAURANT_CONFIG.
 const DEFAULTS = {
   apiBaseUrl: "",
-  requestTimeoutMs: 10000,
+  // Cuánto espera el navegador la respuesta antes de rendirse.
+  // Consultas (mesas, menú, estado del pedido). Antes eran 10 s.
+  requestTimeoutMs: 30000,
+  // Envío del pedido: la API hace varias llamadas RMI + consultas a la BD en cadena, así que puede tardar bastante más.
+  orderTimeoutMs: 120000,
   statusPollIntervalMs: 10000,
   imageBaseUrl: "../assets/productos/",
   fallbackImage: "../assets/logo.png",

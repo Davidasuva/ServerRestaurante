@@ -4,6 +4,12 @@
 //   window.location.origin → la página la sirve el mismo Spring Boot que expone /api (configuración por defecto).
 //   "http://192.168.1.50:8080" → API en otro equipo (hay que permitir CORS: app.cors.allowed-origins).
 //   ""                     → MODO LOCAL de demostración con los datos de /data/*.mock.json (sin backend).
+//
+// requestTimeoutMs / orderTimeoutMs: milisegundos que el navegador espera al servidor.
+//   requestTimeoutMs → consultas (mesas, menú, estado del pedido).
+//   orderTimeoutMs   → enviar el pedido a cocina (la operación más lenta). Súbelo si el servidor sigue tardando más.
 window.RESTAURANT_CONFIG = {
   apiBaseUrl: window.location.origin,
+  requestTimeoutMs: 30000,
+  orderTimeoutMs: 120000,
 };

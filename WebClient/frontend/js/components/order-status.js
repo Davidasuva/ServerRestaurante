@@ -1,6 +1,8 @@
 import { getConfig, isApiConfigured } from "../config.js";
 import { getOrderStatus, normalizeOrderNumber } from "../services/restaurant-api.js";
 import { esc, readStorage } from "../utils/format.js";
+import { demoLoadingDelay, setLoading } from "../utils/loading.js";
+import { setViewState } from "../utils/view-state.js";
 import { BaseElement, define } from "./base-element.js";
 
 const STATES = ["EN_COLA", "EN_PREPARACION", "LISTO", "CANCELADO"];
@@ -16,8 +18,11 @@ class OrderStatus extends BaseElement {
   #table = "";
   #confirmed = false;
   #timer = null;
+  #refreshing = false; // evita consultas superpuestas si el servidor tarda más que el intervalo de refresco
+  #loaded = false;
 
   connectedCallback() {
+    setLoading(this, true, "status-loading"); // esqueleto hasta la primera respuesta del servidor
     const params = new URLSearchParams(window.location.search);
     this.#table = this.getAttribute("table") || params.get("mesa") || readStorage(sessionStorage, "currentOrderMesa") || "";
     this.#orderId = normalizeOrderNumber(this.getAttribute("order-id") || params.get("id") || readStorage(sessionStorage, "currentOrderId") || "000");
@@ -31,7 +36,16 @@ class OrderStatus extends BaseElement {
     if (isApiConfigured() && this.#orderId !== "000") {
       this.refresh();
       this.#timer = setInterval(() => this.refresh(), getConfig().statusPollIntervalMs);
+    } else {
+      this.#finishLoading();
     }
+  }
+
+  /** Quita el esqueleto (solo la primera vez; las consultas siguientes actualizan la pantalla ya visible). */
+  #finishLoading() {
+    if (this.#loaded) return;
+    this.#loaded = true;
+    window.setTimeout(() => setLoading(this, false, "status-loading"), demoLoadingDelay());
   }
 
   disconnectedCallback() { clearInterval(this.#timer); }
@@ -39,6 +53,32 @@ class OrderStatus extends BaseElement {
   #render() {
     this.innerHTML = `
       <main class="status-main">
+        <div class="status-skeleton" aria-hidden="true">
+          <div class="status-skeleton-badge skeleton"></div>
+          <div class="status-skeleton-title skeleton"></div>
+          <div class="status-skeleton-card">
+            <div class="status-skeleton-card-header">
+              <div class="status-skeleton-field">
+                <span class="status-skeleton-label skeleton"></span>
+                <span class="status-skeleton-value skeleton"></span>
+              </div>
+              <div class="status-skeleton-field status-skeleton-field-right">
+                <span class="status-skeleton-label skeleton"></span>
+                <span class="status-skeleton-value skeleton"></span>
+              </div>
+            </div>
+            <div class="status-skeleton-stepper">
+              <span class="status-skeleton-step skeleton"></span>
+              <span class="status-skeleton-step skeleton"></span>
+              <span class="status-skeleton-step skeleton"></span>
+            </div>
+            <div class="status-skeleton-step-labels">
+              <span class="status-skeleton-label skeleton"></span>
+              <span class="status-skeleton-label skeleton"></span>
+              <span class="status-skeleton-label skeleton"></span>
+            </div>
+          </div>
+        </div>
         <div class="status-badge" aria-hidden="true"><span class="material-symbols-outlined status-badge-icon">hourglass_top</span></div>
         <h1 class="status-titulo"></h1>
         <section class="status-card" aria-label="Progreso del pedido">
@@ -92,11 +132,19 @@ class OrderStatus extends BaseElement {
   }
 
   async refresh() {
+    if (this.#refreshing) return;
+    this.#refreshing = true;
     try {
       const order = await getOrderStatus(this.#orderId);
       if (order) this.setState(order.estado, { ordersInPreparation: order.pedidosEnPreparacion, queuePosition: order.posicionCola });
     } catch (error) {
+      setViewState(this.note, "error");
+      this.note.textContent = error.message || "No fue posible actualizar el estado del pedido.";
+      this.note.hidden = false;
       this.emit("order-status-error", { message: error.message });
+    } finally {
+      this.#refreshing = false;
+      this.#finishLoading();
     }
   }
 
@@ -118,6 +166,7 @@ class OrderStatus extends BaseElement {
       CANCELADO: ["Tu pedido fue<br />cancelado", "Acércate al mostrador y el personal te ayudará."],
     }[next];
     this.titleEl.innerHTML = copy[0]; // texto estático propio, sin datos del servidor
+    setViewState(this.note, null); // quita el aviso de error de una consulta anterior fallida
     this.note.textContent = copy[1];
     this.note.hidden = false;
 

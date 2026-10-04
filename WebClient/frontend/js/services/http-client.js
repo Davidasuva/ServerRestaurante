@@ -12,11 +12,15 @@ export class ApiError extends Error {
 const messageFrom = (data) =>
   typeof data === "string" ? data : data?.message ?? data?.mensaje ?? data?.error ?? null;
 
-/** fetch JSON con timeout y errores normalizados (ApiError). */
-export async function request(path, { method = "GET", body } = {}) {
+/**
+ * fetch JSON con timeout y errores normalizados (ApiError).
+ * `timeoutMs` reemplaza al `requestTimeoutMs` global para una petición concreta (p. ej. el envío del pedido);
+ * `timeoutMessage` permite explicar mejor qué pasó cuando se agota la espera.
+ */
+export async function request(path, { method = "GET", body, timeoutMs, timeoutMessage } = {}) {
   const { apiBaseUrl, requestTimeoutMs } = getConfig();
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), requestTimeoutMs);
+  const timer = setTimeout(() => controller.abort(), timeoutMs ?? requestTimeoutMs);
   try {
     const response = await fetch(`${apiBaseUrl.replace(/\/$/, "")}${path}`, {
       method,
@@ -31,7 +35,7 @@ export async function request(path, { method = "GET", body } = {}) {
     return data;
   } catch (error) {
     if (error instanceof ApiError) throw error;
-    if (error.name === "AbortError") throw new ApiError("El servidor tardó demasiado en responder.");
+    if (error.name === "AbortError") throw new ApiError(timeoutMessage || "El servidor tardó demasiado en responder.");
     throw new ApiError("No hay conexión con el servidor.");
   } finally {
     clearTimeout(timer);

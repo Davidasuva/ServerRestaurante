@@ -47,7 +47,14 @@ export async function submitOrder(payload) {
     writeStorage(localStorage, "mockOrderSeq", String(next));
     return { id: String(next), estado: "EN_COLA", mesa: payload.idMesa, pedidosEnPreparacion: 0, posicionCola: 1, modo: "local" };
   }
-  const data = await request(getConfig().endpoints.pedidos, { method: "POST", body: payload });
+  const { endpoints, orderTimeoutMs } = getConfig();
+  const data = await request(endpoints.pedidos, {
+    method: "POST",
+    body: payload,
+    timeoutMs: orderTimeoutMs,
+    // Si se agota la espera, el servidor pudo haber guardado el pedido igual: avisar antes de que el cliente reenvíe.
+    timeoutMessage: "El servidor tardó demasiado en responder. Es posible que el pedido sí se haya registrado: consulta con el personal antes de volver a enviarlo.",
+  });
   const order = normalizeOrder(data ?? {});
   if (order.id === undefined || order.id === null) throw new Error("El servidor no devolvió el número del pedido.");
   return order;

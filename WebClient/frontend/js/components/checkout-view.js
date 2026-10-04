@@ -1,11 +1,24 @@
 import { getConfig } from "../config.js";
 import { cartStore } from "../store/cart-store.js";
 import { esc, formatCOP } from "../utils/format.js";
+import { setViewState } from "../utils/view-state.js";
 import { BaseElement, define } from "./base-element.js";
+
+/** Cómo se ve la vista en cada fase del envío (el color lo pone el CSS según `estado-*`). */
+const STATUS_VIEW = {
+  idle:    { state: null,      icon: "check_circle",      title: "Tu pedido está listo",         label: "Enviar pedido a cocina", busy: false },
+  sending: { state: "loading", icon: "progress_activity", title: "Enviando tu pedido a cocina…", label: "Enviando pedido…",       busy: true },
+  sent:    { state: "success", icon: "check_circle",      title: "¡Pedido enviado a cocina!",    label: "Pedido enviado",         busy: true },
+  error:   { state: "error",   icon: "error",             title: "No pudimos enviar tu pedido",  label: "Enviar pedido a cocina", busy: false },
+};
+const STATUS_HINT = {
+  sending: "Esto puede tardar unos segundos. No cierres ni recargues esta pantalla.",
+};
 
 /**
  * <checkout-view>: resumen final + método de pago.
- * show() lo muestra; `status = "idle" | "sending" | "sent"` controla los botones.
+ * show() lo muestra; `status = "idle" | "sending" | "sent" | "error"` controla los botones y la pantalla de carga.
+ * showError(mensaje) deja la vista en estado "error" explicando qué pasó.
  * Emite "checkout-submit" { method } y "checkout-back".
  */
 class CheckoutView extends BaseElement {
@@ -27,6 +40,7 @@ class CheckoutView extends BaseElement {
         <span class="material-symbols-outlined">check_circle</span>
         <strong>Tu pedido está listo</strong>
       </div>
+      <p class="checkout-hint" hidden></p>
       <section class="checkout-order" aria-labelledby="checkout-order-title">
         <div class="checkout-section-heading"><h2 id="checkout-order-title">Tu pedido</h2></div>
         <div class="checkout-lineas">${cartStore.items.map((item) => `
@@ -50,15 +64,25 @@ class CheckoutView extends BaseElement {
     this.hidden = false;
   }
 
-  set status(value) {
+  set status(value) { this.#apply(value); }
+
+  showError(message) { this.#apply("error", message); }
+
+  #apply(value, message) {
     const submit = this.querySelector(".finalizar-checkout");
     if (!submit) return;
-    const busy = value !== "idle";
-    submit.disabled = busy;
-    submit.textContent = { idle: "Enviar pedido a cocina", sending: "Enviando pedido…", sent: "Pedido enviado" }[value];
-    this.querySelector(".volver-resumen").disabled = busy;
-    this.querySelector(".checkout-payment").disabled = busy;
-    this.classList.toggle("pedido-confirmado", busy);
+    const view = STATUS_VIEW[value] ?? STATUS_VIEW.idle;
+    setViewState(this, view.state);
+    this.querySelector(".checkout-status .material-symbols-outlined").textContent = view.icon;
+    this.querySelector(".checkout-status strong").textContent = view.title;
+    const hint = this.querySelector(".checkout-hint");
+    hint.textContent = message ?? STATUS_HINT[value] ?? "";
+    hint.hidden = !hint.textContent;
+    submit.disabled = view.busy;
+    submit.textContent = view.label;
+    this.querySelector(".volver-resumen").disabled = view.busy;
+    this.querySelector(".checkout-payment").disabled = view.busy;
+    this.classList.toggle("pedido-confirmado", view.busy);
   }
   get isBusy() { return this.querySelector(".finalizar-checkout")?.disabled ?? false; }
 }

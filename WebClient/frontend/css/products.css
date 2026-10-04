@@ -146,10 +146,91 @@
 }
 
 .producto-card {
+    position: relative;
     overflow: hidden;
     border: 1px solid var(--color-border);
     border-radius: 14px;
     background-color: var(--color-surface);
+}
+
+.productos.productos-cargando .producto-card {
+    min-height: 226px;
+    border-color: transparent;
+    background-color: var(--color-skeleton-base);
+}
+
+.productos.productos-cargando .producto-card::after {
+    display: none;
+}
+
+.productos.productos-cargando .producto-card::before {
+    display: none;
+}
+
+.producto-skeleton {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    display: none;
+    padding-bottom: 10px;
+    pointer-events: none;
+}
+
+.productos.productos-cargando .producto-skeleton {
+    display: block;
+}
+
+.producto-skeleton > * {
+    position: absolute;
+    display: block;
+    background-color: var(--color-skeleton-element);
+}
+
+.producto-skeleton-image {
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 118px;
+    border-radius: 13px 13px 0 0;
+}
+
+.producto-skeleton-title {
+    top: 140px;
+    left: 10px;
+    width: 74%;
+    height: 14px;
+    border-radius: 6px;
+}
+
+.producto-skeleton-price {
+    top: 162px;
+    left: 10px;
+    width: 34%;
+    height: 12px;
+    border-radius: 5px;
+}
+
+.producto-skeleton-button {
+    right: 10px;
+    bottom: 10px;
+    left: 10px;
+    height: 27px;
+    border-radius: 8px;
+}
+
+.productos.productos-cargando .producto-card > *:not(.producto-skeleton) {
+    visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .productos.productos-cargando .producto-skeleton .skeleton::after {
+        animation: none;
+    }
+}
+
+/* Mientras se muestra el esqueleto no se puede interactuar con el catálogo */
+.productos.productos-cargando {
+    pointer-events: none;
 }
 
 .producto-card.oculto {
@@ -224,13 +305,16 @@
 /* Barra inferior flotante de ver pedido */
 .cont-ver-pedido {
     position: fixed;
+    z-index: 10;
     bottom: 0;
     width: 100%;
     background-color: var(--color-background);
+    isolation: isolate;
     display: flex;
     justify-content: center;
     padding: 10px;
     border-top: var(--color-border-light) 0.5px solid;
+    box-shadow: 0 -8px 20px rgb(0 0 0 / 24%);
 }
 
 .pedido {
