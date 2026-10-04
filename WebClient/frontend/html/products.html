@@ -54,7 +54,7 @@
         </div>
     </header>
 
-    <main class="productos">
+    <main class="productos productos-cargando" aria-busy="true">
         <article class="producto-card" data-categoria="hamburguesas"
             data-descripcion="Carne de res al carbón con cheddar ahumado, tocineta crocante y cebolla caramelizada."
             data-ingredientes="Carne de res al carbón (200g), Queso cheddar ahumado, Tocineta crocante, Cebolla caramelizada, Lechuga crespa, Tomate chonto, Salsa BBQ con toque de miel, Pan brioche artesanal"
@@ -235,6 +235,9 @@
                 </button>
             </div>
         </article>
+        <p class="productos-vacio" hidden role="status">
+            No encontramos productos con esos filtros.
+        </p>
     </main>
 
     <footer class="cont-ver-pedido">
@@ -346,8 +349,8 @@
             </div>
         </section>
     </div>
-    <script src="../js/restaurant-config.js"></script>
-    <script type="module" src="../js/products.js"></script>
+    <script src="../js/shared/restaurant-config.js"></script>
+    <script type="module" src="../js/products/products.js"></script>
 </body>
 
 </html>

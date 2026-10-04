@@ -1,4 +1,8 @@
-import { elements, state } from "./products-state.js";
+import { modalElements } from "./modal-elements.js";
+import { orderElements } from "./order-elements.js";
+import { state } from "./products-state.js";
+
+const elements = { ...modalElements, ...orderElements };
 
 export function setOrderPanelOpen(isOpen) {
   if (isOpen) elements.orderPanel.style.transform = "";

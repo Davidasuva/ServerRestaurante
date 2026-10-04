@@ -50,6 +50,110 @@
     padding: 10px 0 20px;
 }
 
+.status-skeleton {
+    display: none;
+    width: 100%;
+    pointer-events: none;
+}
+
+.status-loading .status-skeleton {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+}
+
+.status-loading .status-skeleton-badge {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+}
+
+.status-loading .status-skeleton-title {
+    width: 190px;
+    height: 28px;
+    border-radius: 8px;
+}
+
+.status-loading .status-skeleton-card {
+    width: 100%;
+    padding: 26px 24px 28px;
+    border-radius: 22px;
+    background-color: var(--color-skeleton-base);
+}
+
+.status-skeleton-card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 34px;
+}
+
+.status-skeleton-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.status-skeleton-field-right {
+    align-items: flex-end;
+}
+
+.status-skeleton-label {
+    display: block;
+    width: 58px;
+    height: 10px;
+    border-radius: 4px;
+}
+
+.status-skeleton-value {
+    display: block;
+    width: 76px;
+    height: 19px;
+    border-radius: 5px;
+}
+
+.status-skeleton-stepper {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 8px;
+}
+
+.status-skeleton-step {
+    position: relative;
+    z-index: 1;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.status-skeleton-stepper::before {
+    position: absolute;
+    width: calc(100% - 86px);
+    height: 5px;
+    border-radius: 5px;
+    margin-left: 43px;
+    border-radius: 5px;
+    background-color: var(--color-skeleton-element);
+    content: "";
+}
+
+.status-skeleton-step-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding: 0 2px;
+}
+
+.status-skeleton-step-labels .status-skeleton-label {
+    width: 54px;
+}
+
+.status-loading .status-main > :not(.status-skeleton) {
+    display: none;
+}
+
 .status-kitchen-note {
     max-width: 34ch;
     margin: -10px 0 0;
@@ -57,6 +161,10 @@
     font-size: 12px;
     line-height: 1.5;
     text-align: center;
+}
+
+.status-kitchen-note.estado-error {
+    color: var(--color-error);
 }
 
 .status-confirmation {

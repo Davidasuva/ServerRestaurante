@@ -1,21 +1,23 @@
-import { elements, productResetTimers, state, tableNumber } from "./products-state.js";
+import { catalogElements } from "./catalog-elements.js";
+import { checkoutElements } from "./checkout-elements.js";
+import { modalElements } from "./modal-elements.js";
+import { orderElements } from "./order-elements.js";
+import { productResetTimers, state } from "./products-state.js";
 import { parseProductPrice, setConfirmReturnOpen, setOrderPanelOpen, setProductModalOpen, showToast } from "./products-ui.js";
 import { calculateOrderSummary, ensureNoUnsavedChanges, showCheckout, showOrderSummary } from "./products-order.js";
-import { createOrderPayload, normalizeOrderNumber, submitOrder } from "./restaurant-api.js";
+import { setViewState } from "../shared/view-state.js";
 
-function lockProductNavigation() {
-  const productUrl = window.location.href;
-  window.history.replaceState({ productPage: true }, "", productUrl);
-  window.history.pushState({ productPageGuard: true }, "", productUrl);
-  window.addEventListener("popstate", () => {
-    window.history.pushState({ productPageGuard: true }, "", productUrl);
-  });
-}
+const elements = {
+  ...catalogElements,
+  ...checkoutElements,
+  ...modalElements,
+  ...orderElements,
+};
 
-function openProductModal(card, orderItem = null) {
+function openProductModal(card) {
   state.selectedProductCard = card;
-  state.selectedOrderItem = orderItem;
-  state.productQuantity = orderItem ? orderItem.quantity : 1;
+  state.selectedOrderItem = null;
+  state.productQuantity = 1;
   elements.modalImage.src = card.querySelector("img").src;
   elements.modalImage.alt = card.querySelector("img").alt;
   elements.modalTitle.textContent = card.querySelector("h2").textContent;
@@ -26,7 +28,7 @@ function openProductModal(card, orderItem = null) {
 }
 
 function updateProducts() {
-  const selectedCategory = document.querySelector(".filtro-opcion.activo").dataset.categoria;
+  const selectedCategory = elements.activeFilter.dataset.categoria;
   const searchText = elements.searchInput.value.trim().toLowerCase();
   elements.clearSearchButton.hidden = searchText.length === 0;
   elements.productCards.forEach((card) => {
@@ -34,6 +36,9 @@ function updateProducts() {
     const matchesSearch = card.textContent.toLowerCase().includes(searchText);
     card.classList.toggle("oculto", !matchesCategory || !matchesSearch);
   });
+  const hasVisibleProducts = [...elements.productCards].some((card) => !card.classList.contains("oculto"));
+  elements.emptyProducts.hidden = hasVisibleProducts;
+  setViewState(elements.emptyProducts, hasVisibleProducts ? null : "empty");
 }
 
 function getInitialDrinkOption(card) {
@@ -64,20 +69,17 @@ function bindOrderDrag() {
     else elements.orderPanel.style.transform = "";
     state.dragDistance = 0;
   };
-
   const startDrag = (clientY) => {
     state.isDraggingOrderPanel = true;
     state.dragStartY = clientY;
     state.dragDistance = 0;
     elements.orderPanel.classList.add("arrastrando");
   };
-
   const moveDrag = (clientY) => {
     if (!state.isDraggingOrderPanel) return;
     state.dragDistance = Math.max(0, clientY - state.dragStartY);
     elements.orderPanel.style.transform = `translateY(${state.dragDistance}px)`;
   };
-
   elements.orderDragHandle.addEventListener("mousedown", (event) => {
     event.preventDefault();
     startDrag(event.clientY);
@@ -99,6 +101,7 @@ function bindProductEvents() {
   elements.filterOptions.forEach((option) => option.addEventListener("click", () => {
     elements.filterOptions.forEach((item) => item.classList.remove("activo"));
     option.classList.add("activo");
+    elements.activeFilter = option;
     updateProducts();
   }));
   elements.searchInput.addEventListener("input", updateProducts);
@@ -147,52 +150,18 @@ function bindOrderEvents() {
   elements.orderOverlay.addEventListener("click", (event) => { if (event.target === elements.orderOverlay) setOrderPanelOpen(false); });
 }
 
-async function sendOrderToKitchen() {
-  const paymentMethod = document.querySelector('input[name="metodo-pago"]:checked').value;
-  const currentMesa = tableNumber || "1";
-  const payload = createOrderPayload(state.orderItems, currentMesa, paymentMethod);
-
-  document.dispatchEvent(new CustomEvent("restaurant-order-submit", {
-    detail: payload,
-  }));
-
-  elements.finalizeCheckoutButton.disabled = true;
-  elements.finalizeCheckoutButton.textContent = "Pedido enviado";
-  elements.backToSummaryButton.disabled = true;
-  const paymentFieldset = document.querySelector(".checkout-payment");
-  if (paymentFieldset) paymentFieldset.disabled = true;
-  document.querySelectorAll('input[name="metodo-pago"]').forEach((input) => { input.disabled = true; });
-  elements.checkoutView.classList.add("pedido-confirmado");
-  try {
-    const order = await submitOrder(payload);
-    const orderNumber = normalizeOrderNumber(order.id ?? "000");
-    sessionStorage.setItem("currentOrderId", orderNumber);
-    sessionStorage.setItem("currentOrderMesa", currentMesa);
-    showToast(`Pedido enviado a cocina · ${paymentMethod}`, "success");
-    setTimeout(() => { window.location.href = `status.html?mesa=${encodeURIComponent(currentMesa)}&id=${encodeURIComponent(orderNumber)}`; }, 1600);
-  } catch (error) {
-    elements.finalizeCheckoutButton.disabled = false;
-    elements.finalizeCheckoutButton.textContent = "Enviar pedido a cocina";
-    elements.backToSummaryButton.disabled = false;
-    elements.checkoutView.classList.remove("pedido-confirmado");
-    showToast(error.message, "error");
-  }
+export function bindProductViewEvents() {
+  bindProductEvents();
+  bindModalEvents();
+  bindOrderEvents();
+  bindOrderDrag();
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    if (elements.confirmReturnOverlay && !elements.confirmReturnOverlay.hidden && elements.confirmReturnOverlay.classList.contains("abierto")) {
+      setConfirmReturnOpen(false);
+      return;
+    }
+    setOrderPanelOpen(false);
+    setProductModalOpen(false);
+  });
 }
-
-elements.finalizeCheckoutButton.addEventListener("click", sendOrderToKitchen);
-lockProductNavigation();
-bindProductEvents();
-bindModalEvents();
-bindOrderEvents();
-bindOrderDrag();
-
-
-document.addEventListener("keydown", (event) => {
-  if (event.key !== "Escape") return;
-  if (elements.confirmReturnOverlay && !elements.confirmReturnOverlay.hidden && elements.confirmReturnOverlay.classList.contains("abierto")) {
-    setConfirmReturnOpen(false);
-    return;
-  }
-  setOrderPanelOpen(false);
-  setProductModalOpen(false);
-});

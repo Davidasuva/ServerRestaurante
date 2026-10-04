@@ -33,7 +33,7 @@
     padding: 10px 20px;
     border: 2px solid transparent;
     border-radius: 10px;
-    background-color: var(--color-surface);
+    background-color: var(--color-skeleton-base);
     cursor: pointer;
     font-size: 20px;
     font-weight: 500;
@@ -45,4 +45,45 @@
     background-color: var(--color-accent-soft);
     color: var(--color-accent);
     transition: all 0.3s ease;
+}
+
+.inicio.cargando .btn-mesa {
+    min-height: 76px;
+    border-color: transparent;
+    background-color: var(--color-surface);
+    overflow: hidden;
+    position: relative;
+}
+
+.inicio.cargando .btn-mesa a {
+    visibility: hidden;
+}
+
+.inicio.cargando .btn-mesa::before {
+    position: absolute;
+    width: 64%;
+    height: 16px;
+    border-radius: 6px;
+    background-color: var(--color-skeleton-element);
+    content: "";
+}
+
+.inicio.cargando .btn-mesa::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        105deg,
+        transparent 20%,
+        var(--color-skeleton-highlight) 45%,
+        transparent 70%
+    );
+    content: "";
+    transform: translateX(-100%);
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inicio.cargando .btn-mesa::after {
+        animation: none;
+    }
 }

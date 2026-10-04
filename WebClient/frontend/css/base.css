@@ -26,6 +26,9 @@
     --color-border: #272727;
     --color-border-light: #f4f4f43a;
     --color-overlay: rgb(0 0 0 / 68%);
+    --color-skeleton-base: #303030;
+    --color-skeleton-element: #464646;
+    --color-skeleton-highlight: rgb(255 255 255 / 12%);
 }
 
 /* Base y reseteo */
@@ -62,4 +65,39 @@ a:hover {
 
 .accent {
     color: var(--color-accent);
+}
+
+/* Estado de carga compartido por las vistas */
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-skeleton-element);
+    color: transparent !important;
+    pointer-events: none;
+}
+
+.skeleton::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        105deg,
+        transparent 20%,
+        var(--color-skeleton-highlight) 45%,
+        transparent 70%
+    );
+    content: "";
+    transform: translateX(-100%);
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+    to {
+        transform: translateX(100%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton::after {
+        animation: none;
+    }
 }

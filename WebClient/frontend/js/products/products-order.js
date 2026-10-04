@@ -1,5 +1,9 @@
-import { availableExtras, elements, state } from "./products-state.js";
+import { checkoutElements } from "./checkout-elements.js";
+import { orderElements } from "./order-elements.js";
+import { availableExtras, state } from "./products-state.js";
 import { setConfirmReturnOpen, showToast } from "./products-ui.js";
+
+const elements = { ...checkoutElements, ...orderElements };
 
 export function getOrderItemTotal(item) {
   const extrasTotal = item.extraIngredients.reduce((total, ingredient) => {
@@ -13,8 +17,8 @@ export function getOrderItemTotal(item) {
 
 export function updateOrderSummary() {
   elements.orderButton.classList.toggle("pedido-con-productos", state.orderItems.length > 0);
-  document.querySelector(".cantidad-pedido").textContent = state.orderQuantity;
-  document.querySelector(".total-pedido").textContent = `$${state.orderTotal.toLocaleString("es-CO")}`;
+  elements.orderQuantityElement.textContent = state.orderQuantity;
+  elements.orderSubtotalElement.textContent = `$${state.orderTotal.toLocaleString("es-CO")}`;
   elements.orderTotalElement.textContent = `$${state.orderTotal.toLocaleString("es-CO")}`;
   elements.emptyOrderState.hidden = state.orderItems.length > 0;
   if (state.orderItems.length > 0) elements.emptyOrderState.classList.remove("apareciendo");
@@ -39,13 +43,12 @@ export function showCheckout() {
   elements.finalizeCheckoutButton.disabled = false;
   elements.finalizeCheckoutButton.textContent = "Enviar pedido a cocina";
   elements.backToSummaryButton.disabled = false;
-  const paymentFieldset = document.querySelector(".checkout-payment");
-  if (paymentFieldset) paymentFieldset.disabled = false;
-  document.querySelectorAll('input[name="metodo-pago"]').forEach((input) => { input.disabled = false; });
+  if (elements.paymentFieldset) elements.paymentFieldset.disabled = false;
+  elements.paymentInputs.forEach((input) => { input.disabled = false; });
   elements.checkoutView.classList.remove("pedido-confirmado");
   elements.orderList.hidden = true;
   elements.emptyOrderState.hidden = true;
-  document.querySelector(".panel-pedido-footer").hidden = true;
+  elements.checkoutFooter.hidden = true;
   elements.checkoutView.hidden = false;
   showToast("Pedido confirmado", "success");
 }
@@ -54,7 +57,7 @@ export function showOrderSummary() {
   if (elements.backToSummaryButton.disabled) return;
   setConfirmReturnOpen(false);
   elements.checkoutView.hidden = true;
-  document.querySelector(".panel-pedido-footer").hidden = false;
+  elements.checkoutFooter.hidden = false;
   updateOrderSummary();
 }
 

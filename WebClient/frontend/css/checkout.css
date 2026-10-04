@@ -82,6 +82,18 @@
     display: none;
 }
 
+.checkout-vista.estado-loading .checkout-status {
+    color: var(--color-text-muted);
+}
+
+.checkout-vista.estado-success .checkout-status {
+    color: var(--color-success);
+}
+
+.checkout-vista.estado-error .checkout-status {
+    color: var(--color-error);
+}
+
 .checkout-content {
     display: flex;
     min-height: 0;

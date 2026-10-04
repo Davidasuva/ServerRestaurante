@@ -1,8 +1,17 @@
-import { getOrderStatus, isApiConfigured, normalizeOrderNumber } from "./restaurant-api.js";
+import { getOrderStatus, isApiConfigured, normalizeOrderNumber } from "../shared/restaurant-api.js";
+import { setLoading } from "../shared/loading.js";
+import { setViewState } from "../shared/view-state.js";
+import {
+    getInitialOrderStatus,
+    getOrderStatusConfig,
+    ORDER_STATUS_VALUES,
+} from "./status-config.js";
+import { getCurrentOrder } from "../shared/order-storage.js";
 
 const urlParams = new URLSearchParams(window.location.search);
-const tableNumber = urlParams.get("mesa") || sessionStorage.getItem("currentOrderMesa") || "4";
-const orderNumber = normalizeOrderNumber(urlParams.get("id") || sessionStorage.getItem("currentOrderId") || "000");
+const storedOrder = getCurrentOrder();
+const tableNumber = urlParams.get("mesa") || storedOrder.table || "4";
+const orderNumber = normalizeOrderNumber(urlParams.get("id") || storedOrder.id || "000");
 
 class OrderStatus extends HTMLElement {
     connectedCallback() {
@@ -25,9 +34,7 @@ class OrderStatus extends HTMLElement {
 
         const ordersInPreparation = Number(this.dataset.ordersInPreparation || 0);
         const requestedState = this.dataset.state || "EN_COLA";
-        const initialState = requestedState === "EN_PREPARACION" && ordersInPreparation > 0
-            ? "EN_COLA"
-            : requestedState;
+        const initialState = getInitialOrderStatus(requestedState, ordersInPreparation);
         this.setState(initialState, {
             ordersInPreparation,
             queuePosition: Number(this.dataset.queuePosition || 1)
@@ -36,8 +43,14 @@ class OrderStatus extends HTMLElement {
         if (isApiConfigured() && orderNumber) {
             this.refreshStatus();
             this.refreshTimer = window.setInterval(() => this.refreshStatus(), 10000);
+        } else {
+            this.finishLoading();
         }
 
+    }
+
+    finishLoading() {
+        setLoading(this, false, "status-loading");
     }
 
     disconnectedCallback() {
@@ -45,7 +58,7 @@ class OrderStatus extends HTMLElement {
     }
 
     confirmReady() {
-        if (this.dataset.state !== "LISTO" || this.confirmed) return;
+        if (!getOrderStatusConfig(this.dataset.state).isReady || this.confirmed) return;
         this.confirmed = true;
         this.dataset.confirmed = "true";
         this.confirmButton.disabled = true;
@@ -67,38 +80,36 @@ class OrderStatus extends HTMLElement {
                 queuePosition: order.posicionCola
             });
         } catch (error) {
+            setViewState(this.kitchenNote, "error");
+            this.kitchenNote.textContent = error.message || "No fue posible actualizar el estado del pedido.";
+            this.kitchenNote.hidden = false;
             this.dispatchEvent(new CustomEvent("order-status-error", {
                 bubbles: true,
                 detail: { message: error.message }
             }));
+        } finally {
+            this.finishLoading();
         }
     }
 
     setState(state, details = {}) {
         const normalizedState = String(state).toUpperCase();
-        const validStates = ["EN_COLA", "EN_PREPARACION", "LISTO"];
-        const nextState = validStates.includes(normalizedState) ? normalizedState : "EN_COLA";
+        const nextState = ORDER_STATUS_VALUES.includes(normalizedState) ? normalizedState : "EN_COLA";
         const ordersInPreparation = Number(details.ordersInPreparation || 0);
         const queuePosition = Number(details.queuePosition || 1);
         this.statusStepper.className = `status-stepper estado-${nextState.toLowerCase().replace("_", "-")}`;
-        this.statusBadge.classList.toggle("listo", nextState === "LISTO");
-        this.statusTitulo.classList.toggle("listo", nextState === "LISTO");
-        this.statusCard.classList.toggle("listo", nextState === "LISTO");
-        this.badgeIcon.textContent = { EN_COLA: "hourglass_top", EN_PREPARACION: "skillet", LISTO: "check_circle" }[nextState];
-
-        const content = {
-            EN_COLA: { title: "¡Tu pedido está<br />en cola!", note: `Hay ${ordersInPreparation} pedido${ordersInPreparation === 1 ? "" : "s"} en preparación.` },
-            EN_PREPARACION: { title: "¡Tu pedido está en<br />preparación!", note: "La cocina está preparando tu pedido." },
-            LISTO: { title: "¡Tu pedido está listo!", note: "Puedes recogerlo o disfrutarlo en tu mesa." }
-        }[nextState];
+        const content = getOrderStatusConfig(nextState);
+        this.statusBadge.classList.toggle("listo", content.isReady);
+        this.statusTitulo.classList.toggle("listo", content.isReady);
+        this.statusCard.classList.toggle("listo", content.isReady);
+        this.badgeIcon.textContent = content.icon;
         this.statusTitulo.innerHTML = content.title;
-        this.kitchenNote.textContent = nextState === "EN_COLA"
-            ? `${content.note} Posición en cola: ${queuePosition}.`
-            : content.note;
+        setViewState(this.kitchenNote, null);
+        this.kitchenNote.textContent = content.note(ordersInPreparation, queuePosition);
         this.kitchenNote.hidden = false;
         this.confirmation.classList.remove("visible");
-        this.confirmation.hidden = nextState !== "LISTO" || this.confirmed;
-        if (nextState === "LISTO" && !this.confirmed) {
+        this.confirmation.hidden = !content.isReady || this.confirmed;
+        if (content.isReady && !this.confirmed) {
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => this.confirmation.classList.add("visible"));
             });

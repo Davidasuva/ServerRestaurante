@@ -15,8 +15,34 @@
 </head>
 
 <body class="status-body">
-    <order-status class="status-screen" data-state="EN_COLA" data-orders-in-preparation="0" data-queue-position="1">
+    <order-status class="status-screen status-loading" data-state="EN_COLA" data-orders-in-preparation="0" data-queue-position="1" aria-busy="true">
         <main class="status-main">
+            <div class="status-skeleton" aria-hidden="true">
+                <div class="status-skeleton-badge skeleton"></div>
+                <div class="status-skeleton-title skeleton"></div>
+                <div class="status-skeleton-card">
+                    <div class="status-skeleton-card-header">
+                        <div class="status-skeleton-field">
+                            <span class="status-skeleton-label skeleton"></span>
+                            <span class="status-skeleton-value skeleton"></span>
+                        </div>
+                        <div class="status-skeleton-field status-skeleton-field-right">
+                            <span class="status-skeleton-label skeleton"></span>
+                            <span class="status-skeleton-value skeleton"></span>
+                        </div>
+                    </div>
+                    <div class="status-skeleton-stepper">
+                        <span class="status-skeleton-step skeleton"></span>
+                        <span class="status-skeleton-step skeleton"></span>
+                        <span class="status-skeleton-step skeleton"></span>
+                    </div>
+                    <div class="status-skeleton-step-labels">
+                        <span class="status-skeleton-label skeleton"></span>
+                        <span class="status-skeleton-label skeleton"></span>
+                        <span class="status-skeleton-label skeleton"></span>
+                    </div>
+                </div>
+            </div>
             <!-- Icono principal con Material Symbols de Google -->
             <div class="status-badge" id="status-badge" aria-hidden="true">
                 <span class="material-symbols-outlined status-badge-icon" id="badge-icon">hourglass_top</span>
@@ -90,8 +116,8 @@
         </main>
     </order-status>
 
-    <script src="../js/restaurant-config.js"></script>
-    <script type="module" src="../js/status.js"></script>
+    <script src="../js/shared/restaurant-config.js"></script>
+    <script type="module" src="../js/status/status.js"></script>
 </body>
 
 </html>
