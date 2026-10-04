@@ -9,17 +9,21 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 import server.controller.SeccionBaseController;
 import server.model.mesa.Mesa;
 import server.model.mesa.MesaInterface;
 import server.model.pedido.Pedido;
 import server.model.pedido.PedidoInterface;
+import server.model.producto.Producto;
+import server.model.producto.ProductoInterface;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -41,17 +45,25 @@ public class PedidosController extends SeccionBaseController {
     private static final String TODOS = "Todos";
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    private record Carga(List<Pedido> pedidos, List<Mesa> mesas) {}
-    private record Detalle(List<String> productos, List<String> encargados) {}
+    private record Carga(List<Pedido> pedidos, List<Mesa> mesas, List<Producto> productos) {}
+    private record Detalle(List<Producto> productos, List<String> encargados) {}
 
     private static final StringConverter<Mesa> CONVERTIDOR_MESA = new StringConverter<>() {
         @Override public String toString(Mesa m) { return m == null ? "" : "Mesa " + m.getId(); }
         @Override public Mesa fromString(String s) { return null; }
     };
 
+    private static final StringConverter<Producto> CONVERTIDOR_PRODUCTO = new StringConverter<>() {
+        @Override public String toString(Producto p) {
+            return p == null ? "" : p.getNombre() + " — " + MONEDA.format(p.getPrecio());
+        }
+        @Override public Producto fromString(String s) { return null; }
+    };
+
     private final ObservableList<Pedido> datos = FXCollections.observableArrayList();
     private final ObservableList<Mesa> mesas = FXCollections.observableArrayList();
-    private final ObservableList<String> productosPedido = FXCollections.observableArrayList();
+    private final ObservableList<Producto> productosDisponibles = FXCollections.observableArrayList();
+    private final ObservableList<Producto> productosPedido = FXCollections.observableArrayList();
     private final ObservableList<String> encargadosPedido = FXCollections.observableArrayList();
     private FilteredList<Pedido> filtrados;
     private Pedido seleccionado;
@@ -73,7 +85,9 @@ public class PedidosController extends SeccionBaseController {
     @FXML private Label lblTotal;
     @FXML private ComboBox<String> cmbEstado;
     @FXML private ComboBox<String> cmbPago;
-    @FXML private ListView<String> lstProductos;
+    @FXML private VBox boxProductos;
+    @FXML private ListView<Producto> lstProductos;
+    @FXML private ComboBox<Producto> cmbProducto;
     @FXML private ListView<String> lstEncargados;
     @FXML private Button btnGuardar;
     @FXML private Button btnEliminar;
@@ -122,8 +136,17 @@ public class PedidosController extends SeccionBaseController {
         cmbMesa.setItems(mesas);
         cmbMesa.setConverter(CONVERTIDOR_MESA);
         cmbPago.getItems().setAll(METODOS_PAGO);
+        cmbProducto.setItems(productosDisponibles);
+        cmbProducto.setConverter(CONVERTIDOR_PRODUCTO);
         lstProductos.setItems(productosPedido);
         lstProductos.setPlaceholder(new Label("Sin productos"));
+        lstProductos.setCellFactory(l -> new ListCell<>() {
+            @Override
+            protected void updateItem(Producto p, boolean vacio) {
+                super.updateItem(p, vacio);
+                setText(vacio || p == null ? null : CONVERTIDOR_PRODUCTO.toString(p));
+            }
+        });
         lstEncargados.setItems(encargadosPedido);
         lstEncargados.setPlaceholder(new Label("Sin encargados"));
         actualizarEstados(List.of());
@@ -191,6 +214,7 @@ public class PedidosController extends SeccionBaseController {
         cmbPago.setValue(p.getMetodoPago());
         btnGuardar.setText("Aplicar cambios");
         btnEliminar.setDisable(false);
+        boxProductos.setDisable(false);
         ocultarMensaje();
         cargarDetalle(p.getId());
     }
@@ -212,6 +236,8 @@ public class PedidosController extends SeccionBaseController {
         cmbPago.setDisable(true);
         productosPedido.clear();
         encargadosPedido.clear();
+        cmbProducto.setValue(null);
+        boxProductos.setDisable(true); // primero hay que registrar el pedido
         btnGuardar.setText("Registrar");
         btnEliminar.setDisable(true);
         ocultarMensaje();
@@ -248,12 +274,16 @@ public class PedidosController extends SeccionBaseController {
             MesaInterface ms = servicio(model.getMesaService());
             int totalP = ps.contar();
             int totalM = ms.contar();
+            ProductoInterface prs = servicio(model.getProductoService());
+            int totalPr = prs.contar();
             return new Carga(
                     totalP == 0 ? List.<Pedido>of() : ps.getPedidos(0, totalP - 1),
-                    totalM == 0 ? List.<Mesa>of() : ms.getMesa(0, totalM - 1));
+                    totalM == 0 ? List.<Mesa>of() : ms.getMesa(0, totalM - 1),
+                    totalPr == 0 ? List.<Producto>of() : prs.getProductos(0, totalPr - 1));
         }, carga -> {
             datos.setAll(carga.pedidos());
             mesas.setAll(carga.mesas());
+            productosDisponibles.setAll(carga.productos());
             actualizarEstados(carga.pedidos());
             if (idASeleccionar != null) {
                 carga.pedidos().stream().filter(p -> p.getId() == idASeleccionar).findFirst()
@@ -269,9 +299,7 @@ public class PedidosController extends SeccionBaseController {
     private void cargarDetalle(int idPedido) {
         ejecutar(() -> {
             PedidoInterface s = servicio(model.getPedidoService());
-            List<String> productos = listaOVacia(() -> s.getProductosPerPedido(idPedido).stream()
-                    .map(p -> p.getNombre() + " — " + MONEDA.format(p.getPrecio()))
-                    .toList());
+            List<Producto> productos = listaOVacia(() -> s.getProductosPerPedido(idPedido));
             List<String> encargados = listaOVacia(() -> s.getEncargadosPerPedido(idPedido).stream()
                     .map(e -> e.getNombre() + " (" + e.getCargo() + ")")
                     .toList());
@@ -288,7 +316,7 @@ public class PedidosController extends SeccionBaseController {
      * PedidoService lanza excepción cuando un pedido no tiene productos o encargados,
      * y aquí eso es un caso normal (lista vacía), no un error para el usuario.
      */
-    private static List<String> listaOVacia(Callable<List<String>> consulta) {
+    private static <T> List<T> listaOVacia(Callable<List<T>> consulta) {
         try {
             return consulta.call();
         } catch (Exception e) {
@@ -353,6 +381,47 @@ public class PedidosController extends SeccionBaseController {
             }
             return original.getId();
         }, id -> cargar(id, "Pedido actualizado."));
+    }
+
+    @FXML
+    private void handleAgregarProducto() {
+        if (seleccionado == null) {
+            mostrarMensaje("Primero registra o selecciona un pedido.", true);
+            return;
+        }
+        final Producto producto = cmbProducto.getValue();
+        if (producto == null) {
+            mostrarMensaje("Selecciona el producto que quieres agregar.", true);
+            return;
+        }
+        final int idPedido = seleccionado.getId();
+        ejecutar(() -> servicio(model.getPedidoService()).addProductoPerPedido(idPedido, producto), ok -> {
+            if (ok) {
+                cargar(idPedido, "Producto agregado al pedido.");
+            } else {
+                mostrarMensaje("No se pudo agregar el producto al pedido.", true);
+            }
+        });
+    }
+
+    @FXML
+    private void handleQuitarProducto() {
+        if (seleccionado == null) {
+            return;
+        }
+        final Producto producto = lstProductos.getSelectionModel().getSelectedItem();
+        if (producto == null) {
+            mostrarMensaje("Selecciona en la lista el producto que quieres quitar.", true);
+            return;
+        }
+        final int idPedido = seleccionado.getId();
+        ejecutar(() -> servicio(model.getPedidoService()).removeProductoPerPedido(idPedido, producto), ok -> {
+            if (ok) {
+                cargar(idPedido, "Producto quitado del pedido.");
+            } else {
+                mostrarMensaje("No se pudo quitar el producto del pedido.", true);
+            }
+        });
     }
 
     @FXML

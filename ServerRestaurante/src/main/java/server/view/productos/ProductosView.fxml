@@ -165,5 +165,8 @@
                     onAction="#handleGuardar" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
             <Button text="Limpiar" styleClass="btn-secundario" onAction="#handleNuevo"/>
         </HBox>
+        <Region minHeight="10" maxHeight="10"/>
+        <Button fx:id="btnEliminar" text="Eliminar producto" styleClass="btn-peligro"
+                disable="true" maxWidth="Infinity" onAction="#handleEliminar"/>
     </VBox>
 </HBox>
