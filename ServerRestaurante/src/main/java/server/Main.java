@@ -2,6 +2,7 @@ package server;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import server.database.Database;
 import server.factory.ServerFactory;
 
 public class Main extends Application {
@@ -14,9 +15,8 @@ public class Main extends Application {
 
     @Override
     public void stop() throws Exception {
-        // stop() se llama automáticamente al cerrar la última ventana.
-        // Forzar salida del proceso para matar los hilos RMI no-daemon.
         System.out.println("Aplicación cerrada — liberando puertos RMI.");
+        Database.closeConnection();
         Platform.exit();
         System.exit(0);
     }

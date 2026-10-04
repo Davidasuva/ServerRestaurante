@@ -12,6 +12,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import server.controller.BarraPaginacion;
 import server.controller.SeccionBaseController;
 import server.model.ingrediente.Ingrediente;
 import server.model.ingrediente.IngredienteInterface;
@@ -41,9 +42,12 @@ public class IngredientesController extends SeccionBaseController {
     @FXML private Button btnGuardar;
     @FXML private Button btnEliminar;
 
+    private final BarraPaginacion paginacion = new BarraPaginacion(() -> cargar(null, null));
+
     @Override
     protected void alIniciar() {
         configurarTabla();
+        paginacion.instalarDebajoDe(tablaIngredientes);
         limpiarFormulario();
         refrescar();
     }
@@ -138,15 +142,20 @@ public class IngredientesController extends SeccionBaseController {
 
     /** Recarga la tabla; si se indica, reselecciona ese ingrediente y muestra el mensaje de éxito. */
     private void cargar(Integer idASeleccionar, String mensajeOk) {
+        final int pagina = paginacion.getPagina();
+        final int tamano = paginacion.getTamano();
         ejecutar(() -> {
             IngredienteInterface s = servicio(model.getIngredienteService());
-            int total = s.contar();
-            return total == 0 ? List.<Ingrediente>of() : s.getIngredientes(0, total - 1);
-        }, lista -> {
+            return BarraPaginacion.leer(pagina, tamano, s.contar(), s::getIngredientes);
+        }, resultado -> {
+            paginacion.mostrar(resultado);
+            List<Ingrediente> lista = resultado.items();
             datos.setAll(lista);
             if (idASeleccionar != null) {
                 lista.stream().filter(i -> i.getId() == idASeleccionar).findFirst()
-                        .ifPresent(i -> tablaIngredientes.getSelectionModel().select(i));
+                        .ifPresentOrElse(
+                                i -> tablaIngredientes.getSelectionModel().select(i),
+                                () -> { if (seleccionado == null) limpiarFormulario(); }); // quedó en otra página
             }
             if (mensajeOk != null) {
                 mostrarMensaje(mensajeOk, false); // después de seleccionar, porque cargarEnFormulario oculta el mensaje

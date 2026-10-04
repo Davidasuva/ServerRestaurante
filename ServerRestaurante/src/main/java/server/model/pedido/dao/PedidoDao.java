@@ -10,7 +10,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ public class PedidoDao implements PedidoDaoInterface {
             stmt.setString(2, pedido.getMetodoPago());
             stmt.setFloat(3, pedido.getPrecioTotal());
             stmt.setTimestamp(4, Timestamp.valueOf(pedido.getFechaPedido()));
-            stmt.setString(5, pedido.getEstado());
+            stmt.setString(5, pedido.getEstado().getTexto());
             stmt.setInt(6, pedido.getMesaAsignada().getId());
             stmt.executeUpdate();
             return pedido;
@@ -143,7 +142,7 @@ public class PedidoDao implements PedidoDaoInterface {
             stmt.setInt(1, nuevoPedido.getId());
             stmt.setString(2, nuevoPedido.getMetodoPago());
             stmt.setTimestamp(3, Timestamp.valueOf(nuevoPedido.getFechaPedido()));
-            stmt.setString(4, nuevoPedido.getEstado());
+            stmt.setString(4, nuevoPedido.getEstado().getTexto());
             stmt.setInt(5, nuevoPedido.getMesaAsignada().getId());
             stmt.setInt(6, id);
             int filas = stmt.executeUpdate();
@@ -216,7 +215,7 @@ public class PedidoDao implements PedidoDaoInterface {
                 return true;
             } catch (SQLException e) {
                 conn.rollback();
-                throw new RuntimeException("Error al cambiar el estado de un pedido");
+                throw new RuntimeException("Error al cambiar el estado de un pedido: "+e.getMessage());
             } finally {
                 conn.setAutoCommit(autoCommitOriginal);
             }
@@ -548,13 +547,19 @@ public class PedidoDao implements PedidoDaoInterface {
         }
     }
 
-    private Pedido mapearPedido(ResultSet rs)throws SQLException{
+    private Pedido mapearPedido(ResultSet rs) throws SQLException {
+        int id = rs.getInt("id");
         Pedido pedido = new Pedido(
-                rs.getInt("id"),
+                id,
                 rs.getTimestamp("fecha_pedido").toLocalDateTime(),
                 new Mesa(rs.getInt("id_mesa"))
         );
-        pedido.setEstado(rs.getString("estado"));
+        String texto = rs.getString("estado");
+        try {
+            pedido.setEstado(Pedido.Estado.desdeTexto(texto));
+        } catch (IllegalArgumentException e) {
+            throw new SQLException("El pedido " + id + " tiene un estado no válido en la base de datos: " + texto, e);
+        }
         pedido.setMetodoPago(rs.getString("metodo"));
         pedido.setPrecioTotal(rs.getFloat("precio_total"));
         return pedido;

@@ -11,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import server.controller.BarraPaginacion;
 import server.controller.SeccionBaseController;
 import server.model.mesa.Mesa;
 import server.model.mesa.MesaInterface;
@@ -32,9 +33,12 @@ public class MesasController extends SeccionBaseController {
     @FXML private Button btnGuardar;
     @FXML private Button btnEliminar;
 
+    private final BarraPaginacion paginacion = new BarraPaginacion(this::refrescar);
+
     @Override
     protected void alIniciar() {
         configurarTabla();
+        paginacion.instalarDebajoDe(tablaMesas);
         limpiarFormulario();
         refrescar();
     }
@@ -100,11 +104,15 @@ public class MesasController extends SeccionBaseController {
 
     @Override
     public void refrescar() {
+        final int pagina = paginacion.getPagina();
+        final int tamano = paginacion.getTamano();
         ejecutar(() -> {
             MesaInterface s = servicio(model.getMesaService());
-            int total = s.contar();
-            return total == 0 ? List.<Mesa>of() : s.getMesa(0, total - 1);
-        }, lista -> datos.setAll(lista));
+            return BarraPaginacion.leer(pagina, tamano, s.contar(), s::getMesa);
+        }, resultado -> {
+            paginacion.mostrar(resultado);
+            datos.setAll(resultado.items());
+        });
     }
 
     @FXML

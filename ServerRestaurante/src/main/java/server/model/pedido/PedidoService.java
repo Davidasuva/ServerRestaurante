@@ -20,10 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.sql.SQLException;
 public class PedidoService extends UnicastRemoteObject implements PedidoInterface {
-
-    private static final String ESTADO_INICIAL = "Pendiente";
-    private static final String ESTADO_CANCELADO = "Cancelado";
-
     private PedidoDaoInterface pedidoDao;
     private History history;
     private MesaInterface mesaService;
@@ -137,18 +133,16 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
 
     @Override
     public List<Pedido> getPedidosPerEstado(String estado) throws RemoteException {
-        if(estado==null||estado.isEmpty()){
-            throw new RemoteException("Por favor ingrese un estado válido");
-        }
+        Pedido.Estado e = parsearEstado(estado);
         try{
-            List<Pedido> pedidos=pedidoDao.buscarPorEstado(estado);
+            List<Pedido> pedidos=pedidoDao.buscarPorEstado(e.getTexto());
             if(pedidos.isEmpty()){
-                throw new RuntimeException("No se encontraron pedidos por estado: "+estado);
+                throw new RuntimeException("No se encontraron pedidos por estado: "+e);
             }
-            history.addAction("Se buscaron pedidos por estado: "+estado);
+            history.addAction("Se buscaron pedidos por estado: "+e);
             return pedidos;
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar pedido: "+e.getMessage());
+        } catch (SQLException ex) {
+            throw new RuntimeException("Error al buscar pedido: "+ex.getMessage());
         }
     }
 
@@ -218,10 +212,18 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         }
     }
 
-    private boolean consumeInventario(String estado){
-        return estado!=null
-                && !ESTADO_INICIAL.equalsIgnoreCase(estado)
-                && !ESTADO_CANCELADO.equalsIgnoreCase(estado);
+    private boolean consumeInventario(Pedido.Estado estado){
+        return estado.consumeInventario();
+    }
+    private Pedido.Estado parsearEstado(String texto) throws RemoteException {
+        if (texto == null || texto.isBlank()) {
+            throw new RemoteException("Seleccione un estado válido");
+        }
+        try {
+            return Pedido.Estado.desdeTexto(texto.trim());
+        } catch (IllegalArgumentException e) {
+            throw new RemoteException("Estado no válido: " + texto);
+        }
     }
 
     @Override
@@ -229,28 +231,30 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         if(estado==null || estado.isEmpty()){
             throw new RemoteException("Seleccione un estado válido");
         }
+        Pedido.Estado nuevo = parsearEstado(estado);
+        String texto = nuevo.getTexto();
         try{
             Pedido actual=pedidoDao.buscarPorId(id);
             if(actual==null){
                 throw new RemoteException("No se encontró pedido por id: "+id);
             }
             boolean antes=consumeInventario(actual.getEstado());
-            boolean despues=consumeInventario(estado);
+            boolean despues=consumeInventario(nuevo);
             boolean cambiado;
             if(!antes && despues){
                 validatePedido(id);
-                cambiado=pedidoDao.cambiarEstadoDescontandoInventario(id,estado);
+                cambiado=pedidoDao.cambiarEstadoDescontandoInventario(id,texto);
                 if(!cambiado){
                     throw new RemoteException("No se pudo confirmar el pedido: el inventario cambió, intente de nuevo");
                 }
                 history.addAction("Se descontó el inventario del pedido con id: "+id);
-            } else if(!despues){
-                cambiado=pedidoDao.cambiarEstadoReponiendoInventario(id,estado);
+            } else if(antes&&!despues){
+                cambiado=pedidoDao.cambiarEstadoReponiendoInventario(id,texto);
                 if(cambiado){
                     history.addAction("Se devolvió el inventario del pedido con id: "+id);
                 }
             } else {
-                cambiado=pedidoDao.cambiarEstado(id,estado);
+                cambiado=pedidoDao.cambiarEstado(id,texto);
             }
             if(cambiado){
                 history.addAction("Se cambió el estado al pedido con id: "+id);
@@ -266,6 +270,9 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
     public Pedido modifyPedido(int id, Pedido pedido) throws RemoteException {
         if(pedido==null){
             throw new RemoteException("Actualize a un pedido válido");
+        }
+        if(pedido.getEstado()==null){
+            throw new RemoteException("Seleccione un estado válido");
         }
         try{
             if(pedido.getId()!=id){

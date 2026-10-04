@@ -7,6 +7,7 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import server.controller.BarraPaginacion;
 import server.controller.SeccionBaseController;
 import server.model.empleado.Empleado;
 import server.model.empleado.EmpleadoInterface;
@@ -33,9 +34,12 @@ public class EmpleadosController extends SeccionBaseController {
     @FXML private Button btnGuardar;
     @FXML private Button btnEliminar;
 
+    private final BarraPaginacion paginacion = new BarraPaginacion(this::recargar);
+
     @Override
     protected void alIniciar() {
         configurarTabla();
+        paginacion.instalarDebajoDe(tablaEmpleados);
         configurarFormulario();
         refrescar();
     }
@@ -122,11 +126,15 @@ public class EmpleadosController extends SeccionBaseController {
     }
 
     private void recargar() {
+        final int pagina = paginacion.getPagina();
+        final int tamano = paginacion.getTamano();
         ejecutar(() -> {
             EmpleadoInterface s = model.getEmpleadoService();
-            int total = s.contar();
-            return total == 0 ? List.<Empleado>of() : s.getEmpleados(0, total - 1);
-        }, lista -> datos.setAll(lista));
+            return BarraPaginacion.leer(pagina, tamano, s.contar(), s::getEmpleados);
+        }, resultado -> {
+            paginacion.mostrar(resultado);
+            datos.setAll(resultado.items());
+        });
     }
 
     @FXML
