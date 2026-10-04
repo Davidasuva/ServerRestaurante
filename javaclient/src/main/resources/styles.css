@@ -28,7 +28,7 @@
 
     /* Fondo y fuente base */
     -fx-background-color: -color-background;
-    -fx-font-family: "Inter";
+    -fx-font-family: "Inter 24pt";
     -fx-text-fill: -color-text-primary;
 }
 
@@ -254,4 +254,93 @@
 
 .divider {
     -fx-background-color: -color-border-light;
+}
+
+/* ===== Cocina ===== */
+.kitchen-column-header {
+    -fx-background-color: -color-surface;
+    -fx-background-radius: 12 12 0 0;
+    -fx-padding: 14 12 14 12;
+    -fx-border-width: 0 0 3 0;
+}
+
+.col-queue {
+    -fx-border-color: transparent transparent #3b82f6 transparent;
+}
+
+.col-prep {
+    -fx-border-color: transparent transparent #eab308 transparent;
+}
+
+.col-ready {
+    -fx-border-color: transparent transparent #22c55e transparent;
+}
+
+.count-badge {
+    -fx-background-color: -color-surface-dark;
+    -fx-background-radius: 8;
+    -fx-padding: 2 8 2 8;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.id-pedido-lg {
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.undo-button {
+    -fx-background-color: -color-surface-dark;
+    -fx-text-fill: -color-text-primary;
+    -fx-background-radius: 8;
+    -fx-font-size: 9px;
+    -fx-padding: 5 10 5 10;
+}
+
+.undo-button:hover {
+    -fx-background-color: -color-surface-disabled;
+}
+
+.badge-mesa {
+    -fx-background-color: -color-accent-subtle;
+    -fx-text-fill: -color-accent;
+    -fx-background-radius: 8;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.time-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-secondary;
+}
+
+.items-box {
+    -fx-background-color: -color-surface-dark;
+    -fx-background-radius: 10;
+    -fx-padding: 14;
+}
+
+.bullet {
+    -fx-text-fill: -color-accent;
+    -fx-font-weight: bold;
+}
+
+.order-item {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-primary;
+}
+
+.archive-button {
+    -fx-background-color: -color-accent-dark;
+    -fx-border-color: -color-accent-border;
+    -fx-border-radius: 11;
+    -fx-text-fill: -color-accent;
+}
+
+.archive-button:hover {
+    -fx-background-color: -color-accent-border;
 }
