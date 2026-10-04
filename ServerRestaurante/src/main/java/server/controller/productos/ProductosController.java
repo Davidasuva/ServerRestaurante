@@ -18,6 +18,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
+import server.controller.BarraPaginacion;
 import server.controller.SeccionBaseController;
 import server.model.ingrediente.Ingrediente;
 import server.model.ingrediente.IngredienteInterface;
@@ -25,10 +26,13 @@ import server.model.producto.Producto;
 import server.model.producto.ProductoInterface;
 
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class ProductosController extends SeccionBaseController {
 
-    private record Carga(List<Producto> productos, List<Ingrediente> ingredientes) {}
+    /** ingredientes es null cuando no se recargaron (solo se recargan al refrescar, no al cambiar de página). */
+    private record Carga(BarraPaginacion.Pagina<Producto> productos, List<Ingrediente> ingredientes) {}
 
     private static final StringConverter<Ingrediente> CONVERTIDOR_INGREDIENTE = new StringConverter<>() {
         @Override public String toString(Ingrediente i) { return i == null ? "" : i.getNombre(); }
@@ -63,9 +67,15 @@ public class ProductosController extends SeccionBaseController {
     @FXML private Button btnGuardar;
     @FXML private Button btnEliminar;
 
+    /** Categorías vistas en las páginas cargadas, para que el combo no se limite a la página actual. */
+    private final Set<String> categoriasConocidas = new TreeSet<>();
+
+    private final BarraPaginacion paginacion = new BarraPaginacion(() -> cargar(null, null));
+
     @Override
     protected void alIniciar() {
         configurarTabla();
+        paginacion.instalarDebajoDe(tablaProductos);
         configurarIngredientes();
         limpiarFormulario();
         refrescar();
@@ -182,33 +192,49 @@ public class ProductosController extends SeccionBaseController {
 
     @Override
     public void refrescar() {
-        cargar(null, null);
+        cargar(null, null, true);
     }
 
     /** Recarga productos e ingredientes; si se indica, reselecciona ese producto y muestra el mensaje de éxito. */
     private void cargar(Integer idASeleccionar, String mensajeOk) {
+        cargar(idASeleccionar, mensajeOk, false);
+    }
+
+    private void cargar(Integer idASeleccionar, String mensajeOk, boolean recargarIngredientes) {
+        final int pagina = paginacion.getPagina();
+        final int tamano = paginacion.getTamano();
         ejecutar(() -> {
             ProductoInterface ps = servicio(model.getProductoService());
-            IngredienteInterface is = servicio(model.getIngredienteService());
-            int totalP = ps.contar();
-            int totalI = is.contar();
-            return new Carga(
-                    totalP == 0 ? List.<Producto>of() : ps.getProductos(0, totalP - 1),
-                    totalI == 0 ? List.<Ingrediente>of() : is.getIngredientes(0, totalI - 1));
+            BarraPaginacion.Pagina<Producto> productos =
+                    BarraPaginacion.leer(pagina, tamano, ps.contar(), ps::getProductos);
+            List<Ingrediente> ingredientes = null;
+            if (recargarIngredientes) {
+                IngredienteInterface is = servicio(model.getIngredienteService());
+                int totalI = is.contar();
+                ingredientes = totalI == 0 ? List.<Ingrediente>of() : is.getIngredientes(0, totalI - 1);
+            }
+            return new Carga(productos, ingredientes);
         }, carga -> {
-            datos.setAll(carga.productos());
-            ingredientesDisponibles.setAll(carga.ingredientes());
+            paginacion.mostrar(carga.productos());
+            List<Producto> lista = carga.productos().items();
+            datos.setAll(lista);
+            if (carga.ingredientes() != null) {
+                ingredientesDisponibles.setAll(carga.ingredientes());
+            }
             String categoriaActual = cmbCategoria.getEditor().getText(); // setAll puede borrar el valor de un combo editable
-            cmbCategoria.getItems().setAll(carga.productos().stream()
+            lista.stream()
                     .map(Producto::getCategoria)
                     .filter(c -> c != null && !c.isBlank())
-                    .distinct().sorted().toList());
+                    .forEach(categoriasConocidas::add);
+            cmbCategoria.getItems().setAll(categoriasConocidas);
             if (categoriaActual != null && !categoriaActual.isBlank()) {
                 cmbCategoria.setValue(categoriaActual);
             }
             if (idASeleccionar != null) {
-                carga.productos().stream().filter(p -> p.getId() == idASeleccionar).findFirst()
-                        .ifPresent(p -> tablaProductos.getSelectionModel().select(p));
+                lista.stream().filter(p -> p.getId() == idASeleccionar).findFirst()
+                        .ifPresentOrElse(
+                                p -> tablaProductos.getSelectionModel().select(p),
+                                () -> { if (seleccionado == null) limpiarFormulario(); }); // quedó en otra página
             }
             if (mensajeOk != null) {
                 mostrarMensaje(mensajeOk, false); // después de seleccionar, porque cargarEnFormulario oculta el mensaje

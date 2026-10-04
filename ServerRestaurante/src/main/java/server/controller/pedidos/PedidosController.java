@@ -17,6 +17,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
+import server.controller.BarraPaginacion;
 import server.controller.SeccionBaseController;
 import server.model.mesa.Mesa;
 import server.model.mesa.MesaInterface;
@@ -37,7 +38,8 @@ public class PedidosController extends SeccionBaseController {
     private static final String TODOS = "Todos";
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    private record Carga(List<Pedido> pedidos, List<Mesa> mesas, List<Producto> productos) {}
+    /** mesas y productos son null cuando no se recargaron (solo se recargan al refrescar, no al cambiar de página). */
+    private record Carga(BarraPaginacion.Pagina<Pedido> pedidos, List<Mesa> mesas, List<Producto> productos) {}
     private record Detalle(List<Producto> productos, List<String> encargados) {}
 
     private static final StringConverter<Mesa> CONVERTIDOR_MESA = new StringConverter<>() {
@@ -84,9 +86,12 @@ public class PedidosController extends SeccionBaseController {
     @FXML private Button btnGuardar;
     @FXML private Button btnEliminar;
 
+    private final BarraPaginacion paginacion = new BarraPaginacion(() -> cargar(null, null));
+
     @Override
     protected void alIniciar() {
         configurarTabla();
+        paginacion.instalarDebajoDe(tablaPedidos);
         configurarFormulario();
         limpiarFormulario();
         refrescar();
@@ -250,29 +255,51 @@ public class PedidosController extends SeccionBaseController {
 
     @Override
     public void refrescar() {
-        cargar(null, null);
+        cargar(null, null, true);
     }
 
-    /** Recarga pedidos y mesas; si se indica, reselecciona ese pedido y muestra el mensaje de éxito. */
+    /** Recarga la página actual de pedidos; si se indica, reselecciona ese pedido y muestra el mensaje de éxito. */
     private void cargar(Integer idASeleccionar, String mensajeOk) {
+        cargar(idASeleccionar, mensajeOk, false);
+    }
+
+    /**
+     * Carga la página actual de pedidos. Las mesas y los productos de los combos (que necesitan la lista completa)
+     * solo se recargan cuando recargarCombos es true, no al cambiar de página.
+     */
+    private void cargar(Integer idASeleccionar, String mensajeOk, boolean recargarCombos) {
+        final int pagina = paginacion.getPagina();
+        final int tamano = paginacion.getTamano();
         ejecutar(() -> {
             PedidoInterface ps = servicio(model.getPedidoService());
-            MesaInterface ms = servicio(model.getMesaService());
-            int totalP = ps.contar();
-            int totalM = ms.contar();
-            ProductoInterface prs = servicio(model.getProductoService());
-            int totalPr = prs.contar();
-            return new Carga(
-                    totalP == 0 ? List.<Pedido>of() : ps.getPedidos(0, totalP - 1),
-                    totalM == 0 ? List.<Mesa>of() : ms.getMesa(0, totalM - 1),
-                    totalPr == 0 ? List.<Producto>of() : prs.getProductos(0, totalPr - 1));
+            BarraPaginacion.Pagina<Pedido> pedidos =
+                    BarraPaginacion.leer(pagina, tamano, ps.contar(), ps::getPedidos);
+            List<Mesa> listaMesas = null;
+            List<Producto> listaProductos = null;
+            if (recargarCombos) {
+                MesaInterface ms = servicio(model.getMesaService());
+                ProductoInterface prs = servicio(model.getProductoService());
+                int totalM = ms.contar();
+                int totalPr = prs.contar();
+                listaMesas = totalM == 0 ? List.<Mesa>of() : ms.getMesa(0, totalM - 1);
+                listaProductos = totalPr == 0 ? List.<Producto>of() : prs.getProductos(0, totalPr - 1);
+            }
+            return new Carga(pedidos, listaMesas, listaProductos);
         }, carga -> {
-            datos.setAll(carga.pedidos());
-            mesas.setAll(carga.mesas());
-            productosDisponibles.setAll(carga.productos());
+            paginacion.mostrar(carga.pedidos());
+            List<Pedido> lista = carga.pedidos().items();
+            datos.setAll(lista);
+            if (carga.mesas() != null) {
+                mesas.setAll(carga.mesas());
+            }
+            if (carga.productos() != null) {
+                productosDisponibles.setAll(carga.productos());
+            }
             if (idASeleccionar != null) {
-                carga.pedidos().stream().filter(p -> p.getId() == idASeleccionar).findFirst()
-                        .ifPresent(p -> tablaPedidos.getSelectionModel().select(p));
+                lista.stream().filter(p -> p.getId() == idASeleccionar).findFirst()
+                        .ifPresentOrElse(
+                                p -> tablaPedidos.getSelectionModel().select(p),
+                                () -> { if (seleccionado == null) limpiarFormulario(); }); // quedó en otra página
             }
             if (mensajeOk != null) {
                 mostrarMensaje(mensajeOk, false); // después de seleccionar, porque cargarEnFormulario oculta el mensaje
