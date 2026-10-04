@@ -27,20 +27,12 @@ import server.model.producto.ProductoInterface;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class PedidosController extends SeccionBaseController {
 
-    /**
-     * Estados que se ofrecen en el combo. Solo "Pendiente" y "Cancelado" existen en el código del servidor
-     * (PedidoService); el resto son sugerencias: ajústalos a los estados que use tu app cliente.
-     * Cualquier estado distinto de esos dos descuenta inventario al confirmarse.
-     */
-    private static final List<String> ESTADOS_BASE =
-            List.of("Pendiente", "En preparación", "Listo", "Entregado", "Pagado", "Cancelado");
     private static final List<String> METODOS_PAGO = List.of("Ninguno", "Efectivo", "Tarjeta");
     private static final String TODOS = "Todos";
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -83,7 +75,7 @@ public class PedidosController extends SeccionBaseController {
     @FXML private ComboBox<Mesa> cmbMesa;
     @FXML private Label lblFecha;
     @FXML private Label lblTotal;
-    @FXML private ComboBox<String> cmbEstado;
+    @FXML private ComboBox<Pedido.Estado> cmbEstado;
     @FXML private ComboBox<String> cmbPago;
     @FXML private VBox boxProductos;
     @FXML private ListView<Producto> lstProductos;
@@ -104,7 +96,7 @@ public class PedidosController extends SeccionBaseController {
         colId.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getId()));
         colFecha.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(formatearFecha(c.getValue().getFechaPedido())));
         colMesa.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(idMesa(c.getValue())));
-        colEstado.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getEstado()));
+        colEstado.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(textoEstado(c.getValue())));
         colPago.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getMetodoPago()));
         colTotal.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getPrecioTotal()));
         colTotal.setCellFactory(col -> new TableCell<>() {
@@ -149,7 +141,16 @@ public class PedidosController extends SeccionBaseController {
         });
         lstEncargados.setItems(encargadosPedido);
         lstEncargados.setPlaceholder(new Label("Sin encargados"));
-        actualizarEstados(List.of());
+
+        // Los estados salen directamente del enum (su toString muestra el texto, p. ej. "En Cola").
+        cmbEstado.getItems().setAll(Pedido.Estado.values());
+
+        List<String> filtro = new ArrayList<>();
+        filtro.add(TODOS);
+        for (Pedido.Estado e : Pedido.Estado.values()) {
+            filtro.add(e.getTexto());
+        }
+        cmbFiltroEstado.getItems().setAll(filtro);
         cmbFiltroEstado.setValue(TODOS);
     }
 
@@ -157,31 +158,16 @@ public class PedidosController extends SeccionBaseController {
         String q = txtBuscar.getText() == null ? "" : txtBuscar.getText().trim().toLowerCase();
         String estado = cmbFiltroEstado.getValue();
         boolean todos = estado == null || TODOS.equals(estado);
-        filtrados.setPredicate(p -> (todos || estado.equalsIgnoreCase(p.getEstado()))
+        filtrados.setPredicate(p -> (todos || estado.equalsIgnoreCase(textoEstado(p)))
                 && (q.isEmpty()
                 || String.valueOf(p.getId()).contains(q)
                 || String.valueOf(idMesa(p)).contains(q)
-                || nvl(p.getEstado()).toLowerCase().contains(q)
+                || textoEstado(p).toLowerCase().contains(q)
                 || nvl(p.getMetodoPago()).toLowerCase().contains(q)));
     }
 
-    /** Combina los estados base con los que ya existen en los pedidos cargados. */
-    private void actualizarEstados(List<Pedido> pedidos) {
-        Set<String> estados = new LinkedHashSet<>(ESTADOS_BASE);
-        pedidos.stream().map(Pedido::getEstado).filter(e -> e != null && !e.isBlank()).forEach(estados::add);
-
-        String filtroActual = cmbFiltroEstado.getValue();
-        String estadoActual = cmbEstado.getEditor().getText(); // setAll puede borrar el valor de un combo editable
-        cmbEstado.getItems().setAll(estados);
-        if (estadoActual != null && !estadoActual.isBlank()) {
-            cmbEstado.setValue(estadoActual);
-        }
-
-        List<String> filtro = new java.util.ArrayList<>();
-        filtro.add(TODOS);
-        filtro.addAll(estados);
-        cmbFiltroEstado.getItems().setAll(filtro);
-        cmbFiltroEstado.setValue(filtroActual != null && filtro.contains(filtroActual) ? filtroActual : TODOS);
+    private static String textoEstado(Pedido p) {
+        return p.getEstado() == null ? "" : p.getEstado().getTexto();
     }
 
     private static String nvl(String s) {
@@ -230,7 +216,7 @@ public class PedidosController extends SeccionBaseController {
         lblFecha.setText("Se asigna al registrar");
         lblTotal.setText(MONEDA.format(0));
         // Un pedido nuevo siempre nace Pendiente y sin pago (así no consume inventario).
-        cmbEstado.setValue("Pendiente");
+        cmbEstado.setValue(Pedido.Estado.PENDIENTE);
         cmbEstado.setDisable(true);
         cmbPago.setValue("Ninguno");
         cmbPago.setDisable(true);
@@ -284,7 +270,6 @@ public class PedidosController extends SeccionBaseController {
             datos.setAll(carga.pedidos());
             mesas.setAll(carga.mesas());
             productosDisponibles.setAll(carga.productos());
-            actualizarEstados(carga.pedidos());
             if (idASeleccionar != null) {
                 carga.pedidos().stream().filter(p -> p.getId() == idASeleccionar).findFirst()
                         .ifPresent(p -> tablaPedidos.getSelectionModel().select(p));
@@ -357,13 +342,13 @@ public class PedidosController extends SeccionBaseController {
 
     private void aplicarCambios() {
         final Pedido original = seleccionado;
-        final String estado = cmbEstado.getEditor().getText().trim();
+        final Pedido.Estado estado = cmbEstado.getValue();
         final String pago = cmbPago.getEditor().getText().trim();
 
-        if (estado.isEmpty()) { mostrarMensaje("Selecciona o escribe un estado.", true); return; }
+        if (estado == null) { mostrarMensaje("Selecciona un estado.", true); return; }
         if (pago.isEmpty()) { mostrarMensaje("Selecciona o escribe un método de pago.", true); return; }
 
-        final boolean cambiaEstado = !estado.equals(original.getEstado());
+        final boolean cambiaEstado = estado != original.getEstado();
         final boolean cambiaPago = !pago.equals(original.getMetodoPago());
         if (!cambiaEstado && !cambiaPago) {
             mostrarMensaje("No hay cambios que aplicar.", true);
@@ -373,7 +358,8 @@ public class PedidosController extends SeccionBaseController {
         ejecutar(() -> {
             PedidoInterface s = servicio(model.getPedidoService());
             // Cambiar el estado pasa por setPedidoStatus para que se ajuste el inventario.
-            if (cambiaEstado && !s.setPedidoStatus(original.getId(), estado)) {
+            // La interfaz sigue recibiendo texto; el servicio lo convierte con Pedido.Estado.desdeTexto(...).
+            if (cambiaEstado && !s.setPedidoStatus(original.getId(), estado.getTexto())) {
                 throw new IllegalStateException("No se pudo cambiar el estado del pedido.");
             }
             if (cambiaPago && !s.setPaymentMethodPerPedido(original.getId(), pago)) {

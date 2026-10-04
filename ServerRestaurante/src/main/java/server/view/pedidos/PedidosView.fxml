@@ -131,8 +131,8 @@
         <Region minHeight="10" maxHeight="10"/>
         <Label text="Estado" styleClass="form-label"/>
         <Region minHeight="5" maxHeight="5"/>
-        <ComboBox fx:id="cmbEstado" styleClass="combo-campo" maxWidth="Infinity" editable="true"
-                  promptText="Selecciona o escribe el estado..."/>
+        <ComboBox fx:id="cmbEstado" styleClass="combo-campo" maxWidth="Infinity" editable="false"
+                  promptText="Selecciona el estado..."/>
 
         <Region minHeight="10" maxHeight="10"/>
         <Label text="Método de pago" styleClass="form-label"/>
