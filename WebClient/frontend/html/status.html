@@ -15,7 +15,7 @@
 </head>
 
 <body class="status-body">
-    <order-status class="status-screen status-loading" data-state="EN_COLA" data-orders-in-preparation="0" data-queue-position="1" aria-busy="true">
+    <order-status class="status-screen status-loading" aria-busy="true">
         <main class="status-main">
             <div class="status-skeleton" aria-hidden="true">
                 <div class="status-skeleton-badge skeleton"></div>
@@ -58,11 +58,11 @@
                 <div class="status-card-header">
                     <div class="status-info-col">
                         <span class="status-label">ID PEDIDO</span>
-                        <strong class="status-value"><span aria-hidden="true">PE-</span><span id="order-number-label">000</span></strong>
+                        <strong class="status-value"><span aria-hidden="true">PE-</span><span id="order-number-label">—</span></strong>
                     </div>
                     <div class="status-info-col status-info-right">
                         <span class="status-label">MESA</span>
-                        <strong class="status-value accent" id="order-mesa-label">4</strong>
+                        <strong class="status-value accent" id="order-mesa-label">—</strong>
                     </div>
                 </div>
 
@@ -82,22 +82,22 @@
                             <span class="step-label">EN COLA</span>
                         </li>
 
-                        <!-- Paso 2: En preparación -->
-                        <li class="stepper-step" id="step-preparacion">
+                        <!-- Paso 2: Preparándose -->
+                        <li class="stepper-step" id="step-preparandose">
                             <div class="step-indicator">
                                 <div class="step-pulsing-dot" id="dot-preparacion" aria-hidden="true"></div>
                                 <span class="material-symbols-outlined step-check-icon"
-                                    id="check-preparacion">check</span>
+                                    id="check-preparandose">check</span>
                             </div>
                             <span class="step-label">EN<br />PREPARACIÓN</span>
                         </li>
 
-                        <!-- Paso 3: Listo -->
-                        <li class="stepper-step" id="step-listo">
+                        <!-- Paso 3: Entregado -->
+                        <li class="stepper-step" id="step-entregado">
                             <div class="step-indicator">
-                                <span class="material-symbols-outlined step-check-icon" id="check-listo">check</span>
+                                <span class="material-symbols-outlined step-check-icon" id="check-entregado">check</span>
                             </div>
-                            <span class="step-label">LISTO</span>
+                            <span class="step-label">ENTREGADO</span>
                         </li>
                     </ol>
                 </div>

@@ -1,23 +1,29 @@
-const STATUS_VALUES = ["EN_COLA", "EN_PREPARACION", "LISTO"];
+const STATUS_VALUES = ["PENDIENTE", "EN_COLA", "PREPARANDOSE", "PREPARADO", "ENTREGADO", "CANCELADO"];
 
 function getApiBaseUrl() {
   return (window.RESTAURANT_CONFIG?.apiBaseUrl || "").replace(/\/$/, "");
 }
 
 function normalizeStatus(status) {
-  const value = String(status || "EN_COLA").toUpperCase();
-  if (["PENDIENTE", "PENDING"].includes(value)) return "EN_COLA";
-  if (["PREPARANDO", "PREPARACION", "PREPARING"].includes(value)) return "EN_PREPARACION";
-  return STATUS_VALUES.includes(value) ? value : "EN_COLA";
+  if (status === undefined || status === null || status === "") return null;
+  const value = String(status).toUpperCase();
+  if (["PENDING"].includes(value)) return "PENDIENTE";
+  if (["PREPARANDO", "PREPARACION", "PREPARING", "EN_PREPARACION"].includes(value)) return "PREPARANDOSE";
+  if (["LISTO", "PREPARADO"].includes(value)) return "PREPARADO";
+  return STATUS_VALUES.includes(value) ? value : null;
 }
 
-export function normalizeOrderNumber(value = "000") {
+export function normalizeOrderNumber(value) {
   return String(value).replace(/^(?:PE-?)+/i, "");
 }
 
 export function createOrderPayload(items, tableNumber, paymentMethod) {
+  const mesa = Number(tableNumber);
+  if (!Number.isInteger(mesa) || mesa < 1) {
+    throw new Error("No se ha identificado una mesa válida para el pedido.");
+  }
   return {
-    mesa: Number(tableNumber || 1),
+    mesa,
     metodoPago: paymentMethod,
     productos: items.map((item) => ({
       nombre: item.name,
@@ -32,7 +38,7 @@ export function createOrderPayload(items, tableNumber, paymentMethod) {
 
 export async function submitOrder(payload) {
   const apiBaseUrl = getApiBaseUrl();
-  if (!apiBaseUrl) return { id: "000", estado: "EN_COLA", modo: "local" };
+  if (!apiBaseUrl) throw new Error("El backend no está configurado.");
 
   const response = await fetch(`${apiBaseUrl}/api/pedidos`, {
     method: "POST",
@@ -53,16 +59,18 @@ export async function getOrderStatus(orderId) {
 }
 
 export function normalizeOrder(order = {}) {
-  const ordersInPreparation = Number(
-    order.pedidosEnPreparacion ?? order.ordersInPreparation ?? order.enPreparacion ?? 0,
-  );
+  const ordersInPreparationValue =
+    order.pedidosEnPreparacion ?? order.ordersInPreparation ?? order.enPreparacion;
+  const ordersInPreparation = ordersInPreparationValue === undefined || ordersInPreparationValue === null
+    ? null
+    : Number(ordersInPreparationValue);
   const requestedStatus = normalizeStatus(order.estado ?? order.status);
   return {
     id: order.id ?? order.orderId ?? order.pedidoId ?? order.idPedido,
     estado: requestedStatus,
     mesa: order.mesa ?? order.tableNumber,
     pedidosEnPreparacion: ordersInPreparation,
-    posicionCola: Number(order.posicionCola ?? order.queuePosition ?? 1),
+    posicionCola: order.posicionCola ?? order.queuePosition ?? null,
   };
 }
 

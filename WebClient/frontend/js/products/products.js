@@ -20,7 +20,7 @@ const {
 
 async function sendOrderToKitchen() {
   const paymentMethod = document.querySelector('input[name="metodo-pago"]:checked').value;
-  const currentMesa = tableNumber || "1";
+  const currentMesa = tableNumber;
   const payload = createOrderPayload(state.orderItems, currentMesa, paymentMethod);
 
   document.dispatchEvent(new CustomEvent("restaurant-order-submit", {
@@ -36,7 +36,8 @@ async function sendOrderToKitchen() {
   setViewState(checkoutView, "loading");
   try {
     const order = await submitOrder(payload);
-    const orderNumber = normalizeOrderNumber(order.id ?? "000");
+    if (!order.id) throw new Error("El backend no devolvió el identificador del pedido.");
+    const orderNumber = normalizeOrderNumber(order.id);
     saveCurrentOrder(orderNumber, currentMesa);
     setViewState(checkoutView, "success");
     showToast(`Pedido enviado a cocina · ${paymentMethod}`, "success");

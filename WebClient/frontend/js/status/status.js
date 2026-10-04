@@ -2,7 +2,6 @@ import { getOrderStatus, isApiConfigured, normalizeOrderNumber } from "../shared
 import { setLoading } from "../shared/loading.js";
 import { setViewState } from "../shared/view-state.js";
 import {
-    getInitialOrderStatus,
     getOrderStatusConfig,
     ORDER_STATUS_VALUES,
 } from "./status-config.js";
@@ -10,8 +9,9 @@ import { getCurrentOrder } from "../shared/order-storage.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const storedOrder = getCurrentOrder();
-const tableNumber = urlParams.get("mesa") || storedOrder.table || "4";
-const orderNumber = normalizeOrderNumber(urlParams.get("id") || storedOrder.id || "000");
+const tableNumber = urlParams.get("mesa") || storedOrder.table || "—";
+const requestedOrderNumber = urlParams.get("id") || storedOrder.id;
+const orderNumber = requestedOrderNumber ? normalizeOrderNumber(requestedOrderNumber) : "";
 
 class OrderStatus extends HTMLElement {
     connectedCallback() {
@@ -28,22 +28,15 @@ class OrderStatus extends HTMLElement {
         this.closeNote = this.querySelector("#status-close-note");
         this.confirmed = false;
         this.orderMesaLabel.textContent = tableNumber;
-        this.orderNumberLabel.textContent = orderNumber.padStart(3, "0");
+        this.orderNumberLabel.textContent = orderNumber ? orderNumber.padStart(3, "0") : "—";
 
         this.confirmButton.addEventListener("click", () => this.confirmReady());
-
-        const ordersInPreparation = Number(this.dataset.ordersInPreparation || 0);
-        const requestedState = this.dataset.state || "EN_COLA";
-        const initialState = getInitialOrderStatus(requestedState, ordersInPreparation);
-        this.setState(initialState, {
-            ordersInPreparation,
-            queuePosition: Number(this.dataset.queuePosition || 1)
-        });
 
         if (isApiConfigured() && orderNumber) {
             this.refreshStatus();
             this.refreshTimer = window.setInterval(() => this.refreshStatus(), 10000);
         } else {
+            this.showUnavailable("No hay un pedido identificado para consultar.");
             this.finishLoading();
         }
 
@@ -55,6 +48,17 @@ class OrderStatus extends HTMLElement {
 
     disconnectedCallback() {
         window.clearInterval(this.refreshTimer);
+    }
+
+    showUnavailable(message) {
+        this.badgeIcon.textContent = "error";
+        this.statusTitulo.textContent = "Estado no disponible";
+        this.statusBadge.classList.remove("listo");
+        this.statusTitulo.classList.remove("listo");
+        this.statusCard.classList.remove("listo");
+        setViewState(this.kitchenNote, "error");
+        this.kitchenNote.textContent = message;
+        this.kitchenNote.hidden = false;
     }
 
     confirmReady() {
@@ -74,15 +78,17 @@ class OrderStatus extends HTMLElement {
     async refreshStatus() {
         try {
             const order = await getOrderStatus(orderNumber);
-            if (!order) return;
+            if (!order || !order.estado) {
+                this.showUnavailable("El servidor no devolvió el estado del pedido.");
+                return;
+            }
+            this.updateOrderIdentity(order);
             this.setState(order.estado, {
                 ordersInPreparation: order.pedidosEnPreparacion,
                 queuePosition: order.posicionCola
             });
         } catch (error) {
-            setViewState(this.kitchenNote, "error");
-            this.kitchenNote.textContent = error.message || "No fue posible actualizar el estado del pedido.";
-            this.kitchenNote.hidden = false;
+            this.showUnavailable(error.message || "No fue posible actualizar el estado del pedido.");
             this.dispatchEvent(new CustomEvent("order-status-error", {
                 bubbles: true,
                 detail: { message: error.message }
@@ -92,17 +98,48 @@ class OrderStatus extends HTMLElement {
         }
     }
 
+    updateOrderIdentity(order) {
+        if (order.mesa !== undefined && order.mesa !== null) {
+            this.orderMesaLabel.textContent = order.mesa;
+        }
+
+        if (order.id !== undefined && order.id !== null) {
+            const normalizedId = normalizeOrderNumber(order.id);
+            this.orderNumberLabel.textContent = normalizedId.padStart(3, "0");
+        }
+    }
+
     setState(state, details = {}) {
-        const normalizedState = String(state).toUpperCase();
-        const nextState = ORDER_STATUS_VALUES.includes(normalizedState) ? normalizedState : "EN_COLA";
-        const ordersInPreparation = Number(details.ordersInPreparation || 0);
-        const queuePosition = Number(details.queuePosition || 1);
-        this.statusStepper.className = `status-stepper estado-${nextState.toLowerCase().replace("_", "-")}`;
+        const normalizedState = String(state || "").toUpperCase();
+        if (!ORDER_STATUS_VALUES.includes(normalizedState)) {
+            this.showUnavailable("El servidor devolvió un estado de pedido no reconocido.");
+            return;
+        }
+        const nextState = normalizedState;
+        const ordersInPreparation = this.toOptionalNumber(details.ordersInPreparation);
+        const queuePosition = this.toOptionalNumber(details.queuePosition);
         const content = getOrderStatusConfig(nextState);
-        this.statusBadge.classList.toggle("listo", content.isReady);
-        this.statusTitulo.classList.toggle("listo", content.isReady);
-        this.statusCard.classList.toggle("listo", content.isReady);
+        this.statusStepper.className = `status-stepper estado-${content.visualState}`;
+        const isSuccess = content.isReady || content.isCompleted;
+        this.statusBadge.classList.toggle("listo", isSuccess);
+        this.statusBadge.classList.toggle("error", content.isError);
+        this.statusTitulo.classList.toggle("listo", isSuccess);
+        this.statusTitulo.classList.toggle("error", content.isError);
+        this.statusCard.classList.toggle("listo", isSuccess);
+        this.statusCard.classList.toggle("error", content.isError);
         this.badgeIcon.textContent = content.icon;
+        const queueCheck = this.querySelector("#check-cola");
+        const preparationCheck = this.querySelector("#check-preparandose");
+        const finalCheck = this.querySelector("#check-entregado");
+        queueCheck.textContent = content.isError ? "close" : "check";
+        preparationCheck.textContent = content.isError ? "close" : "check";
+        finalCheck.textContent = content.isError ? "close" : "check";
+        queueCheck.classList.toggle("estado-error-final", false);
+        preparationCheck.classList.toggle("estado-error-final", false);
+        finalCheck.classList.toggle("estado-error-final", content.isError);
+        this.querySelector("#step-entregado .step-label").textContent = content.isError
+            ? "CANCELADO"
+            : "ENTREGADO";
         this.statusTitulo.innerHTML = content.title;
         setViewState(this.kitchenNote, null);
         this.kitchenNote.textContent = content.note(ordersInPreparation, queuePosition);
@@ -119,6 +156,12 @@ class OrderStatus extends HTMLElement {
             bubbles: true,
             detail: { state: nextState, ordersInPreparation, queuePosition }
         }));
+    }
+
+    toOptionalNumber(value) {
+        if (value === undefined || value === null || value === "") return null;
+        const number = Number(value);
+        return Number.isFinite(number) ? number : null;
     }
 }
 
