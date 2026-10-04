@@ -10,88 +10,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/status.css" />
+    <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" />
 </head>
 
 <body class="status-body">
-    <order-status class="status-screen" data-state="EN_COLA" data-orders-in-preparation="0" data-queue-position="1">
-        <main class="status-main">
-            <!-- Icono principal con Material Symbols de Google -->
-            <div class="status-badge" id="status-badge" aria-hidden="true">
-                <span class="material-symbols-outlined status-badge-icon" id="badge-icon">hourglass_top</span>
-            </div>
-
-            <!-- Título del estado actual -->
-            <h1 class="status-titulo" id="status-titulo">
-                ¡Tu pedido está<br />en cola!
-            </h1>
-
-            <!-- Tarjeta de información del pedido y barra de progreso -->
-            <section class="status-card" id="status-card" aria-label="Progreso del pedido">
-                <div class="status-card-header">
-                    <div class="status-info-col">
-                        <span class="status-label">ID PEDIDO</span>
-                        <strong class="status-value"><span aria-hidden="true">PE-</span><span id="order-number-label">000</span></strong>
-                    </div>
-                    <div class="status-info-col status-info-right">
-                        <span class="status-label">MESA</span>
-                        <strong class="status-value accent" id="order-mesa-label">4</strong>
-                    </div>
-                </div>
-
-                <div class="status-stepper estado-en-cola" id="status-stepper">
-                    <!-- Barra de progreso de fondo y barra activa animada -->
-                    <div class="stepper-track-bg"></div>
-                    <div class="stepper-track-fill" id="stepper-fill"></div>
-
-                    <!-- Pasos del pedido -->
-                    <ol class="stepper-steps">
-                        <!-- Paso 1: En cola -->
-                        <li class="stepper-step" id="step-cola">
-                            <div class="step-indicator">
-                                <div class="step-pulsing-dot" id="dot-cola" aria-hidden="true"></div>
-                                <span class="material-symbols-outlined step-check-icon" id="check-cola">check</span>
-                            </div>
-                            <span class="step-label">EN COLA</span>
-                        </li>
-
-                        <!-- Paso 2: En preparación -->
-                        <li class="stepper-step" id="step-preparacion">
-                            <div class="step-indicator">
-                                <div class="step-pulsing-dot" id="dot-preparacion" aria-hidden="true"></div>
-                                <span class="material-symbols-outlined step-check-icon"
-                                    id="check-preparacion">check</span>
-                            </div>
-                            <span class="step-label">EN<br />PREPARACIÓN</span>
-                        </li>
-
-                        <!-- Paso 3: Listo -->
-                        <li class="stepper-step" id="step-listo">
-                            <div class="step-indicator">
-                                <span class="material-symbols-outlined step-check-icon" id="check-listo">check</span>
-                            </div>
-                            <span class="step-label">LISTO</span>
-                        </li>
-                    </ol>
-                </div>
-            </section>
-
-            <p class="status-kitchen-note" id="status-kitchen-note" hidden></p>
-            <div class="status-confirmation" id="status-confirmation" hidden>
-                <button class="status-confirm-button" id="confirm-order-ready" type="button">
-                    <span class="material-symbols-outlined">task_alt</span>
-                    Confirmar pedido recibido
-                </button>
-                <p class="status-close-note" id="status-close-note" hidden>
-                    Pedido confirmado. Puedes cerrar esta ventana.
-                </p>
-            </div>
-        </main>
-    </order-status>
+    <!-- Lee ?id= y ?mesa= de la URL; consulta GET /api/pedidos/{id}/estado -->
+    <order-status class="status-screen" data-state="EN_COLA"></order-status>
 
     <script src="../js/restaurant-config.js"></script>
-    <script type="module" src="../js/status.js"></script>
+    <script type="module" src="../js/pages/status-page.js"></script>
 </body>
 
 </html>

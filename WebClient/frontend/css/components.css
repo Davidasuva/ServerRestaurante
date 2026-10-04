@@ -1,0 +1,82 @@
+/* ==========================================================================
+   WEB COMPONENTS - ajustes de integración
+   Los componentes usan Light DOM, así que los estilos existentes siguen aplicando.
+   ========================================================================== */
+
+/* Componentes que solo envuelven a un overlay/hoja: no deben alterar el layout */
+product-modal,
+order-panel,
+confirm-dialog {
+    display: contents;
+}
+
+/* Contenedores con clase propia que definen su display */
+menu-header,
+order-bar,
+order-list,
+checkout-view {
+    display: block;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+/* Estados de carga / error / vacío */
+.estado-carga,
+.catalogo-estado {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 48px 16px;
+    color: var(--color-text-secondary);
+    text-align: center;
+}
+
+.estado-carga {
+    grid-column: 1 / -1;
+    grid-row: 1 / -1;
+}
+
+.estado-carga.error p,
+.catalogo-estado.error p {
+    color: var(--color-error);
+}
+
+.reintentar {
+    padding: 10px 22px;
+    border: 1px solid var(--color-accent);
+    border-radius: 14px;
+    background-color: var(--color-accent-subtle);
+    color: var(--color-accent);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+}
+
+.reintentar:hover {
+    background-color: var(--color-accent-soft);
+}
+
+/* Selector de mesas: las filas se calculan según la cantidad de mesas */
+table-selector.inicio {
+    grid-template-rows: repeat(var(--filas-mesas, 5), 1fr);
+}
+
+/* El toast es un componente: debe verse aunque no tenga contenido previo */
+app-toast {
+    display: block;
+}
+
+/* Pedido cancelado desde el servidor del restaurante */
+order-status[data-state="CANCELADO"] .status-stepper {
+    display: none;
+}
+
+order-status[data-state="CANCELADO"] .status-badge-icon,
+order-status[data-state="CANCELADO"] .status-titulo {
+    color: var(--color-error);
+}
