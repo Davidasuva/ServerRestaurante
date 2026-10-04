@@ -1,32 +1,29 @@
 package com.proyectoApi.api.exception;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.rmi.RemoteException;
 import java.util.Map;
 
-/**
- * Manejo centralizado de excepciones: si el servidor RMI está caído o
- * falla, aquí se traduce automáticamente a una respuesta HTTP 503 con
- * JSON consistente, sin tener que poner try/catch en cada controller.
- */
+/** Todas las respuestas de error tienen la forma {"message": "..."} (es lo que lee el frontend). */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(RemoteException.class)
-    public ResponseEntity<Map<String, String>> handleRemoteException(RemoteException ex) {
-        return ResponseEntity
-                .status(HttpStatus.SERVICE_UNAVAILABLE)
-                .body(Map.of("error", "El servidor RMI no está disponible", "detalle", ex.getMessage()));
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<Map<String, String>> handleApi(ApiException ex) {
+        return ResponseEntity.status(ex.kind().status()).body(Map.of("message", ex.getMessage()));
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGeneric(Exception ex) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Error inesperado", "detalle", ex.getMessage()));
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> handleUnreadable(HttpMessageNotReadableException ex) {
+        return ResponseEntity.badRequest().body(Map.of("message", "El cuerpo de la petición no es un JSON válido."));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, String>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        return ResponseEntity.badRequest().body(Map.of("message", "El parámetro '" + ex.getName() + "' no es válido."));
     }
 }

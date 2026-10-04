@@ -15,8 +15,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.release>26</maven.compiler.release>
-    <javafx.version>23</javafx.version>
+    <!-- Spring Boot 3.3 lee bytecode hasta Java 23: compilar a 21 (puede ejecutarse con tu JDK 26 sin problema) -->
+    <maven.compiler.release>21</maven.compiler.release>
   </properties>
 
   <dependencies>
