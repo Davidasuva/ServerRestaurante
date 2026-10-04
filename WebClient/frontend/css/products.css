@@ -160,18 +160,7 @@
 }
 
 .productos.productos-cargando .producto-card::after {
-    position: absolute;
-    z-index: 1;
-    inset: 0;
-    background: linear-gradient(
-        105deg,
-        transparent 20%,
-        var(--color-skeleton-highlight) 45%,
-        transparent 70%
-    );
-    content: "";
-    transform: translateX(-100%);
-    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    display: none;
 }
 
 .productos.productos-cargando .producto-card::before {
@@ -234,7 +223,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .productos.productos-cargando .producto-card::after {
+    .productos.productos-cargando .producto-skeleton .skeleton::after {
         animation: none;
     }
 }
@@ -324,13 +313,16 @@
 /* Barra inferior flotante de ver pedido */
 .cont-ver-pedido {
     position: fixed;
+    z-index: 10;
     bottom: 0;
     width: 100%;
     background-color: var(--color-background);
+    isolation: isolate;
     display: flex;
     justify-content: center;
     padding: 10px;
     border-top: var(--color-border-light) 0.5px solid;
+    box-shadow: 0 -8px 20px rgb(0 0 0 / 24%);
 }
 
 .pedido {
