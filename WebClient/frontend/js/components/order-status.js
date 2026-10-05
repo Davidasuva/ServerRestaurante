@@ -1,15 +1,16 @@
 import { getConfig, isApiConfigured } from "../config.js";
 import { getOrderStatus, normalizeOrderNumber } from "../services/restaurant-api.js";
+import { getOrderStatusConfig, ORDER_STATUS_VALUES } from "../services/order-status-config.js";
 import { esc, readStorage } from "../utils/format.js";
 import { demoLoadingDelay, setLoading } from "../utils/loading.js";
 import { setViewState } from "../utils/view-state.js";
 import { BaseElement, define } from "./base-element.js";
 
-const STATES = ["EN_COLA", "EN_PREPARACION", "LISTO", "CANCELADO"];
 
 /**
  * <order-status order-id="12" table="4">: seguimiento del pedido (consulta el API cada `statusPollIntervalMs`).
  * Si no se pasan atributos, toma ?id= y ?mesa= de la URL (o sessionStorage).
+ * Estados: PENDIENTE, EN_COLA, PREPARANDOSE, PREPARADO, ENTREGADO, CANCELADO (ver services/order-status-config.js).
  * API pública: setState(estado, { ordersInPreparation, queuePosition }).
  * Eventos: "order-status-change", "order-status-error", "order-confirmed".
  */
@@ -29,8 +30,8 @@ class OrderStatus extends BaseElement {
     this.#render();
 
     this.setState(this.dataset.state || "EN_COLA", {
-      ordersInPreparation: Number(this.dataset.ordersInPreparation || 0),
-      queuePosition: Number(this.dataset.queuePosition || 1),
+      ordersInPreparation: this.dataset.ordersInPreparation,
+      queuePosition: this.dataset.queuePosition,
     });
 
     if (isApiConfigured() && this.#orderId !== "000") {
@@ -96,9 +97,18 @@ class OrderStatus extends BaseElement {
             <div class="stepper-track-bg"></div>
             <div class="stepper-track-fill"></div>
             <ol class="stepper-steps">
-              <li class="stepper-step"><div class="step-indicator"><div class="step-pulsing-dot" aria-hidden="true"></div><span class="material-symbols-outlined step-check-icon">check</span></div><span class="step-label">EN COLA</span></li>
-              <li class="stepper-step"><div class="step-indicator"><div class="step-pulsing-dot" aria-hidden="true"></div><span class="material-symbols-outlined step-check-icon">check</span></div><span class="step-label">EN<br />PREPARACIÓN</span></li>
-              <li class="stepper-step"><div class="step-indicator"><span class="material-symbols-outlined step-check-icon">check</span></div><span class="step-label">LISTO</span></li>
+              <li class="stepper-step" id="step-cola">
+                <div class="step-indicator"><div class="step-pulsing-dot" id="dot-cola" aria-hidden="true"></div><span class="material-symbols-outlined step-check-icon" id="check-cola">check</span></div>
+                <span class="step-label">EN COLA</span>
+              </li>
+              <li class="stepper-step" id="step-preparandose">
+                <div class="step-indicator"><div class="step-pulsing-dot" id="dot-preparacion" aria-hidden="true"></div><span class="material-symbols-outlined step-check-icon" id="check-preparandose">check</span></div>
+                <span class="step-label">EN<br />PREPARACIÓN</span>
+              </li>
+              <li class="stepper-step" id="step-entregado">
+                <div class="step-indicator"><span class="material-symbols-outlined step-check-icon" id="check-entregado">check</span></div>
+                <span class="step-label">ENTREGADO</span>
+              </li>
             </ol>
           </div>
         </section>
@@ -121,7 +131,7 @@ class OrderStatus extends BaseElement {
   }
 
   #confirmReady() {
-    if (this.dataset.state !== "LISTO" || this.#confirmed) return;
+    if (!getOrderStatusConfig(this.dataset.state).isReady || this.#confirmed) return;
     this.#confirmed = true;
     this.dataset.confirmed = "true";
     this.confirmButton.disabled = true;
@@ -136,11 +146,11 @@ class OrderStatus extends BaseElement {
     this.#refreshing = true;
     try {
       const order = await getOrderStatus(this.#orderId);
-      if (order) this.setState(order.estado, { ordersInPreparation: order.pedidosEnPreparacion, queuePosition: order.posicionCola });
+      if (!order) return;
+      if (!order.estado) { this.#showUnavailable("El servidor devolvió un estado de pedido no reconocido."); return; }
+      this.setState(order.estado, { ordersInPreparation: order.pedidosEnPreparacion, queuePosition: order.posicionCola });
     } catch (error) {
-      setViewState(this.note, "error");
-      this.note.textContent = error.message || "No fue posible actualizar el estado del pedido.";
-      this.note.hidden = false;
+      this.#showUnavailable(error.message || "No fue posible actualizar el estado del pedido.");
       this.emit("order-status-error", { message: error.message });
     } finally {
       this.#refreshing = false;
@@ -148,34 +158,46 @@ class OrderStatus extends BaseElement {
     }
   }
 
+  /** Aviso de error en la nota inferior; conserva el último estado mostrado (se reintenta en la siguiente consulta). */
+  #showUnavailable(message) {
+    setViewState(this.note, "error");
+    this.note.textContent = message;
+    this.note.hidden = false;
+  }
+
   setState(state, details = {}) {
-    const upper = String(state).toUpperCase();
-    const next = STATES.includes(upper) ? upper : "EN_COLA";
-    const ordersInPreparation = Number(details.ordersInPreparation || 0);
-    const queuePosition = Number(details.queuePosition || 1);
-    const ready = next === "LISTO";
+    const upper = String(state || "").toUpperCase();
+    if (!ORDER_STATUS_VALUES.includes(upper)) { this.#showUnavailable("El servidor devolvió un estado de pedido no reconocido."); return; }
+    const next = upper;
+    const content = getOrderStatusConfig(next);
+    const num = (v) => (v === undefined || v === null || v === "" || !Number.isFinite(Number(v)) ? null : Number(v));
+    const ordersInPreparation = num(details.ordersInPreparation);
+    const queuePosition = num(details.queuePosition);
+    const success = content.isReady || content.isCompleted;
 
-    this.stepper.className = `status-stepper estado-${next.toLowerCase().replace("_", "-")}`;
-    for (const el of [this.badge, this.titleEl, this.card]) el.classList.toggle("listo", ready);
-    this.badgeIcon.textContent = { EN_COLA: "hourglass_top", EN_PREPARACION: "skillet", LISTO: "check_circle", CANCELADO: "cancel" }[next];
-
-    const copy = {
-      EN_COLA: ["¡Tu pedido está<br />en cola!", `Hay ${ordersInPreparation} pedido${ordersInPreparation === 1 ? "" : "s"} en preparación. Posición en cola: ${queuePosition}.`],
-      EN_PREPARACION: ["¡Tu pedido está en<br />preparación!", "La cocina está preparando tu pedido."],
-      LISTO: ["¡Tu pedido está listo!", "Puedes recogerlo o disfrutarlo en tu mesa."],
-      CANCELADO: ["Tu pedido fue<br />cancelado", "Acércate al mostrador y el personal te ayudará."],
-    }[next];
-    this.titleEl.innerHTML = copy[0]; // texto estático propio, sin datos del servidor
+    this.stepper.className = `status-stepper estado-${content.visualState}`;
+    for (const el of [this.badge, this.titleEl, this.card]) {
+      el.classList.toggle("listo", success);
+      el.classList.toggle("error", content.isError);
+    }
+    this.badgeIcon.textContent = content.icon;
+    // Cancelado: los tres pasos muestran una X y el último pasa a llamarse CANCELADO
+    for (const id of ["cola", "preparandose", "entregado"]) {
+      const check = this.querySelector(`#check-${id}`);
+      check.textContent = content.isError ? "close" : "check";
+    }
+    this.querySelector("#step-entregado .step-label").textContent = content.isError ? "CANCELADO" : "ENTREGADO";
+    this.titleEl.innerHTML = content.title; // texto estático propio, sin datos del servidor
     setViewState(this.note, null); // quita el aviso de error de una consulta anterior fallida
-    this.note.textContent = copy[1];
+    this.note.textContent = content.note(ordersInPreparation, queuePosition);
     this.note.hidden = false;
 
     this.confirmation.classList.remove("visible");
-    this.confirmation.hidden = !ready || this.#confirmed;
-    if (ready && !this.#confirmed) requestAnimationFrame(() => requestAnimationFrame(() => this.confirmation.classList.add("visible")));
+    this.confirmation.hidden = !content.isReady || this.#confirmed;
+    if (content.isReady && !this.#confirmed) requestAnimationFrame(() => requestAnimationFrame(() => this.confirmation.classList.add("visible")));
 
     this.dataset.state = next;
-    if (next === "CANCELADO") clearInterval(this.#timer); // estado final: no hace falta seguir consultando
+    if (next === "ENTREGADO" || next === "CANCELADO") clearInterval(this.#timer); // estados finales: no hace falta seguir consultando
     this.emit("order-status-change", { state: next, ordersInPreparation, queuePosition });
   }
 }

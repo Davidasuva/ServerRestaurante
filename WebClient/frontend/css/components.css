@@ -70,13 +70,3 @@ table-selector.inicio {
 app-toast {
     display: block;
 }
-
-/* Pedido cancelado desde el servidor del restaurante */
-order-status[data-state="CANCELADO"] .status-stepper {
-    display: none;
-}
-
-order-status[data-state="CANCELADO"] .status-badge-icon,
-order-status[data-state="CANCELADO"] .status-titulo {
-    color: var(--color-error);
-}

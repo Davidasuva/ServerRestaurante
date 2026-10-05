@@ -1,7 +1,7 @@
 import { getConfig } from "../config.js";
 import { pick, slugify } from "../utils/format.js";
 
-const STATUS_VALUES = ["EN_COLA", "EN_PREPARACION", "LISTO", "CANCELADO"];
+const STATUS_VALUES = ["PENDIENTE", "EN_COLA", "PREPARANDOSE", "PREPARADO", "ENTREGADO", "CANCELADO"];
 
 /* ---------- Respuestas del API -> modelos de la vista ---------- */
 
@@ -63,13 +63,19 @@ export function deriveCategories(products) {
 
 /* ---------- Pedidos ---------- */
 
+/**
+ * Estados del pedido que entiende la pantalla: PENDIENTE, EN_COLA, PREPARANDOSE, PREPARADO, ENTREGADO, CANCELADO.
+ * Acepta sinónimos; un valor desconocido devuelve null (la pantalla avisa "estado no reconocido").
+ */
 export function normalizeStatus(status) {
-  const value = String(status || "EN_COLA").toUpperCase().replace(/\s+/g, "_");
-  if (["PENDIENTE", "PENDING"].includes(value)) return "EN_COLA";
-  if (["PREPARANDO", "PREPARACION", "PREPARING"].includes(value)) return "EN_PREPARACION";
-  if (["ENTREGADO", "DELIVERED", "TERMINADO"].includes(value)) return "LISTO";
+  if (status === undefined || status === null || status === "") return null;
+  const value = String(status).toUpperCase().trim().replace(/\s+/g, "_");
+  if (["PENDING"].includes(value)) return "PENDIENTE";
+  if (["PREPARANDO", "PREPARACION", "EN_PREPARACION", "PREPARING"].includes(value)) return "PREPARANDOSE";
+  if (["LISTO", "READY"].includes(value)) return "PREPARADO";
+  if (["DELIVERED", "PAGADO", "TERMINADO"].includes(value)) return "ENTREGADO";
   if (["CANCELADA", "CANCELLED", "CANCELED"].includes(value)) return "CANCELADO";
-  return STATUS_VALUES.includes(value) ? value : "EN_COLA";
+  return STATUS_VALUES.includes(value) ? value : null;
 }
 
 export function normalizeOrderNumber(value = "000") {
