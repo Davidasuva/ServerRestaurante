@@ -116,12 +116,19 @@ public class OrderService {
     }
 
     private int siguienteId() {
-        return rmi.pedidos(stub -> {
-            int total = stub.contar();
-            if (total == 0) return 1;
-            List<Pedido> ultimo = stub.getPedidos(total - 1, total - 1); // ORDER BY id -> el último es el mayor
+        int total = rmi.pedidos(stub -> stub.contar());
+        if (total == 0) return 1;
+        try {
+            // ORDER BY id -> el último es el mayor
+            List<Pedido> ultimo = rmi.pedidos(stub -> stub.getPedidos(total - 1, total - 1));
             return ultimo.get(0).getId() + 1;
-        });
+        } catch (ApiException e) {
+            if (e.kind() == Kind.UNAVAILABLE) throw e;
+            // Si el último pedido no se puede leer (p. ej. un estado antiguo en la BD) no se bloquea la creación:
+            // se parte de la cantidad de pedidos y registrar() reintenta con el siguiente id si ya existe.
+            LOG.log(Level.WARNING, "No se pudo leer el último pedido; se usa contar()+1 como id inicial", e);
+            return total + 1;
+        }
     }
 
     private static boolean esIdDuplicado(ApiException e) {
