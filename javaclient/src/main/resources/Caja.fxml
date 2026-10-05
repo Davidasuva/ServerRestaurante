@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1150.0" styleClass="root" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+<VBox fx:controller="com.example.NavController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1420.0" styleClass="root" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
    <children>
 
       <!-- Barra superior: título + pestañas Caja/Cocina -->
@@ -23,17 +23,17 @@
                   <Insets left="20.0" top="20.0" />
                </HBox.margin>
             </Label>
-            <Button mnemonicParsing="false" prefWidth="60.0" styleClass="tab-button, tab-active" text="Caja">
+            <Button mnemonicParsing="false" prefWidth="60.0" styleClass="tab-button, tab-active" onAction="#irCaja" text="Caja">
                <HBox.margin>
                   <Insets left="30.0" right="10.0" top="20.0" />
                </HBox.margin>
             </Button>
-            <Button mnemonicParsing="false" prefWidth="60.0" styleClass="tab-button" text="Cocina">
+            <Button mnemonicParsing="false" prefWidth="60.0" styleClass="tab-button" onAction="#irCocina" text="Cocina">
                <HBox.margin>
                   <Insets right="10.0" top="20.0" />
                </HBox.margin>
             </Button>
-            <Button mnemonicParsing="false" prefWidth="80.0" styleClass="tab-button" text="Reportes">
+            <Button mnemonicParsing="false" prefWidth="70.0" styleClass="tab-button" onAction="#irListos" text="Listos">
                <HBox.margin>
                   <Insets top="20.0" />
                </HBox.margin></Button>
@@ -205,7 +205,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/hamburguesa-rustica.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/hamburguesa-rustica.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Hamburguesa Rústica">
@@ -237,7 +237,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/hamburguesa-carbon-queso.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/hamburguesa-carbon-queso.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Ham. Carbón &amp; Queso">
@@ -269,7 +269,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/perro-especial-carbon.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/perro-especial-carbon.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Perro Especial Carbón">
@@ -301,7 +301,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/perro-suizo-ahumado.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/perro-suizo-ahumado.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Perro Suizo Ahumado">
@@ -333,7 +333,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/salchipapa-clasica.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/salchipapa-clasica.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Salchipapa Clásica">
@@ -365,7 +365,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/salchipapa-sazonada.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/salchipapa-sazonada.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Salchipapa Sazonada">
@@ -395,7 +395,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/papa-loca-carbon-sazon.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/papa-loca-carbon-sazon.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Papa Loca Carbón y Sazón">
@@ -425,7 +425,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/papa-loca-bbq-pork.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/papa-loca-bbq-pork.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Papa Loca BBQ Pork">
@@ -455,7 +455,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/desgranado-mixto.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/desgranado-mixto.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Desgranado Mixto">
@@ -485,7 +485,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/desgranado-ranchero.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/desgranado-ranchero.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Desgranado Ranchero">
@@ -515,7 +515,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/limonada-coco.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/limonada-coco.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Limonada de Coco ">
@@ -545,7 +545,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/limonada-cerezada.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/limonada-cerezada.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Limonada Cerezada">
@@ -575,7 +575,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/gaseosa-personal.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/gaseosa-personal.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Gaseosa Personal">
@@ -605,7 +605,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/jugo-natural-agua.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/jugo-natural-agua.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Jugo Natural en Agua">
@@ -635,7 +635,7 @@
                                  <children>
                                     <ImageView fitHeight="110.0" fitWidth="170.0" pickOnBounds="true" preserveRatio="false" styleClass="product-image">
                                        <image>
-                                          <Image url="@/images/jugo-natural-leche.jpg" />
+                                          <Image backgroundLoading="true" requestedHeight="220.0" requestedWidth="340.0" url="@/images/jugo-natural-leche.jpg" />
                                        </image>
                                     </ImageView>
                                     <Label styleClass="product-name" text="Jugo Natural en Leche ">

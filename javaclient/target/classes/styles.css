@@ -344,3 +344,10 @@
 .archive-button:hover {
     -fx-background-color: -color-accent-border;
 }
+
+
+/* ===== Login ===== */
+.error-label {
+    -fx-text-fill: #ef4444;
+    -fx-font-size: 12px;
+}
