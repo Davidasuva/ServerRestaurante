@@ -24,7 +24,13 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
+    <dependency>
+      <groupId>edu.project.restaurant</groupId>
+      <artifactId>ServerRestaurante</artifactId>
+      <version>0.0.1</version>
+    </dependency>
   </dependencies>
+
 
   <build>
     <plugins>
