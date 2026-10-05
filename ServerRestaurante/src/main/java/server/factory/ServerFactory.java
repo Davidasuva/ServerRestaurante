@@ -115,6 +115,7 @@ public class ServerFactory {
     private static void irA(Stage stage, Scene scene, SeccionBaseController controller, String titulo) {
         if (controller != null) {
             controller.refrescar();
+            controller.sincronizarEstadoServidor();
         }
         applySceneAndMaximize(stage, scene, titulo);
     }
