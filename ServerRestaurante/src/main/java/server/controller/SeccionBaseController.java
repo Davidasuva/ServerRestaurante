@@ -304,4 +304,10 @@ public abstract class SeccionBaseController {
         lblMensaje.setVisible(false);
         lblMensaje.setManaged(false);
     }
+
+    public void sincronizarEstadoServidor() {
+        if (iniciado) {
+            refrescarEstadoServidor(null);
+        }
+    }
 }

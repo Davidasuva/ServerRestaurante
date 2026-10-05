@@ -35,7 +35,7 @@ public class ServerModel {
     private MesaInterface mesaService;
     private Registry registry;
     private final History history;
-    private boolean running;
+    private volatile boolean running;
 
 
     public ServerModel(String ip, int port, String serviceName) {
