@@ -1,21 +1,24 @@
 package com.proyectoApi.api.service;
 
+import server.model.pedido.Pedido;
+
 /**
- * Traduce el estado de texto libre de la BD ("Pendiente", "En preparación", "Listo", "Entregado", "Pagado", "Cancelado")
- * a los estados que entiende la pantalla del cliente:
+ * Traduce el {@link Pedido.Estado} del servidor a los estados que entiende la pantalla del cliente.
+ * Es una correspondencia 1 a 1 (el servidor y la pantalla comparten los mismos seis estados):
  *
  * <pre>
- *   BD                         Web
- *   Pendiente                  EN_COLA
- *   En preparación (u otro)    PREPARANDOSE
- *   Listo                      PREPARADO     (el cliente puede "Confirmar pedido recibido")
- *   Entregado / Pagado         ENTREGADO
- *   Cancelado                  CANCELADO
+ *   Servidor (Pedido.Estado)   Web
+ *   PENDIENTE                  PENDIENTE      (recién creado desde la web; aún no consume inventario)
+ *   EN_COLA                    EN_COLA
+ *   PREPARANDOSE               PREPARANDOSE
+ *   PREPARADO                  PREPARADO      (el cliente puede "Confirmar pedido recibido")
+ *   ENTREGADO                  ENTREGADO
+ *   CANCELADO                  CANCELADO
  * </pre>
- * (PENDIENTE también existe en la pantalla, pero la API no lo usa: un pedido nuevo ya entra a la cola.)
  */
 public final class EstadoWeb {
 
+    public static final String PENDIENTE = "PENDIENTE";
     public static final String EN_COLA = "EN_COLA";
     public static final String PREPARANDOSE = "PREPARANDOSE";
     public static final String PREPARADO = "PREPARADO";
@@ -25,14 +28,20 @@ public final class EstadoWeb {
     private EstadoWeb() {
     }
 
-    public static String of(String estadoBd) {
-        return switch (Text.key(estadoBd)) {
-            case "pendiente" -> EN_COLA;
-            case "listo" -> PREPARADO;
-            case "entregado", "pagado" -> ENTREGADO;
-            case "cancelado" -> CANCELADO;
-            // "En preparación" y cualquier estado personalizado que el personal haya puesto después de Pendiente
-            default -> PREPARANDOSE;
+    public static String of(Pedido.Estado estado) {
+        if (estado == null) return PENDIENTE;
+        return switch (estado) {
+            case PENDIENTE -> PENDIENTE;
+            case EN_COLA -> EN_COLA;
+            case PREPARANDOSE -> PREPARANDOSE;
+            case PREPARADO -> PREPARADO;
+            case ENTREGADO -> ENTREGADO;
+            case CANCELADO -> CANCELADO;
         };
+    }
+
+    /** Pedidos que todavía no empezaron a prepararse: los que forman la fila de espera. */
+    public static boolean esperando(Pedido.Estado estado) {
+        return estado == Pedido.Estado.PENDIENTE || estado == Pedido.Estado.EN_COLA;
     }
 }

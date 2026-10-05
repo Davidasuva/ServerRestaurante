@@ -23,7 +23,8 @@ import java.util.logging.Logger;
  * Crea pedidos del cliente web y consulta su estado, usando solo los servicios RMI existentes.
  *
  * Cómo se traduce un pedido web al modelo del servidor:
- *  - Pedido nuevo en estado "Pendiente" (no consume inventario; el personal lo pasa a "En preparación" desde la app de escritorio).
+ *  - Pedido nuevo en estado PENDIENTE (el constructor de Pedido lo deja así; no consume inventario y el personal
+ *    lo avanza a EN_COLA / PREPARANDOSE / ... desde la app de escritorio).
  *  - Una fila de producto_pedido por unidad (addProductoPerPedido una vez por unidad).
  *  - El total lo calcula el servidor con los precios de la BD.
  */
@@ -31,9 +32,6 @@ public class OrderService {
 
     private static final Logger LOG = Logger.getLogger(OrderService.class.getName());
 
-    static final String ESTADO_PENDIENTE = "Pendiente";
-    static final String ESTADO_EN_PREPARACION = "En preparación";
-    static final String ESTADO_CANCELADO = "Cancelado";
     static final int MAX_LINEAS = 30;
     static final int MAX_POR_LINEA = 20;
     static final int MAX_UNIDADES = 60;
@@ -146,9 +144,9 @@ public class OrderService {
             rmi.pedidos(stub -> stub.removePedido(id));
             LOG.warning("Pedido " + id + " eliminado porque no se pudo completar.");
         } catch (RuntimeException cleanup) {
-            LOG.log(Level.SEVERE, "No se pudo eliminar el pedido incompleto " + id + "; se intenta marcar como Cancelado", cleanup);
+            LOG.log(Level.SEVERE, "No se pudo eliminar el pedido incompleto " + id + "; se intenta marcar como CANCELADO", cleanup);
             try {
-                rmi.pedidos(stub -> stub.setPedidoStatus(id, ESTADO_CANCELADO));
+                rmi.pedidos(stub -> stub.setPedidoStatus(id, Pedido.Estado.CANCELADO.getTexto()));
             } catch (RuntimeException ignored) {
                 LOG.log(Level.SEVERE, "El pedido incompleto " + id + " quedó en la BD y requiere revisión manual", ignored);
             }
@@ -159,12 +157,13 @@ public class OrderService {
 
     public EstadoPedidoDto status(int id) {
         Pedido pedido = rmi.pedidos(stub -> stub.getPedidoById(id));
-        String estado = EstadoWeb.of(pedido.getEstado());
+        Pedido.Estado actual = pedido.getEstado();
 
         int enCola = 1;
-        if (EstadoWeb.EN_COLA.equals(estado)) {
-            List<Pedido> pendientes = pedidosPorEstado(ESTADO_PENDIENTE);
-            List<Pedido> orden = new ArrayList<>(pendientes);
+        if (EstadoWeb.esperando(actual)) {
+            // La fila de espera son los pedidos aún sin preparar (PENDIENTE y EN_COLA), por orden de llegada.
+            List<Pedido> orden = new ArrayList<>(pedidosPorEstado(Pedido.Estado.PENDIENTE));
+            orden.addAll(pedidosPorEstado(Pedido.Estado.EN_COLA));
             orden.sort(Comparator.comparing(Pedido::getFechaPedido).thenComparingInt(Pedido::getId));
             for (int i = 0; i < orden.size(); i++) {
                 if (orden.get(i).getId() == id) {
@@ -173,14 +172,15 @@ public class OrderService {
                 }
             }
         }
-        int enPreparacion = pedidosPorEstado(ESTADO_EN_PREPARACION).size();
-        return new EstadoPedidoDto(id, estado, pedido.getMesaAsignada().getId(), enPreparacion, enCola);
+        int enPreparacion = pedidosPorEstado(Pedido.Estado.PREPARANDOSE).size();
+        return new EstadoPedidoDto(id, EstadoWeb.of(actual), pedido.getMesaAsignada().getId(), enPreparacion, enCola);
     }
 
     /** El servidor lanza "No se encontraron pedidos..." cuando no hay ninguno: aquí es simplemente una lista vacía. */
-    private List<Pedido> pedidosPorEstado(String estado) {
+    private List<Pedido> pedidosPorEstado(Pedido.Estado estado) {
         try {
-            return rmi.pedidos(stub -> stub.getPedidosPerEstado(estado));
+            // La interfaz RMI recibe el texto del estado ("En Cola", "Preparándose"...), que el servidor resuelve con Estado.desdeTexto
+            return rmi.pedidos(stub -> stub.getPedidosPerEstado(estado.getTexto()));
         } catch (ApiException e) {
             if (e.kind() == Kind.NOT_FOUND) return List.of();
             throw e;
