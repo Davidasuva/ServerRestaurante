@@ -18,9 +18,9 @@
          </image>
       </ImageView>
       <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Carbón y sazón" textAlignment="CENTER" style="-fx-font-weight: bold; -fx-font-size: 24px;" />  
-      <TextField fx:id="campoUsuario" onAction="#ingresar" alignment="CENTER" maxWidth="340.0" prefHeight="32.0" prefWidth="340.0" promptText="Usuario" />
-      <PasswordField fx:id="campoClave" onAction="#ingresar" alignment="CENTER" maxWidth="340.0" prefHeight="32.0" prefWidth="340.0" promptText="Contraseña" />
-      <Label fx:id="mensajeError" managed="false" visible="false" styleClass="error-label" />
+      <TextField fx:id="campoUsuario" alignment="CENTER" maxWidth="340.0" prefHeight="32.0" prefWidth="340.0" promptText="Usuario" />
+      <PasswordField fx:id="campoClave" alignment="CENTER" maxWidth="340.0" prefHeight="32.0" prefWidth="340.0" promptText="Contraseña" />
       <Button onAction="#ingresar" mnemonicParsing="false" prefHeight="32.0" prefWidth="340.0" maxWidth="340.0" text="Ingresar" textAlignment="CENTER" />
+      <Label fx:id="mensajeError" managed="false" style="-fx-text-fill: #ff6b6b;" visible="false" />
    </children>
 </VBox>
