@@ -175,4 +175,9 @@ public class Pedido implements Serializable, Comparable<Pedido> {
     public String toString() {
         return "Pedido con id: "+id+ " Estado: "+estado+ " Precio total: "+getPrecioTotal();
     }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
 }

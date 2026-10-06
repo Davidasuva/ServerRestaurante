@@ -40,4 +40,9 @@ public class Mesa implements Serializable, Comparable<Mesa>{
     public String toString() {
         return "Mesa con id: "+id;
     }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
 }

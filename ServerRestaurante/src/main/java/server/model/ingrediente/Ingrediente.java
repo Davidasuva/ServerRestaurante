@@ -70,4 +70,8 @@ public class Ingrediente implements Serializable, Comparable<Ingrediente>{
     public String toString() {
         return "Ingrediente: "+nombre+" Con id: "+id+" Con cantidad: "+cantidad;
     }
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
 }
