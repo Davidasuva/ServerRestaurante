@@ -78,7 +78,7 @@ public class EmpleadoService extends UnicastRemoteObject implements  EmpleadoInt
         try{
             boolean eliminar=empleadoDao.eliminar(id);
             if(eliminar){
-                history.addAction("Se eliminó la mesa con id: "+id);
+                history.addAction("Se eliminó el empleado con id: "+id);
             }
             return eliminar;
         }catch(SQLException e){
@@ -113,6 +113,14 @@ public class EmpleadoService extends UnicastRemoteObject implements  EmpleadoInt
             return empleadoDao.buscarTodos(inicio,finalnum);
         }catch(SQLException e){
             throw  new RuntimeException("Error al consultar empleados: "+e.getMessage());
+        }
+    }
+    @Override
+    public int contar()throws RemoteException{
+        try{
+            return empleadoDao.contar();
+        }catch(SQLException e){
+            throw new RuntimeException("Error al consultar empleados: "+e.getMessage());
         }
     }
 }

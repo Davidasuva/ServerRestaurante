@@ -1,21 +1,38 @@
 package server.database;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import environment.Environment;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class Database {
-    private static final String URI = Environment.getInstance().getDatabase();
+    private static HikariDataSource dataSource;
 
-    private static Connection connection = null;
+    private Database() {}
 
-    private Database() {
+    private static synchronized HikariDataSource getDataSource() {
+        if (dataSource == null) {
+            HikariConfig config = new HikariConfig();
+            config.setJdbcUrl(Environment.getInstance().getDatabase());
+            config.setMaximumPoolSize(10);
+            config.setMinimumIdle(2);
+            config.setMaxLifetime(300_000);
+            config.setKeepaliveTime(120_000);
+            config.setConnectionTimeout(10_000);
+            dataSource = new HikariDataSource(config);
+        }
+        return dataSource;
     }
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(Environment.getInstance().getDatabase());
+        return getDataSource().getConnection();
     }
 
-    public static void closeConnection() {
+    public static synchronized void closeConnection() {
+        if (dataSource != null) {
+            dataSource.close();
+            dataSource = null;
+        }
     }
 }

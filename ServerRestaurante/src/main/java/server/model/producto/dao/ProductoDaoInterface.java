@@ -19,4 +19,7 @@ public interface ProductoDaoInterface {
     List<Ingrediente> buscarIngredientes(int productoId)throws SQLException;
     boolean agregarIngrediente(int productoId,int ingredienteId)throws SQLException;
     boolean quitarIngrediente(int productoId, int ingredienteId)throws SQLException;
+
+    boolean actualizarImagen(int productoId, String imagenURL)throws SQLException;
+    boolean eliminarImagen(int productoId)throws SQLException;
 }

@@ -15,7 +15,7 @@ public class Pedido implements Serializable, Comparable<Pedido> {
     private String metodoPago;
     private float precioTotal;
     private LocalDateTime fechaPedido;
-    private String estado;
+    private Estado estado;
     private Mesa mesaAsignada;
     private List<Producto> productos;
     private List<Empleado> encargados;
@@ -24,13 +24,46 @@ public class Pedido implements Serializable, Comparable<Pedido> {
         this.id = id;
         this.fechaPedido = fechaPedido;
         this.mesaAsignada = mesaAsignada;
-        this.estado="Pendiente";
+        this.estado= Estado.PENDIENTE;
         productos=new LinkedList<>();
         encargados=new LinkedList<>();
         precioTotal=0;
         metodoPago="Ninguno";
     }
 
+    public enum Estado{
+        PENDIENTE("Pendiente", false),
+        EN_COLA("En Cola",true),
+        PREPARANDOSE("Preparándose",true),
+        PREPARADO("Preparado",true),
+        ENTREGADO("Entregado",true),
+        CANCELADO("Cancelado",false);
+
+        private final String texto;
+        private final boolean consumeInventario;
+
+        Estado(String texto, boolean consumeInventario) {
+            this.texto=texto;
+            this.consumeInventario=consumeInventario;
+        }
+
+        public String getTexto() {
+            return texto;
+        }
+        public boolean consumeInventario() {
+            return consumeInventario;
+        }
+        public static Estado desdeTexto(String texto) {
+            for (Estado e : values()) {
+                if (e.texto.equalsIgnoreCase(texto)) return e;
+            }
+            throw new IllegalArgumentException("Estado desconocido: " + texto);
+        }
+
+        @Override
+        public String toString() { return texto; }
+
+    }
 
     public int getId() {
         return id;
@@ -49,12 +82,15 @@ public class Pedido implements Serializable, Comparable<Pedido> {
     }
 
     public float getPrecioTotal() {
+        return precioTotal;
+    }
+
+    private void recalcularPrecioTotal() {
         float total = 0;
         for (Producto producto : productos) {
             total += producto.getPrecio();
         }
-        this.precioTotal=total;
-        return total;
+        this.precioTotal = total;
     }
 
     public void setPrecioTotal(float precioTotal) {
@@ -69,11 +105,11 @@ public class Pedido implements Serializable, Comparable<Pedido> {
         this.fechaPedido = fechaPedido;
     }
 
-    public String getEstado() {
+    public Estado getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(Estado estado) {
         this.estado = estado;
     }
 
@@ -114,10 +150,18 @@ public class Pedido implements Serializable, Comparable<Pedido> {
     }
 
     public boolean addProducto(Producto producto) {
-        return productos.add(producto);
+        boolean agregado = productos.add(producto);
+        if (agregado) {
+            recalcularPrecioTotal();
+        }
+        return agregado;
     }
     public boolean removeProducto(Producto producto) {
-        return productos.remove(producto);
+        boolean quitado = productos.remove(producto);
+        if (quitado) {
+            recalcularPrecioTotal();
+        }
+        return quitado;
     }
     public boolean addEncargado(Empleado empleado) {
         return encargados.add(empleado);
@@ -129,6 +173,6 @@ public class Pedido implements Serializable, Comparable<Pedido> {
 
     @Override
     public String toString() {
-        return "Pedido con id: "+id+ "Precio total: "+getPrecioTotal();
+        return "Pedido con id: "+id+ " Estado: "+estado+ " Precio total: "+getPrecioTotal();
     }
 }

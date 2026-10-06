@@ -128,4 +128,13 @@ public class IngredienteService extends UnicastRemoteObject implements Ingredien
             throw new RuntimeException("Error al ajustar ingrediente: "+e.getMessage());
         }
     }
+
+    @Override
+    public int contar()throws RemoteException{
+        try{
+            return ingredienteDao.contar();
+        }catch(SQLException e){
+            throw new RuntimeException("Error al consultar empleados: "+e.getMessage());
+        }
+    }
 }

@@ -16,10 +16,15 @@ public interface ProductoInterface extends Remote {
     public List<Ingrediente> getIngredientesPerProduct(int id)throws RemoteException;
     public boolean validateProducto(int id)throws RemoteException;
     public Producto modifyProducto(int id, Producto producto)throws RemoteException;
+    public boolean removeProducto(int id)throws RemoteException;
 
     public boolean addIngredienteToProducto(int idProducto, int idIngrediente)throws RemoteException;
     public boolean removeIngredienteFromProducto(int idProducto, int idIngrediente)throws RemoteException;
 
+    public Producto addImagenToProducto(int idProducto, String imagenURL)throws RemoteException;
+    public boolean removeImagenFromProducto(int idProducto)throws RemoteException;
+
+    public int contar()throws RemoteException;
 
 
 
