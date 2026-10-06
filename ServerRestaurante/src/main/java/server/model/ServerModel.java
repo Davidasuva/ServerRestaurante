@@ -61,11 +61,20 @@ public class ServerModel {
             history.addAction("Iniciando despliegue en " + ip + ":" + port + "...");
             System.setProperty("java.rmi.server.hostname", ip);
 
-            ingredienteService =new IngredienteService(history);
+            IngredienteService ingSvc=new IngredienteService(history);
+            ProductoService prodSvc=new ProductoService(history,ingSvc);
+
+            ingSvc.setOnCambio(prodSvc::invalidarCache);
+
+            Runnable inventarioCambio=() -> {
+                ingSvc.invalidarCache();
+                prodSvc.invalidarCache();
+            };
+            ingredienteService=ingSvc;
+            productoService=prodSvc;
             empleadoService=new EmpleadoService(history);
             mesaService=new MesaService(history);
-            productoService=new ProductoService(history,ingredienteService);
-            pedidoService=new PedidoService(history,mesaService,empleadoService,productoService);
+            pedidoService=new PedidoService(history,mesaService,empleadoService,productoService,inventarioCambio);
 
             registry = LocateRegistry.createRegistry(port);
             Naming.rebind(productoUri,productoService);

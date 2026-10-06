@@ -1,6 +1,8 @@
 package server.model.mesa;
 
 import server.model.history.History;
+import server.model.mesa.cache.MesaCache;
+import server.model.mesa.cache.MesaCacheInterface;
 import server.model.mesa.dao.MesaDao;
 import server.model.mesa.dao.MesaDaoInterface;
 
@@ -12,11 +14,13 @@ import java.sql.SQLException;
 public class MesaService extends UnicastRemoteObject implements MesaInterface {
 
     private MesaDaoInterface mesaDAO;
+    private MesaCacheInterface mesaCache;
     private History history;
 
     public MesaService(History history) throws RemoteException {
         super();
         this.mesaDAO=new MesaDao();
+        this.mesaCache=new MesaCache();
         this.history = history;
     }
 
@@ -32,50 +36,66 @@ public class MesaService extends UnicastRemoteObject implements MesaInterface {
             }
             return mesaDAO.buscarTodas(inicio,finalnum);
         } catch (SQLException e) {
-            throw new RuntimeException("Error al consultar mesas: "+e.getMessage());
+            throw new RemoteException("Error al consultar mesas: "+e.getMessage());
         }
     }
 
     @Override
     public Mesa registrar(Mesa mesa) throws RemoteException {
         if(mesa==null){
-            throw new RuntimeException("Por favor añada una mesa antes de registrarla");
+            throw new RemoteException("Por favor añada una mesa antes de registrarla");
         }
         try{
             Mesa creada =mesaDAO.insertar(mesa);
+            mesaCache.addMesaToCache(creada);
             history.addAction("Se agregó la mesa con id: "+mesa.getId());
             return creada;
         }catch(SQLException e){
-            throw new RuntimeException("Error al registrar la mesa: "+e.getMessage());
+            throw new RemoteException("Error al registrar la mesa: "+e.getMessage());
         }
 
     }
 
     @Override
     public Mesa getMesaById(int id) throws RemoteException {
-       try{
-           Mesa mesa= mesaDAO.buscarPorId(id);
-           if(mesa==null){
-               throw new RemoteException("No se encuentra la mesa");
-           }
-           history.addAction("Se buscó la mesa con id: "+id);
-           return mesa;
-       }catch(SQLException e){
-           throw new RuntimeException("Error al buscar mesa: "+e.getMessage());
-       }
+        Mesa mesa= mesaCache.getMesaById(id);
+        if(mesa==null){
+            try{
+                Mesa mesa2= mesaDAO.buscarPorId(id);
+                if(mesa2==null){
+                    throw new RemoteException("No se encuentra la mesa");
+                }
+                mesaCache.addMesaToCache(mesa2);
+                history.addAction("Se buscó la mesa con id: "+id);
+                return mesa2;
+            }catch(SQLException e){
+                throw new RemoteException("Error al buscar mesa: "+e.getMessage());
+            }
+        }else{
+            history.addAction("Se buscó la mesa con id: "+id+" (desde cache)");
+            return mesa;
+        }
+
     }
 
     @Override
     public Mesa modifyMesa(Mesa newMesa, int id) throws RemoteException {
         if(newMesa==null){
-            throw new RuntimeException("Por favor añada una mesa antes de modificarla");
+            throw new RemoteException("Por favor añada una mesa antes de modificarla");
+        }
+        if(newMesa.getId()!=id){
+            throw new RemoteException("No se puede cambiar el id de una mesa");
         }
         try{
             Mesa actualizada=mesaDAO.actualizar(id,newMesa);
+            if(actualizada==null){
+                throw new RemoteException("No se encontró la mesa con id: "+id);
+            }
+            mesaCache.removeMesaFromCache(id);
             history.addAction("Se actualizo la mesa con id: "+id);
             return actualizada;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar mesa: "+e.getMessage());
+            throw new RemoteException("Error al actualizar mesa: "+e.getMessage());
         }
     }
 
@@ -84,11 +104,12 @@ public class MesaService extends UnicastRemoteObject implements MesaInterface {
         try{
             boolean eliminado=mesaDAO.eliminar(id);
             if(eliminado){
+                mesaCache.removeMesaFromCache(id);
                 history.addAction("Se eliminó la mesa con id: "+id);
             }
             return eliminado;
         }catch (SQLException e){
-            if (e.getErrorCode() == 1451) {
+            if ("23503".equals(e.getSQLState())) {
                 throw new RemoteException("No se puede eliminar la mesa: tiene pedidos asociados en su historial");
             }
             throw new RemoteException("Error al eliminar mesa: " + e.getMessage());
@@ -100,7 +121,7 @@ public class MesaService extends UnicastRemoteObject implements MesaInterface {
         try{
             return mesaDAO.contar();
         }catch(SQLException e){
-            throw new RuntimeException("Error al consultar empleados: "+e.getMessage());
+            throw new RemoteException("Error al consultar mesas: "+e.getMessage());
         }
     }
 }

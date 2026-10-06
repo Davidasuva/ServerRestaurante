@@ -1,5 +1,7 @@
 package server.model.empleado;
 
+import server.model.empleado.cache.EmpleadoCacheInterface;
+import server.model.empleado.cache.EmpleadoCache;
 import server.model.empleado.dao.EmpleadoDao;
 import server.model.empleado.dao.EmpleadoDaoInterface;
 import server.model.history.History;
@@ -12,52 +14,61 @@ import java.sql.SQLException;
 public class EmpleadoService extends UnicastRemoteObject implements  EmpleadoInterface {
 
     private EmpleadoDaoInterface empleadoDao;
+    private EmpleadoCacheInterface cache;
     private History history;
 
     public EmpleadoService(History history) throws RemoteException {
         super();
         this.empleadoDao=new EmpleadoDao();
+        this.cache=new EmpleadoCache();
         this.history = history;
     }
 
     @Override
     public Empleado registrar(Empleado empleado) throws RemoteException {
         if(empleado==null){
-            throw new RuntimeException("Por favor añada un empleado antes de registrarlo");
+            throw new RemoteException("Por favor añada un empleado antes de registrarlo");
         }
         try{
             Empleado creado= empleadoDao.insertar(empleado);
+            cache.addEmpleadoToCache(creado);
             history.addAction("Se agrego el empleado con cedula: "+empleado.getCedula());
             return empleado;
         }catch(SQLException e){
-            throw new RuntimeException("Error al registrar empleado. "+e.getMessage());
+            throw new RemoteException("Error al registrar empleado. "+e.getMessage());
         }
     }
 
     @Override
     public Empleado getEmpleadoByCedula(int cedula) throws RemoteException{
-        try{
-            Empleado empleado=empleadoDao.buscarPorCedula(cedula);
-            if(empleado==null){
-                throw new RemoteException("No se encontro empleado con cedula: "+cedula);
+        Empleado emp=cache.getEmpleadoByCedula(cedula);
+        if(emp==null){
+            try{
+                Empleado empleado=empleadoDao.buscarPorCedula(cedula);
+                if(empleado==null){
+                    throw new RemoteException("No se encontro empleado con cedula: "+cedula);
+                }
+                cache.addEmpleadoToCache(empleado);
+                history.addAction("Se buscó el empleado con cedula: "+cedula);
+                return empleado;
+            }catch(SQLException e){
+                throw new RemoteException("Error al buscar el empleado: "+e.getMessage());
             }
-            history.addAction("Se buscó el empleado con cedula: "+cedula);
-            return empleado;
-        }catch(SQLException e){
-            throw new RuntimeException("Error al buscar el empleado: "+e.getMessage());
         }
+        history.addAction("Se buscó el empleado con cedula: "+cedula+" (en cache)");
+        return emp;
     }
 
 
     @Override
     public List<Empleado> getEmpleadosByCargo(String cargo) throws RemoteException{
         if(cargo==null){
-            throw new RuntimeException("Por favor agregue cargo a buscar");
+            throw new RemoteException("Por favor agregue cargo a buscar");
         }
         try{
             return empleadoDao.buscarPorCargo(cargo);
         }catch(SQLException e){
-            throw new RuntimeException("Error al consultar empleados por cargo: "+e.getMessage());
+            throw new RemoteException("Error al consultar empleados por cargo: "+e.getMessage());
         }
     }
 
@@ -69,7 +80,7 @@ public class EmpleadoService extends UnicastRemoteObject implements  EmpleadoInt
         try{
             return empleadoDao.buscarPorNombre(nombre);
         }catch(SQLException e){
-            throw new RuntimeException("Error al consultar empleados por nombre: "+e.getMessage());
+            throw new RemoteException("Error al consultar empleados por nombre: "+e.getMessage());
         }
     }
 
@@ -78,11 +89,15 @@ public class EmpleadoService extends UnicastRemoteObject implements  EmpleadoInt
         try{
             boolean eliminar=empleadoDao.eliminar(id);
             if(eliminar){
+                cache.removeEmpleadoFromCache(id);
                 history.addAction("Se eliminó el empleado con id: "+id);
             }
             return eliminar;
         }catch(SQLException e){
-            throw new RuntimeException("No se pudó eliminar el empleado: "+e.getMessage());
+            if("23503".equals(e.getSQLState())){
+                throw new RemoteException("No se puede eliminar el empleado: está asociado a pedidos en su historial");
+            }
+            throw new RemoteException("No se pudó eliminar el empleado: "+e.getMessage());
         }
     }
 
@@ -91,12 +106,19 @@ public class EmpleadoService extends UnicastRemoteObject implements  EmpleadoInt
         if(empleado==null){
             throw new RemoteException("Por favor selecciona un empleado");
         }
+        if(empleado.getCedula()!=id){
+            throw new RemoteException("No se puede cambiar la cédula de un empleado");
+        }
         try{
             Empleado actualizada=empleadoDao.actualizar(id,empleado);
+            if(actualizada==null){
+                throw new RemoteException("No se encontró empleado con cédula: "+id);
+            }
+            cache.removeEmpleadoFromCache(id);
             history.addAction("Se actualizó el empleado con id: "+id);
             return actualizada;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar empleado: "+e.getMessage());
+            throw new RemoteException("Error al actualizar empleado: "+e.getMessage());
         }
     }
 
@@ -112,7 +134,7 @@ public class EmpleadoService extends UnicastRemoteObject implements  EmpleadoInt
             }
             return empleadoDao.buscarTodos(inicio,finalnum);
         }catch(SQLException e){
-            throw  new RuntimeException("Error al consultar empleados: "+e.getMessage());
+            throw  new RemoteException("Error al consultar empleados: "+e.getMessage());
         }
     }
     @Override
@@ -120,7 +142,7 @@ public class EmpleadoService extends UnicastRemoteObject implements  EmpleadoInt
         try{
             return empleadoDao.contar();
         }catch(SQLException e){
-            throw new RuntimeException("Error al consultar empleados: "+e.getMessage());
+            throw new RemoteException("Error al consultar empleados: "+e.getMessage());
         }
     }
 }

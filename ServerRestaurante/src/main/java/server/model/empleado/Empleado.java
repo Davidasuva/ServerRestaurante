@@ -65,4 +65,9 @@ public class Empleado implements Serializable, Comparable<Empleado>{
     public String toString() {
         return "Empleado: "+nombre+" Con Cedula: "+cedula;
     }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(cedula);
+    }
 }

@@ -26,13 +26,16 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
     private EmpleadoInterface empleadoService;
     private ProductoInterface productoService;
 
-    public PedidoService(History history, MesaInterface mesaService, EmpleadoInterface empleadoService, ProductoInterface productoService) throws Exception {
+    private final Runnable inventarioCambio;
+
+    public PedidoService(History history, MesaInterface mesaService, EmpleadoInterface empleadoService, ProductoInterface productoService, Runnable inventarioCambio) throws Exception {
         super();
         this.history = history;
         this.pedidoDao=new PedidoDao();
         this.mesaService=mesaService;
         this.productoService=productoService;
         this.empleadoService=empleadoService;
+        this.inventarioCambio=(inventarioCambio==null)?() -> {}:inventarioCambio;
     }
 
     @Override
@@ -45,7 +48,7 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
             history.addAction("Se agrego el pedido con id: "+pedido.getId());
             return creado;
         } catch (SQLException e) {
-            throw new RuntimeException("No se pudó agregar el pedido: "+e.getMessage());
+            throw new RemoteException("No se pudó agregar el pedido: "+e.getMessage());
         }
     }
 
@@ -54,12 +57,12 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         try{
             Pedido pedido=pedidoDao.buscarPorId(id);
             if(pedido==null){
-                throw new RuntimeException("No se encontró pedido por id: "+id);
+                throw new RemoteException("No se encontró pedido por id: "+id);
             }
             history.addAction("Se busco pedido por id: "+id);
             return pedido;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar pedido: "+e.getMessage());
+            throw new RemoteException("Error al buscar pedido: "+e.getMessage());
         }
     }
 
@@ -71,12 +74,12 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         try{
             List<Pedido> pedidos=pedidoDao.buscarPorFecha(fecha1,fecha2);
             if(pedidos.isEmpty()){
-                throw new RuntimeException("No se encontraron pedido por fecha: "+fecha1+" - "+fecha2);
+                throw new RemoteException("No se encontraron pedido por fecha: "+fecha1+" - "+fecha2);
             }
             history.addAction("Se busco pedido por fecha: "+fecha1+" - "+fecha2);
             return pedidos;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar pedido: "+e.getMessage());
+            throw new RemoteException("Error al buscar pedido: "+e.getMessage());
         }
     }
 
@@ -88,12 +91,12 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         try{
             List<Pedido> pedidos=pedidoDao.buscarPorEncargado(encargado.getCedula());
             if(pedidos.isEmpty()){
-                throw new RuntimeException("No se encontraron pedido por encargado: "+encargado);
+                throw new RemoteException("No se encontraron pedido por encargado: "+encargado);
             }
             history.addAction("Se busco pedido por encargado: "+encargado);
             return pedidos;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar pedido: "+e.getMessage());
+            throw new RemoteException("Error al buscar pedido: "+e.getMessage());
         }
     }
 
@@ -105,12 +108,12 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         try{
             List<Pedido> pedidos=pedidoDao.buscarPorMesa(mesa.getId());
             if(pedidos.isEmpty()){
-                throw new RuntimeException("No se encontraron pedido por mesa: "+mesa);
+                throw new RemoteException("No se encontraron pedido por mesa: "+mesa);
             }
             history.addAction("Se busco pedido por mesa: "+mesa);
             return pedidos;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar pedido: "+e.getMessage());
+            throw new RemoteException("Error al buscar pedido: "+e.getMessage());
         }
     }
 
@@ -122,12 +125,12 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         try{
             List<Pedido> pedidos=pedidoDao.buscarTodos(inicio,finalnum);
             if(pedidos.isEmpty()){
-                throw new RuntimeException("No se encontraron pedidos");
+                throw new RemoteException("No se encontraron pedidos");
             }
             history.addAction("Se buscaron pedidos");
             return pedidos;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar pedido: "+e.getMessage());
+            throw new RemoteException("Error al buscar pedido: "+e.getMessage());
         }
     }
 
@@ -137,12 +140,12 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         try{
             List<Pedido> pedidos=pedidoDao.buscarPorEstado(e.getTexto());
             if(pedidos.isEmpty()){
-                throw new RuntimeException("No se encontraron pedidos por estado: "+e);
+                throw new RemoteException("No se encontraron pedidos por estado: "+e);
             }
             history.addAction("Se buscaron pedidos por estado: "+e);
             return pedidos;
         } catch (SQLException ex) {
-            throw new RuntimeException("Error al buscar pedido: "+ex.getMessage());
+            throw new RemoteException("Error al buscar pedido: "+ex.getMessage());
         }
     }
 
@@ -154,12 +157,12 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         try{
             List<Pedido> pedidos=pedidoDao.buscarPorRangoPrecio(inicio,finalnum);
             if(pedidos.isEmpty()){
-                throw new RuntimeException("No se encontraron pedidos por rango precio: "+inicio+" - "+finalnum);
+                throw new RemoteException("No se encontraron pedidos por rango precio: "+inicio+" - "+finalnum);
             }
             history.addAction("Se buscaron pedidos por rango precio: "+inicio+" - "+finalnum);
             return pedidos;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar pedido: "+e.getMessage());
+            throw new RemoteException("Error al buscar pedido: "+e.getMessage());
         }
     }
 
@@ -188,11 +191,14 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
                 añadido=pedidoDao.agregarProducto(id,producto.getId());
             }
             if(añadido){
+                if(consumeInventario(actual.getEstado())){
+                    inventarioCambio.run();
+                }
                 history.addAction("Se añadió el producto con id: "+producto.getId()+" Al pedido con id: "+id);
             }
             return añadido;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al agregar producto: "+e.getMessage());
+            throw new RemoteException("Error al agregar producto: "+e.getMessage());
         }
     }
 
@@ -204,11 +210,12 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         try{
             boolean quitar=pedidoDao.quitarProducto(id,producto.getId());
             if(quitar){
+                inventarioCambio.run();
                 history.addAction("Se quitó el producto con id: "+producto.getId()+" Al pedido con id: "+id);
             }
             return quitar;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al quitar producto: "+e.getMessage());
+            throw new RemoteException("Error al quitar producto: "+e.getMessage());
         }
     }
 
@@ -247,10 +254,12 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
                 if(!cambiado){
                     throw new RemoteException("No se pudo confirmar el pedido: el inventario cambió, intente de nuevo");
                 }
+                inventarioCambio.run();
                 history.addAction("Se descontó el inventario del pedido con id: "+id);
             } else if(antes&&!despues){
                 cambiado=pedidoDao.cambiarEstadoReponiendoInventario(id,texto);
                 if(cambiado){
+                    inventarioCambio.run();
                     history.addAction("Se devolvió el inventario del pedido con id: "+id);
                 }
             } else {
@@ -261,7 +270,7 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
             }
             return cambiado;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al cambiar estado del pedido: "+e.getMessage());
+            throw new RemoteException("Error al cambiar estado del pedido: "+e.getMessage());
         }
 
     }
@@ -289,7 +298,7 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
             history.addAction("Se actualizo el pedido con id: "+id);
             return act;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar pedido: "+e.getMessage());
+            throw new RemoteException("Error al actualizar pedido: "+e.getMessage());
         }
 
     }
@@ -299,11 +308,12 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         try{
             boolean rem=pedidoDao.eliminar(id);
             if(rem){
+                inventarioCambio.run();
                 history.addAction("Se eliminó el pedido con id: "+id);
             }
             return rem;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar pedido: "+e.getMessage());
+            throw new RemoteException("Error al eliminar pedido: "+e.getMessage());
         }
     }
 
@@ -319,7 +329,7 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
             }
             return add;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al agregar encargado: "+e.getMessage());
+            throw new RemoteException("Error al agregar encargado: "+e.getMessage());
         }
     }
 
@@ -335,7 +345,7 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
             }
             return elm;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al eliminar encargado: "+e.getMessage());
+            throw new RemoteException("Error al eliminar encargado: "+e.getMessage());
         }
     }
 
@@ -344,12 +354,12 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         try{
             List<Producto> productos=pedidoDao.buscarProductos(id);
             if(productos.isEmpty()){
-                throw new RuntimeException("No se encontraron productos en el pedido: "+id);
+                throw new RemoteException("No se encontraron productos en el pedido: "+id);
             }
             history.addAction("Se buscaron productos en el pedido: "+id);
             return productos;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar productos: "+e.getMessage());
+            throw new RemoteException("Error al buscar productos: "+e.getMessage());
         }
     }
 
@@ -358,12 +368,12 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         try{
             List<Empleado> empleados=pedidoDao.buscarEncargados(id);
             if(empleados.isEmpty()){
-                throw new RuntimeException("No se encontraron empleados en el pedido: "+id);
+                throw new RemoteException("No se encontraron empleados en el pedido: "+id);
             }
             history.addAction("Se buscaron empleados en el pedido: "+id);
             return empleados;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar empleados: "+e.getMessage());
+            throw new RemoteException("Error al buscar empleados: "+e.getMessage());
         }
     }
 
@@ -379,7 +389,7 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
             }
             return cambiado;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al cambiar método de pago del producto: "+e.getMessage());
+            throw new RemoteException("Error al cambiar método de pago del producto: "+e.getMessage());
         }
 
     }
@@ -429,7 +439,7 @@ public class PedidoService extends UnicastRemoteObject implements PedidoInterfac
         try{
             return pedidoDao.contar();
         }catch(SQLException e){
-            throw new RuntimeException("Error al consultar empleados: "+e.getMessage());
+            throw new RemoteException("Error al consultar pedidos: "+e.getMessage());
         }
     }
 }
