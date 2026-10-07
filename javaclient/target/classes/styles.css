@@ -212,6 +212,33 @@
     -fx-padding: 4 10;
 }
 
+/* Desplegable de ChoiceBox (mesa y método de pago) */
+.choice-box .context-menu {
+    -fx-background-color: -color-surface;
+    -fx-background-radius: 12;
+    -fx-border-color: -color-border-light;
+    -fx-border-radius: 12;
+    -fx-padding: 4;
+}
+
+.choice-box .context-menu .menu-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-padding: 6 10;
+}
+
+.choice-box .context-menu .menu-item .label {
+    -fx-text-fill: -color-text-primary;
+}
+
+.choice-box .context-menu .menu-item:focused {
+    -fx-background-color: -color-accent-subtle;
+}
+
+.choice-box .context-menu .menu-item:focused .label {
+    -fx-text-fill: -color-accent;
+}
+
 /* Factura */
 .factura-title {
     -fx-font-weight: bold;

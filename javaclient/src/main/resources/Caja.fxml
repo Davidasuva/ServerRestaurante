@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:controller="com.example.NavController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1420.0" styleClass="root" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1420.0" styleClass="root" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.CajaController">
    <children>
 
       <!-- Barra superior: título + pestañas Caja/Cocina -->
@@ -23,17 +23,17 @@
                   <Insets left="20.0" top="20.0" />
                </HBox.margin>
             </Label>
-            <Button mnemonicParsing="false" prefWidth="60.0" styleClass="tab-button, tab-active" onAction="#irCaja" text="Caja">
+            <Button mnemonicParsing="false" onAction="#irCaja" prefWidth="60.0" styleClass="tab-button, tab-active" text="Caja">
                <HBox.margin>
                   <Insets left="30.0" right="10.0" top="20.0" />
                </HBox.margin>
             </Button>
-            <Button mnemonicParsing="false" prefWidth="60.0" styleClass="tab-button" onAction="#irCocina" text="Cocina">
+            <Button mnemonicParsing="false" onAction="#irCocina" prefWidth="60.0" styleClass="tab-button" text="Cocina">
                <HBox.margin>
                   <Insets right="10.0" top="20.0" />
                </HBox.margin>
             </Button>
-            <Button mnemonicParsing="false" prefWidth="70.0" styleClass="tab-button" onAction="#irListos" text="Listos">
+            <Button mnemonicParsing="false" onAction="#irListos" prefWidth="70.0" styleClass="tab-button" text="Listos">
                <HBox.margin>
                   <Insets top="20.0" />
                </HBox.margin></Button>
@@ -70,12 +70,29 @@
                               <Insets left="30.0" top="10.0" />
                            </VBox.margin>
                         </Label>
-                        <ChoiceBox maxWidth="300.0" prefWidth="300.0" styleClass="choice-box">
+                        <ChoiceBox fx:id="choiceMesa" maxWidth="300.0" prefWidth="300.0" styleClass="choice-box">
                            <VBox.margin>
                               <Insets left="20.0" top="8.0" />
                            </VBox.margin>
                         </ChoiceBox>
                      </children>
+                  </VBox>
+                  <VBox prefHeight="50.0">
+                     <children>
+                        <Label styleClass="field-label" text="SELECCIONE METODO DE PAGO">
+                           <VBox.margin>
+                              <Insets left="30.0" top="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <ChoiceBox fx:id="choiceMetodoPago" maxWidth="300.0" prefWidth="300.0" styleClass="choice-box">
+                           <VBox.margin>
+                              <Insets left="20.0" top="8.0" />
+                           </VBox.margin>
+                        </ChoiceBox>
+                     </children>
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
                   </VBox>
 
                   <!-- Factura -->
@@ -110,8 +127,8 @@
                               <VBox spacing="10.0" styleClass="tarjeta-pedido">
                                  <children>
 
-                                    <Label styleClass="factura-title" text="Pedido PE-004" />
-                                    <Label styleClass="factura-subtitle" text="Mesa 04">
+                                    <Label styleClass="factura-title" text="Nuevo pedido" />
+                                    <Label fx:id="lblMesa" styleClass="factura-subtitle" text="Seleccione una mesa">
                                        <VBox.margin>
                                           <Insets bottom="4.0" />
                                        </VBox.margin>
@@ -126,21 +143,8 @@
                                        </children>
                                     </HBox>
 
-                                    <!-- Productos -->
-                                    <HBox alignment="CENTER_LEFT">
-                                       <children>
-                                          <Label styleClass="factura-item-name" text="Hamburguesa Clásica" />
-                                          <Region HBox.hgrow="ALWAYS" />
-                                          <Label styleClass="factura-item-value" text="\$25.000" />
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT">
-                                       <children>
-                                          <Label styleClass="factura-item-name" text="Perro Especial" />
-                                          <Region HBox.hgrow="ALWAYS" />
-                                          <Label styleClass="factura-item-value" text="\$22.000" />
-                                       </children>
-                                    </HBox>
+                                    <!-- Productos (se llenan desde CajaController) -->
+                                    <VBox fx:id="listaItems" spacing="10.0" />
 
                                     <Region maxWidth="Infinity" prefHeight="1.0" styleClass="divider">
                                        <VBox.margin>
@@ -153,7 +157,7 @@
                                        <children>
                                           <Label styleClass="texto-secundario" text="Subtotal" />
                                           <Region HBox.hgrow="ALWAYS" />
-                                          <Label styleClass="factura-item-value" text="\$47.000" />
+                                          <Label fx:id="lblSubtotal" styleClass="factura-item-value" text="\$0" />
                                        </children>
                                     </HBox>
 
@@ -162,12 +166,18 @@
                                        <children>
                                           <Label styleClass="factura-total-label" text="Total del pedido" />
                                           <Region HBox.hgrow="ALWAYS" />
-                                          <Label styleClass="factura-total-value" text="\$47.000" />
+                                          <Label fx:id="lblTotal" styleClass="factura-total-value" text="\$0" />
                                        </children>
                                        <VBox.margin>
                                           <Insets top="2.0" />
                                        </VBox.margin>
                                     </HBox>
+
+                                    <Button fx:id="btnPagar" maxWidth="Infinity" mnemonicParsing="false" onAction="#pagar" prefHeight="40.0" text="Pagar">
+                                       <VBox.margin>
+                                          <Insets top="8.0" />
+                                       </VBox.margin>
+                                    </Button>
 
                                  </children>
                                  <VBox.margin>
@@ -178,6 +188,9 @@
                            </children>
                         </VBox>
                      </content>
+                     <VBox.margin>
+                        <Insets top="10.0" />
+                     </VBox.margin>
                   </ScrollPane>
 
                </children>
@@ -194,7 +207,7 @@
 
                   <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-transparent" VBox.vgrow="ALWAYS">
                      <content>
-                        <FlowPane hgap="15.0" vgap="15.0">
+                        <FlowPane fx:id="gridProductos" hgap="15.0" vgap="15.0">
                            <padding>
                               <Insets bottom="20.0" left="20.0" right="20.0" top="0.0" />
                            </padding>
