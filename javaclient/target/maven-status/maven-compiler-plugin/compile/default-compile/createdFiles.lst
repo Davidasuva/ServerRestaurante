@@ -1,4 +1,12 @@
 com\example\LoginController.class
 com\example\Main.class
+com\example\PedidosStore$Estado.class
 com\example\Navigator.class
+com\example\TarjetaPedido.class
+com\example\CajaController$Linea.class
+com\example\PedidosStore.class
 com\example\NavController.class
+com\example\ListosController.class
+com\example\CocinaController.class
+com\example\CajaController.class
+com\example\PedidosStore$PedidoLocal.class

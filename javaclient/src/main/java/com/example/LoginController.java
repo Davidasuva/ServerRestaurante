@@ -13,7 +13,8 @@ public class LoginController {
     private static final Map<String, String> USUARIOS = Map.of(
         "admin", "1234",
         "peñagay", "1234",
-        "cocinero", "cocina123"
+        "cocinero", "cocina123",
+        "PresidenteMilagros", "firmesporlapatria"
     );
 
     @FXML private TextField campoUsuario;

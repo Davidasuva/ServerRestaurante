@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:controller="com.example.NavController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1420.0" styleClass="root" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
+<VBox fx:controller="com.example.CocinaController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1420.0" styleClass="root" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
    <children>
 
       <!-- Barra superior: título + pestañas (Cocina activa) -->
@@ -50,14 +50,14 @@
                      <children>
                         <Label styleClass="section-title" text="En cola" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label styleClass="count-badge" text="2" />
+                        <Label fx:id="lblCountCola" styleClass="count-badge" text="0" />
                      </children>
                   </HBox>
                   <!-- Scroll vertical por columna -->
                   <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-transparent" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
                      <content>
                         <!-- 2 pedidos por fila -->
-                        <GridPane hgap="12.0" styleClass="historial-container" vgap="12.0">
+                        <GridPane fx:id="gridCola" hgap="12.0" styleClass="historial-container" vgap="12.0">
                            <columnConstraints>
                               <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
                               <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
@@ -66,130 +66,6 @@
                               <Insets bottom="0.0" left="0.0" right="6.0" top="0.0" />
                            </padding>
                            <children>
-                              <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.hgrow="ALWAYS" maxWidth="1.7976931348623157E308" spacing="12.0" styleClass="tarjeta-pedido">
-                                 <children>
-                                    <HBox alignment="CENTER_LEFT">
-                                       <children>
-                                          <Label styleClass="id-pedido-lg" text="PE-001" />
-                                          <Region HBox.hgrow="ALWAYS" />
-                                          <Button graphicTextGap="5.0" mnemonicParsing="false" styleClass="undo-button" text="DESHACER">
-                                             <graphic>
-                                                <ImageView fitHeight="12.0" fitWidth="12.0" pickOnBounds="true" preserveRatio="true">
-                                                   <image>
-                                                      <Image url="@/icons/undo.png" />
-                                                   </image>
-                                                </ImageView>
-                                             </graphic>
-                                          </Button>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT">
-                                       <children>
-                                          <Label styleClass="badge-mesa" text="Mesa 04" />
-                                          <Region HBox.hgrow="ALWAYS" />
-                                          <HBox alignment="CENTER_LEFT" spacing="4.0">
-                                             <children>
-                                                <ImageView fitHeight="12.0" fitWidth="12.0" pickOnBounds="true" preserveRatio="true">
-                                                   <image>
-                                                      <Image url="@/icons/schedule.png" />
-                                                   </image>
-                                                </ImageView>
-                                                <Label styleClass="time-label" text="Hace: 5 min" />
-                                             </children>
-                                          </HBox>
-                                       </children>
-                                    </HBox>
-                                    <!-- Tamaño base: espacio para 4 ítems; crece si hay más -->
-                                    <VBox minHeight="128.0" spacing="10.0" styleClass="items-box" VBox.vgrow="ALWAYS">
-                                       <children>
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                       <children>
-                                          <Label styleClass="bullet" text="•" />
-                                          <Label maxWidth="1.7976931348623157E308" styleClass="order-item" text="2x Hamburguesa Clásica" wrapText="true" HBox.hgrow="ALWAYS" />
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                       <children>
-                                          <Label styleClass="bullet" text="•" />
-                                          <Label maxWidth="1.7976931348623157E308" styleClass="order-item" text="1x Salchipapa" wrapText="true" HBox.hgrow="ALWAYS" />
-                                       </children>
-                                    </HBox>
-                                       </children>
-                                    </VBox>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="36.0" styleClass="action-button" text="Empezar a Preparar" />
-                                 </children>
-                              </VBox>
-                              <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.hgrow="ALWAYS" maxWidth="1.7976931348623157E308" spacing="12.0" styleClass="tarjeta-pedido">
-                                 <children>
-                                    <HBox alignment="CENTER_LEFT">
-                                       <children>
-                                          <Label styleClass="id-pedido-lg" text="PE-004" />
-                                          <Region HBox.hgrow="ALWAYS" />
-                                          <Button graphicTextGap="5.0" mnemonicParsing="false" styleClass="undo-button" text="DESHACER">
-                                             <graphic>
-                                                <ImageView fitHeight="12.0" fitWidth="12.0" pickOnBounds="true" preserveRatio="true">
-                                                   <image>
-                                                      <Image url="@/icons/undo.png" />
-                                                   </image>
-                                                </ImageView>
-                                             </graphic>
-                                          </Button>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT">
-                                       <children>
-                                          <Label styleClass="badge-mesa" text="Mesa 02" />
-                                          <Region HBox.hgrow="ALWAYS" />
-                                          <HBox alignment="CENTER_LEFT" spacing="4.0">
-                                             <children>
-                                                <ImageView fitHeight="12.0" fitWidth="12.0" pickOnBounds="true" preserveRatio="true">
-                                                   <image>
-                                                      <Image url="@/icons/schedule.png" />
-                                                   </image>
-                                                </ImageView>
-                                                <Label styleClass="time-label" text="Hace: 3 min" />
-                                             </children>
-                                          </HBox>
-                                       </children>
-                                    </HBox>
-                                    <!-- Tamaño base: espacio para 4 ítems; crece si hay más -->
-                                    <VBox minHeight="128.0" spacing="10.0" styleClass="items-box" VBox.vgrow="ALWAYS">
-                                       <children>
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                       <children>
-                                          <Label styleClass="bullet" text="•" />
-                                          <Label maxWidth="1.7976931348623157E308" styleClass="order-item" text="1x Perro Suizo Ahumado" wrapText="true" HBox.hgrow="ALWAYS" />
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                       <children>
-                                          <Label styleClass="bullet" text="•" />
-                                          <Label maxWidth="1.7976931348623157E308" styleClass="order-item" text="2x Limonada de Coco" wrapText="true" HBox.hgrow="ALWAYS" />
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                       <children>
-                                          <Label styleClass="bullet" text="•" />
-                                          <Label maxWidth="1.7976931348623157E308" styleClass="order-item" text="1x Papa Loca BBQ Pork" wrapText="true" HBox.hgrow="ALWAYS" />
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                       <children>
-                                          <Label styleClass="bullet" text="•" />
-                                          <Label maxWidth="1.7976931348623157E308" styleClass="order-item" text="1x Salchipapa Sazonada" wrapText="true" HBox.hgrow="ALWAYS" />
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                       <children>
-                                          <Label styleClass="bullet" text="•" />
-                                          <Label maxWidth="1.7976931348623157E308" styleClass="order-item" text="1x Gaseosa Personal" wrapText="true" HBox.hgrow="ALWAYS" />
-                                       </children>
-                                    </HBox>
-                                       </children>
-                                    </VBox>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="36.0" styleClass="action-button" text="Empezar a Preparar" />
-                                 </children>
-                              </VBox>
                            </children>
                         </GridPane>
                      </content>
@@ -202,14 +78,14 @@
                      <children>
                         <Label styleClass="section-title" text="En Preparación" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label styleClass="count-badge" text="2" />
+                        <Label fx:id="lblCountPrep" styleClass="count-badge" text="0" />
                      </children>
                   </HBox>
                   <!-- Scroll vertical por columna -->
                   <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="scroll-transparent" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
                      <content>
                         <!-- 2 pedidos por fila -->
-                        <GridPane hgap="12.0" styleClass="historial-container" vgap="12.0">
+                        <GridPane fx:id="gridPrep" hgap="12.0" styleClass="historial-container" vgap="12.0">
                            <columnConstraints>
                               <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
                               <ColumnConstraints hgrow="ALWAYS" percentWidth="50.0" />
@@ -218,112 +94,6 @@
                               <Insets bottom="0.0" left="0.0" right="6.0" top="0.0" />
                            </padding>
                            <children>
-                              <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.hgrow="ALWAYS" maxWidth="1.7976931348623157E308" spacing="12.0" styleClass="tarjeta-pedido">
-                                 <children>
-                                    <HBox alignment="CENTER_LEFT">
-                                       <children>
-                                          <Label styleClass="id-pedido-lg" text="PE-002" />
-                                          <Region HBox.hgrow="ALWAYS" />
-                                          <Button graphicTextGap="5.0" mnemonicParsing="false" styleClass="undo-button" text="DESHACER">
-                                             <graphic>
-                                                <ImageView fitHeight="12.0" fitWidth="12.0" pickOnBounds="true" preserveRatio="true">
-                                                   <image>
-                                                      <Image url="@/icons/undo.png" />
-                                                   </image>
-                                                </ImageView>
-                                             </graphic>
-                                          </Button>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT">
-                                       <children>
-                                          <Label styleClass="badge-mesa" text="Mesa 12" />
-                                          <Region HBox.hgrow="ALWAYS" />
-                                          <HBox alignment="CENTER_LEFT" spacing="4.0">
-                                             <children>
-                                                <ImageView fitHeight="12.0" fitWidth="12.0" pickOnBounds="true" preserveRatio="true">
-                                                   <image>
-                                                      <Image url="@/icons/schedule.png" />
-                                                   </image>
-                                                </ImageView>
-                                                <Label styleClass="time-label" text="Hace: 12 min" />
-                                             </children>
-                                          </HBox>
-                                       </children>
-                                    </HBox>
-                                    <!-- Tamaño base: espacio para 4 ítems; crece si hay más -->
-                                    <VBox minHeight="128.0" spacing="10.0" styleClass="items-box" VBox.vgrow="ALWAYS">
-                                       <children>
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                       <children>
-                                          <Label styleClass="bullet" text="•" />
-                                          <Label maxWidth="1.7976931348623157E308" styleClass="order-item" text="1x Perro Especial" wrapText="true" HBox.hgrow="ALWAYS" />
-                                       </children>
-                                    </HBox>
-                                       </children>
-                                    </VBox>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="36.0" styleClass="action-button" text="Marcar como Listo" />
-                                 </children>
-                              </VBox>
-                              <VBox GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.hgrow="ALWAYS" maxWidth="1.7976931348623157E308" spacing="12.0" styleClass="tarjeta-pedido">
-                                 <children>
-                                    <HBox alignment="CENTER_LEFT">
-                                       <children>
-                                          <Label styleClass="id-pedido-lg" text="PE-005" />
-                                          <Region HBox.hgrow="ALWAYS" />
-                                          <Button graphicTextGap="5.0" mnemonicParsing="false" styleClass="undo-button" text="DESHACER">
-                                             <graphic>
-                                                <ImageView fitHeight="12.0" fitWidth="12.0" pickOnBounds="true" preserveRatio="true">
-                                                   <image>
-                                                      <Image url="@/icons/undo.png" />
-                                                   </image>
-                                                </ImageView>
-                                             </graphic>
-                                          </Button>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT">
-                                       <children>
-                                          <Label styleClass="badge-mesa" text="Mesa 06" />
-                                          <Region HBox.hgrow="ALWAYS" />
-                                          <HBox alignment="CENTER_LEFT" spacing="4.0">
-                                             <children>
-                                                <ImageView fitHeight="12.0" fitWidth="12.0" pickOnBounds="true" preserveRatio="true">
-                                                   <image>
-                                                      <Image url="@/icons/schedule.png" />
-                                                   </image>
-                                                </ImageView>
-                                                <Label styleClass="time-label" text="Hace: 9 min" />
-                                             </children>
-                                          </HBox>
-                                       </children>
-                                    </HBox>
-                                    <!-- Tamaño base: espacio para 4 ítems; crece si hay más -->
-                                    <VBox minHeight="128.0" spacing="10.0" styleClass="items-box" VBox.vgrow="ALWAYS">
-                                       <children>
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                       <children>
-                                          <Label styleClass="bullet" text="•" />
-                                          <Label maxWidth="1.7976931348623157E308" styleClass="order-item" text="2x Desgranado Mixto" wrapText="true" HBox.hgrow="ALWAYS" />
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                       <children>
-                                          <Label styleClass="bullet" text="•" />
-                                          <Label maxWidth="1.7976931348623157E308" styleClass="order-item" text="2x Jugo Natural en Agua" wrapText="true" HBox.hgrow="ALWAYS" />
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                       <children>
-                                          <Label styleClass="bullet" text="•" />
-                                          <Label maxWidth="1.7976931348623157E308" styleClass="order-item" text="1x Hamburguesa Rústica" wrapText="true" HBox.hgrow="ALWAYS" />
-                                       </children>
-                                    </HBox>
-                                       </children>
-                                    </VBox>
-                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="36.0" styleClass="action-button" text="Marcar como Listo" />
-                                 </children>
-                              </VBox>
                            </children>
                         </GridPane>
                      </content>

@@ -101,12 +101,16 @@ public class CajaController extends NavController {
         String resumen = choiceMesa.getValue() + " · " + choiceMetodoPago.getValue();
         String total = lblTotal.getText();
 
+        Map<String, Integer> items = new LinkedHashMap<>();
+        carrito.values().forEach(l -> items.put(l.nombre, l.cantidad));
+        PedidosStore.PedidoLocal pedido = PedidosStore.crear(choiceMesa.getValue(), items);
+
         Alert alerta = new Alert(Alert.AlertType.INFORMATION);
         alerta.initOwner(btnPagar.getScene().getWindow());
         alerta.setTitle("Pedido creado");
         alerta.setHeaderText(null);
         alerta.setGraphic(null);
-        alerta.setContentText("El pedido se creó correctamente.\n\n" + resumen + "\nTotal: " + total);
+        alerta.setContentText("El pedido " + pedido.id + " se creó correctamente.\n\n" + resumen + "\nTotal: " + total);
         alerta.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         alerta.showAndWait();
 
