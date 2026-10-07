@@ -8,6 +8,7 @@
 <HBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="server.controller.productos.ProductosController"
+      stylesheets="@ProductosView.css"
       styleClass="raiz-admin"
       prefWidth="1100" prefHeight="700">
 

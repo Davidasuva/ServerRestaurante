@@ -5,7 +5,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane styleClass="raiz" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="server.controller.login.LoginController">
+<StackPane styleClass="raiz" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="server.controller.login.LoginController" stylesheets="@LoginView.css">
 
    <VBox alignment="CENTER" maxWidth="420" spacing="0" styleClass="card">
 
