@@ -1,6 +1,7 @@
 package com.example;
 
-import com.example.PedidosStore.PedidoLocal;
+import com.example.model.ItemCarrito;
+import com.example.model.PedidoVista;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -14,17 +15,17 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 /** Construye por código la tarjeta de un pedido (misma estructura y estilos que tenían los FXML). */
-final class TarjetaPedido {
+public final class TarjetaPedido {
 
     private TarjetaPedido() {}
 
     /**
      * @param alDeshacer si es null, no se muestra el botón DESHACER
      */
-    static VBox crear(PedidoLocal p, String textoAccion, String estiloAccion,
+    public static VBox crear(PedidoVista p, String textoAccion, String estiloAccion,
                       Runnable alAccion, Runnable alDeshacer) {
         // Fila 1: id + deshacer
-        Label id = new Label(p.id);
+        Label id = new Label(p.etiqueta());
         id.getStyleClass().add("id-pedido-lg");
         HBox fila1 = new HBox(id, espacio());
         fila1.setAlignment(Pos.CENTER_LEFT);
@@ -38,9 +39,9 @@ final class TarjetaPedido {
         }
 
         // Fila 2: mesa + hace cuánto
-        Label mesa = new Label(p.mesa);
+        Label mesa = new Label(p.getMesa());
         mesa.getStyleClass().add("badge-mesa");
-        long minutos = Math.max(0, (System.currentTimeMillis() - p.creadoMs) / 60000);
+        long minutos = p.minutosDesdeCreacion();
         Label hace = new Label("Hace: " + minutos + " min");
         hace.getStyleClass().add("time-label");
         HBox reloj = new HBox(4, icono("/icons/schedule.png"), hace);
@@ -53,10 +54,10 @@ final class TarjetaPedido {
         items.getStyleClass().add("items-box");
         items.setMinHeight(128);
         VBox.setVgrow(items, Priority.ALWAYS);
-        p.items.forEach((nombre, cantidad) -> {
+        for (ItemCarrito item : p.getItems()) {
             Label punto = new Label("•");
             punto.getStyleClass().add("bullet");
-            Label texto = new Label(cantidad + "x " + nombre);
+            Label texto = new Label(item.getCantidad() + "x " + item.getNombre());
             texto.getStyleClass().add("order-item");
             texto.setWrapText(true);
             texto.setMaxWidth(Double.MAX_VALUE);
@@ -64,7 +65,7 @@ final class TarjetaPedido {
             HBox linea = new HBox(8, punto, texto);
             linea.setAlignment(Pos.CENTER_LEFT);
             items.getChildren().add(linea);
-        });
+        }
 
         // Botón de acción
         Button accion = new Button(textoAccion);

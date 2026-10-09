@@ -1,8 +1,12 @@
 package com.example;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
+import com.example.model.EstadoPedido;
+import com.example.model.ItemCarrito;
+import com.example.model.PedidoVista;
 
 /**
  * Pedidos en memoria, compartidos entre Caja, Cocina y Listos.
@@ -10,59 +14,33 @@ import java.util.Map;
  */
 public final class PedidosStore {
 
-    public enum Estado {
-        EN_COLA, PREPARANDO, LISTO;
-
-        public Estado siguiente() {
-            return ordinal() + 1 < values().length ? values()[ordinal() + 1] : null;
-        }
-
-        public Estado anterior() {
-            return ordinal() > 0 ? values()[ordinal() - 1] : null;
-        }
-    }
-
-    public static class PedidoLocal {
-        public final String id;
-        public final String mesa;
-        public final Map<String, Integer> items;
-        public final long creadoMs = System.currentTimeMillis();
-        public Estado estado = Estado.EN_COLA;
-
-        PedidoLocal(String id, String mesa, Map<String, Integer> items) {
-            this.id = id;
-            this.mesa = mesa;
-            this.items = items;
-        }
-    }
-
-    private static final List<PedidoLocal> PEDIDOS = new ArrayList<>();
+    private static final List<PedidoVista> PEDIDOS = new ArrayList<>();
     private static int contador = 0;
 
     private PedidosStore() {}
 
     /** Crea un pedido nuevo; entra directo a "En cola". */
-    public static PedidoLocal crear(String mesa, Map<String, Integer> items) {
-        PedidoLocal p = new PedidoLocal(String.format("PE-%03d", ++contador), mesa, items);
+    public static PedidoVista crear(String mesa, String metodoPago, List<ItemCarrito> items) {
+        PedidoVista p = new PedidoVista(++contador, mesa, metodoPago, LocalDateTime.now(), items, EstadoPedido.EN_COLA);
         PEDIDOS.add(p);
         return p;
     }
 
-    public static List<PedidoLocal> porEstado(Estado estado) {
-        List<PedidoLocal> lista = new ArrayList<>();
-        for (PedidoLocal p : PEDIDOS) {
-            if (p.estado == estado) {
+    public static List<PedidoVista> porEstado(EstadoPedido estado) {
+        List<PedidoVista> lista = new ArrayList<>();
+        for (PedidoVista p : PEDIDOS) {
+            if (p.getEstado() == estado) {
                 lista.add(p);
             }
         }
         return lista;
     }
 
-    public static void mover(PedidoLocal p, Estado nuevo) {
-        p.estado = nuevo;
+    public static void mover(PedidoVista p, EstadoPedido nuevo) {
+        p.setEstado(nuevo);
     }
 
-    public static void archivar(PedidoLocal p) {
+    public static void archivar(PedidoVista p) {
         PEDIDOS.remove(p);
     }
 }

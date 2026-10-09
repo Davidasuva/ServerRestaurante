@@ -1,4 +1,4 @@
-package com.example;
+package com.example.controller;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -7,6 +7,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import com.example.PedidosStore;
+import com.example.model.ItemCarrito;
+import com.example.model.PedidoVista;
 
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -46,21 +50,10 @@ public class CajaController extends NavController {
     @FXML private Button btnPagar;
 
     /** Líneas de la factura, en el orden en que se agregaron. */
-    private final Map<String, Linea> carrito = new LinkedHashMap<>();
+    private final Map<String, ItemCarrito> carrito = new LinkedHashMap<>();
 
     /** Contadores de las tarjetas, para ponerlos en 0 al terminar un pedido. */
     private final List<Label> contadores = new ArrayList<>();
-
-    private static class Linea {
-        final String nombre;
-        final int precio;
-        int cantidad;
-
-        Linea(String nombre, int precio) {
-            this.nombre = nombre;
-            this.precio = precio;
-        }
-    }
 
     @FXML
     private void initialize() {
@@ -101,16 +94,15 @@ public class CajaController extends NavController {
         String resumen = choiceMesa.getValue() + " · " + choiceMetodoPago.getValue();
         String total = lblTotal.getText();
 
-        Map<String, Integer> items = new LinkedHashMap<>();
-        carrito.values().forEach(l -> items.put(l.nombre, l.cantidad));
-        PedidosStore.PedidoLocal pedido = PedidosStore.crear(choiceMesa.getValue(), items);
+        PedidoVista pedido = PedidosStore.crear(choiceMesa.getValue(), choiceMetodoPago.getValue(),
+                new ArrayList<>(carrito.values()));
 
         Alert alerta = new Alert(Alert.AlertType.INFORMATION);
         alerta.initOwner(btnPagar.getScene().getWindow());
         alerta.setTitle("Pedido creado");
         alerta.setHeaderText(null);
         alerta.setGraphic(null);
-        alerta.setContentText("El pedido " + pedido.id + " se creó correctamente.\n\n" + resumen + "\nTotal: " + total);
+        alerta.setContentText("El pedido " + pedido.etiqueta() + " se creó correctamente.\n\n" + resumen + "\nTotal: " + total);
         alerta.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         alerta.showAndWait();
 
@@ -145,12 +137,12 @@ public class CajaController extends NavController {
     }
 
     private void cambiar(String nombre, int precio, int delta, Label cantidadLabel) {
-        Linea linea = carrito.computeIfAbsent(nombre, k -> new Linea(nombre, precio));
-        linea.cantidad = Math.max(0, linea.cantidad + delta);
-        if (linea.cantidad == 0) {
+        ItemCarrito linea = carrito.computeIfAbsent(nombre, k -> new ItemCarrito(0, nombre, precio, 0));
+        linea.setCantidad(Math.max(0, linea.getCantidad() + delta));
+        if (linea.getCantidad() == 0) {
             carrito.remove(nombre);
         }
-        cantidadLabel.setText(String.valueOf(linea.cantidad));
+        cantidadLabel.setText(String.valueOf(linea.getCantidad()));
         refrescarFactura();
     }
 
@@ -164,11 +156,11 @@ public class CajaController extends NavController {
             listaItems.getChildren().add(vacio);
         }
 
-        for (Linea l : carrito.values()) {
-            int subtotalLinea = l.precio * l.cantidad;
+        for (ItemCarrito l : carrito.values()) {
+            int subtotalLinea = l.getSubtotal();
             total += subtotalLinea;
 
-            Label nombre = new Label(l.cantidad + " × " + l.nombre);
+            Label nombre = new Label(l.getCantidad() + " × " + l.getNombre());
             nombre.getStyleClass().add("factura-item-name");
             Region espacio = new Region();
             HBox.setHgrow(espacio, Priority.ALWAYS);

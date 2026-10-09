@@ -1,6 +1,8 @@
-package com.example;
+package com.example.controller;
 
 import java.util.Map;
+
+import com.example.Navigator;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

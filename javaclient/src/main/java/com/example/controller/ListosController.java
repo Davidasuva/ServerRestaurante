@@ -1,9 +1,11 @@
-package com.example;
+package com.example.controller;
 
 import java.util.List;
 
-import com.example.PedidosStore.Estado;
-import com.example.PedidosStore.PedidoLocal;
+import com.example.PedidosStore;
+import com.example.TarjetaPedido;
+import com.example.model.EstadoPedido;
+import com.example.model.PedidoVista;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -24,17 +26,17 @@ public class ListosController extends NavController {
 
     private void refrescar() {
         gridListos.getChildren().clear();
-        List<PedidoLocal> lista = PedidosStore.porEstado(Estado.LISTO);
+        List<PedidoVista> lista = PedidosStore.porEstado(EstadoPedido.LISTO);
         lblCountListos.setText(String.valueOf(lista.size()));
 
         for (int i = 0; i < lista.size(); i++) {
-            PedidoLocal p = lista.get(i);
+            PedidoVista p = lista.get(i);
             Runnable archivar = () -> {
                 PedidosStore.archivar(p);
                 refrescar();
             };
             Runnable deshacer = () -> {
-                PedidosStore.mover(p, Estado.PREPARANDO);
+                PedidosStore.mover(p, EstadoPedido.PREPARANDO);
                 refrescar();
             };
             gridListos.add(TarjetaPedido.crear(p, "Archivar pedido", "archive-button", archivar, deshacer),

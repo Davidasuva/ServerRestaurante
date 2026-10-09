@@ -1,9 +1,12 @@
-C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\CocinaController.java
-C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\CajaController.java
+C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\controller\CajaController.java
+C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\controller\NavController.java
+C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\model\PedidoVista.java
 C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\Navigator.java
-C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\NavController.java
 C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\Main.java
-C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\ListosController.java
-C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\LoginController.java
+C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\controller\LoginController.java
+C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\model\EstadoPedido.java
+C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\model\ItemCarrito.java
+C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\controller\ListosController.java
+C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\controller\CocinaController.java
 C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\TarjetaPedido.java
 C:\Users\julio\OneDrive\Escritorio\Crabon y Sazon\ServerRestaurante\javaclient\src\main\java\com\example\PedidosStore.java

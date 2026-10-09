@@ -1,9 +1,11 @@
-package com.example;
+package com.example.controller;
 
 import java.util.List;
 
-import com.example.PedidosStore.Estado;
-import com.example.PedidosStore.PedidoLocal;
+import com.example.PedidosStore;
+import com.example.TarjetaPedido;
+import com.example.model.EstadoPedido;
+import com.example.model.PedidoVista;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -23,17 +25,17 @@ public class CocinaController extends NavController {
     }
 
     private void refrescar() {
-        llenar(gridCola, lblCountCola, Estado.EN_COLA, "Empezar a Preparar");
-        llenar(gridPrep, lblCountPrep, Estado.PREPARANDO, "Marcar como Listo");
+        llenar(gridCola, lblCountCola, EstadoPedido.EN_COLA, "Empezar a Preparar");
+        llenar(gridPrep, lblCountPrep, EstadoPedido.PREPARANDO, "Marcar como Listo");
     }
 
-    private void llenar(GridPane grid, Label contador, Estado estado, String textoAccion) {
+    private void llenar(GridPane grid, Label contador, EstadoPedido estado, String textoAccion) {
         grid.getChildren().clear();
-        List<PedidoLocal> lista = PedidosStore.porEstado(estado);
+        List<PedidoVista> lista = PedidosStore.porEstado(estado);
         contador.setText(String.valueOf(lista.size()));
 
         for (int i = 0; i < lista.size(); i++) {
-            PedidoLocal p = lista.get(i);
+            PedidoVista p = lista.get(i);
             Runnable avanzar = () -> {
                 PedidosStore.mover(p, estado.siguiente());
                 refrescar();
