@@ -1,6 +1,8 @@
 package server.model.ingrediente;
 
 import server.model.history.History;
+import server.model.ingrediente.cache.IngredienteCache;
+import server.model.ingrediente.cache.IngredienteCacheInterface;
 import server.model.ingrediente.dao.IngredienteDao;
 import server.model.ingrediente.dao.IngredienteDaoInterface;
 
@@ -15,26 +17,40 @@ public class IngredienteService extends UnicastRemoteObject implements Ingredien
 
     private IngredienteDaoInterface ingredienteDao;
     private History history;
+    private IngredienteCacheInterface cache;
+
+    private volatile Runnable onCambio = () -> {};
+
     public IngredienteService(History history) throws Exception {
         super();
         this.history = history;
         this.ingredienteDao=new IngredienteDao();
+        this.cache=new IngredienteCache();
+    }
+
+    public void setOnCambio(Runnable r) {
+        this.onCambio = (r == null) ? () -> {} : r;
+    }
+
+    public void invalidarCache() {
+        cache.clear();
     }
 
     @Override
     public Ingrediente registrar(Ingrediente ingrediente) throws RemoteException {
         if(ingrediente==null){
-            throw new RuntimeException("Por favor añada un ingrediente antes de registrarlo");
+            throw new RemoteException("Por favor añada un ingrediente antes de registrarlo");
         }
         if(ingrediente.getCantidad()<0){
             throw new RemoteException("La cantidad del ingrediente no puede ser negativa");
         }
         try{
             Ingrediente crear=ingredienteDao.insertar(ingrediente);
+            cache.addIngredienteToCache(crear);
             history.addAction("Se agregó un nuevo ingrediente con id: "+ingrediente.getId());
             return crear;
         }catch (SQLException e){
-            throw new RuntimeException("Error al registrar ingrediente: " + e.getMessage());
+            throw new RemoteException("Error al registrar ingrediente: " + e.getMessage());
         }
 
     }
@@ -47,19 +63,30 @@ public class IngredienteService extends UnicastRemoteObject implements Ingredien
         try{
             return ingredienteDao.buscarTodos(inicio,finalnum);
         } catch (SQLException e) {
-            throw new RuntimeException("Error al buscar ingrediente: "+e.getMessage());
+            throw new RemoteException("Error al buscar ingrediente: "+e.getMessage());
         }
     }
 
     @Override
     public Ingrediente getIngredienteById(int id) throws RemoteException {
-        try{
-            Ingrediente ingrediente=ingredienteDao.buscarPorId(id);
-            history.addAction("Se buscó ingrediente por id: "+id);
+        Ingrediente ingrediente=cache.getIngredienteById(id);
+        if(ingrediente==null){
+            try{
+                Ingrediente ingrediente2=ingredienteDao.buscarPorId(id);
+                if(ingrediente2==null){
+                    throw new RemoteException("No se encontró ingrediente con id: "+id);
+                }
+                history.addAction("Se buscó ingrediente por id: "+id);
+                cache.addIngredienteToCache(ingrediente2);
+                return ingrediente2;
+            } catch (SQLException e) {
+                throw new RemoteException("No se pudó buscar ingrediente por id: "+e.getMessage());
+            }
+        }else{
+            history.addAction("Se buscó ingrediente por id: "+id+" (desde cache)");
             return ingrediente;
-        } catch (SQLException e) {
-            throw new RuntimeException("No se pudó buscar ingrediente por id: "+e.getMessage());
         }
+
     }
 
     @Override
@@ -72,7 +99,7 @@ public class IngredienteService extends UnicastRemoteObject implements Ingredien
             history.addAction("Se buscó ingrediente por nombre: "+nombre);
             return ingrediente;
         } catch (SQLException e) {
-            throw new RuntimeException("No se pudó buscar ingrediente por nombre: "+e.getMessage());
+            throw new RemoteException("No se pudó buscar ingrediente por nombre: "+e.getMessage());
         }
     }
 
@@ -89,10 +116,15 @@ public class IngredienteService extends UnicastRemoteObject implements Ingredien
         }
         try{
             Ingrediente cambiado= ingredienteDao.actualizar(id,nuevoIngrediente);
+            if(cambiado==null){
+                throw new RemoteException("No se encontró ingrediente con id: "+id);
+            }
+            cache.removeIngredienteFromCache(id);
             history.addAction("Se actualizó un ingrediente con id: "+id);
+            onCambio.run();
             return cambiado;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar un ingrediente: "+e.getMessage());
+            throw new RemoteException("Error al actualizar un ingrediente: "+e.getMessage());
         }
     }
 
@@ -101,18 +133,23 @@ public class IngredienteService extends UnicastRemoteObject implements Ingredien
         try{
             boolean eliminar=ingredienteDao.eliminar(id);
             if(eliminar){
+                cache.removeIngredienteFromCache(id);
                 history.addAction("Se elimino el ingrediente con id: "+id);
+                onCambio.run();
             }
             return eliminar;
         }catch(SQLException e){
-            throw new RuntimeException("Error al eliminar un ingrediente: "+e.getMessage());
+            if("23503".equals(e.getSQLState())){
+                throw new RemoteException("No se puede eliminar el ingrediente: está asociado a productos o pedidos");
+            }
+            throw new RemoteException("Error al eliminar un ingrediente: "+e.getMessage());
         }
     }
 
     @Override
     public boolean ajustarCantidad(int id, int agregado) throws RemoteException {
         if(agregado==0){
-            throw new RemoteException("No puede agregar 0 0");
+            throw new RemoteException("No puede agregar 0");
         }
         try{
             boolean ajustado=ingredienteDao.ajustarCantidad(id,agregado);
@@ -122,10 +159,12 @@ public class IngredienteService extends UnicastRemoteObject implements Ingredien
                 }
                 throw new RemoteException("El inventario del ingrediente "+id+" no puede quedar negativo");
             }
+            cache.removeIngredienteFromCache(id);
             history.addAction("Se ajustó el inventario del ingrediente "+id+" en "+agregado);
+            onCambio.run();
             return true;
         } catch (SQLException e) {
-            throw new RuntimeException("Error al ajustar ingrediente: "+e.getMessage());
+            throw new RemoteException("Error al ajustar ingrediente: "+e.getMessage());
         }
     }
 
@@ -134,7 +173,7 @@ public class IngredienteService extends UnicastRemoteObject implements Ingredien
         try{
             return ingredienteDao.contar();
         }catch(SQLException e){
-            throw new RuntimeException("Error al consultar empleados: "+e.getMessage());
+            throw new RemoteException("Error al consultar ingredientes: "+e.getMessage());
         }
     }
 }

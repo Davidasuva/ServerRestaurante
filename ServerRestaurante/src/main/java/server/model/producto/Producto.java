@@ -25,13 +25,6 @@ public class Producto implements Serializable, Comparable<Producto>{
         ingredientes=new ArrayList<>();
     }
 
-    public boolean addIngrediente(Ingrediente ingrediente) {
-        return this.ingredientes.add(ingrediente);
-    }
-
-    public boolean removeIngrediente(Ingrediente ingrediente) {
-        return this.ingredientes.remove(ingrediente);
-    }
     public int getId() {
         return id;
     }
@@ -80,6 +73,10 @@ public class Producto implements Serializable, Comparable<Producto>{
         return ingredientes;
     }
 
+    public void setIngredientes(List<Ingrediente> ingredientes) {
+        this.ingredientes = ingredientes;
+    }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -96,12 +93,13 @@ public class Producto implements Serializable, Comparable<Producto>{
         return (id==producto.id);
     }
 
-    public String getNa() {
-        return null;
-    }
-
     @Override
     public String toString() {
         return "Producto: "+nombre+" Con id: "+id+" Con precio: "+precio;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
     }
 }

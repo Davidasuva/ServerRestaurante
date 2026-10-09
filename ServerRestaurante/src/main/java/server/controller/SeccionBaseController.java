@@ -236,11 +236,10 @@ public abstract class SeccionBaseController {
             }
         });
         tarea.setOnFailed(e -> {
-            servidorOcupado = false;
-            btnServidor.setDisable(false);
             Throwable ex = tarea.getException();
-            model.getHistory().addAction("Error inesperado: " + (ex != null ? ex.getMessage() : "desconocido"));
-            refrescarEstadoServidor("Error inesperado (revisa la consola)");
+            String msg = (ex != null && ex.getMessage() != null) ? ex.getMessage() : "Ocurrió un error.";
+            this.mostrarMensaje(msg, true);
+            this.model.getHistory().addAction("Error: " + msg);
         });
 
         Thread hilo = new Thread(tarea, "server-control-thread");
