@@ -363,16 +363,25 @@ public class PedidoDao implements PedidoDaoInterface {
 
     private void liberarProducto(Connection conn, int pedidoId, int productoId) throws SQLException {
         try (PreparedStatement stmt = conn.prepareStatement(
-                "UPDATE ingrediente i SET cantidad = i.cantidad + s.total " +
-                        "FROM (SELECT id_ingrediente, SUM(cantidad) AS total FROM inventario_pedido " +
-                        "      WHERE id_pedido = ? AND id_producto = ? GROUP BY id_ingrediente) s " +
-                        "WHERE i.id = s.id_ingrediente")) {
+                "UPDATE ingrediente i SET cantidad = i.cantidad + 1 " +
+                        "FROM inventario_pedido ip " +
+                        "WHERE ip.id_pedido = ? AND ip.id_producto = ? " +
+                        "AND ip.id_ingrediente = i.id AND ip.cantidad > 0")) {
+            stmt.setInt(1, pedidoId);
+            stmt.setInt(2, productoId);
+            stmt.executeUpdate();
+        }
+
+        try (PreparedStatement stmt = conn.prepareStatement(
+                "UPDATE inventario_pedido SET cantidad = cantidad - 1 " +
+                        "WHERE id_pedido = ? AND id_producto = ?")) {
             stmt.setInt(1, pedidoId);
             stmt.setInt(2, productoId);
             stmt.executeUpdate();
         }
         try (PreparedStatement stmt = conn.prepareStatement(
-                "DELETE FROM inventario_pedido WHERE id_pedido = ? AND id_producto = ?")) {
+                "DELETE FROM inventario_pedido " +
+                        "WHERE id_pedido = ? AND id_producto = ? AND cantidad <= 0")) {
             stmt.setInt(1, pedidoId);
             stmt.setInt(2, productoId);
             stmt.executeUpdate();
@@ -464,7 +473,9 @@ public class PedidoDao implements PedidoDaoInterface {
             conn.setAutoCommit(false);
             try {
                 boolean eliminado;
-                String sqlDelete = "DELETE FROM producto_pedido WHERE id_pedido = ? AND id_producto = ?";
+                String sqlDelete = "DELETE FROM producto_pedido WHERE ctid IN (" +
+                        "  SELECT ctid FROM producto_pedido " +
+                        "  WHERE id_pedido = ? AND id_producto = ? LIMIT 1)";
                 try (PreparedStatement stmt = conn.prepareStatement(sqlDelete)) {
                     stmt.setInt(1, pedidoId);
                     stmt.setInt(2, productoId);

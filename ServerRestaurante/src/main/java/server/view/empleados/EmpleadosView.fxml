@@ -1,148 +1,130 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
 <?import javafx.scene.image.*?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.*?>
 
-<HBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="server.controller.employees.EmpleadosController"
-      styleClass="raiz-admin"
-      prefWidth="1100" prefHeight="700">
+<HBox prefHeight="700" prefWidth="1100" styleClass="raiz-admin" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="server.controller.employees.EmpleadosController"  stylesheets="@EmpleadosView.css">
 
-   <VBox HBox.hgrow="ALWAYS" spacing="0">
+   <VBox spacing="0" HBox.hgrow="ALWAYS">
 
-      <HBox styleClass="navbar" alignment="CENTER_LEFT" spacing="20">
+      <HBox alignment="CENTER_LEFT" spacing="20" styleClass="navbar">
          <HBox alignment="CENTER" spacing="8">
-            <ImageView fitWidth="28" fitHeight="28" preserveRatio="true">
+            <ImageView fitHeight="28" fitWidth="28" preserveRatio="true">
                <image>
-                  <Image url="@/images/Logo.png"/>
+                  <Image url="@/images/Logo.png" />
                </image>
             </ImageView>
-            <Label text="Carbón y Sazón" styleClass="nav-brand"/>
+            <Label styleClass="nav-brand" text="Carbón y Sazón" />
          </HBox>
-         <Region HBox.hgrow="ALWAYS"/>
-         <Button text="mesas"        styleClass="nav-link" onAction="#handleIrMesas"/>
-         <Button text="pedidos"      styleClass="nav-link" onAction="#handleIrPedidos"/>
-         <Button text="productos"    styleClass="nav-link" onAction="#handleIrProductos"/>
-         <Button text="ingredientes" styleClass="nav-link" onAction="#handleIrIngredientes"/>
-         <Button text="empleados"    styleClass="nav-link-active"/>
+         <Region HBox.hgrow="ALWAYS" />
+         <Button onAction="#handleIrMesas" styleClass="nav-link" text="mesas" />
+         <Button onAction="#handleIrPedidos" styleClass="nav-link" text="pedidos" />
+         <Button onAction="#handleIrProductos" styleClass="nav-link" text="productos" />
+         <Button onAction="#handleIrIngredientes" styleClass="nav-link" text="ingredientes" />
+         <Button styleClass="nav-link-active" text="empleados" />
       </HBox>
 
-      <VBox VBox.vgrow="ALWAYS" spacing="0">
-         <VBox.margin><Insets top="28" left="28" right="28" bottom="28"/></VBox.margin>
+      <VBox spacing="0" VBox.vgrow="ALWAYS">
+         <VBox.margin><Insets bottom="28" left="28" right="28" top="28" /></VBox.margin>
 
          <!-- ── Encabezado + control del servidor ── -->
          <HBox alignment="CENTER_LEFT" spacing="10">
             <VBox spacing="4">
-               <Label text="Empleados" styleClass="seccion-titulo"/>
-               <Label text="Gestiona el personal del restaurante: meseros, cocina y caja."
-                      styleClass="seccion-subtitulo"/>
+               <Label styleClass="seccion-titulo" text="Empleados" />
+               <Label styleClass="seccion-subtitulo" text="Gestiona el personal del restaurante: meseros, cocina y caja." />
             </VBox>
-            <Region HBox.hgrow="ALWAYS"/>
+            <Region HBox.hgrow="ALWAYS" />
 
             <HBox alignment="CENTER" spacing="8" styleClass="estado-caja">
-               <Region fx:id="indicador" styleClass="indicador, indicador-apagado"/>
-               <Label fx:id="lblEstado" text="Servidor apagado" styleClass="estado-texto"/>
+               <Region fx:id="indicador" styleClass="indicador, indicador-apagado" />
+               <Label fx:id="lblEstado" styleClass="estado-texto" text="Servidor apagado" />
             </HBox>
-            <Button fx:id="btnConsola" text="Consola ▾" styleClass="btn-consola"
-                    onAction="#handleToggleConsola"/>
-            <Button fx:id="btnServidor" text="▶  Iniciar servidor" styleClass="btn-iniciar"
-                    minWidth="180" onAction="#handleToggleServidor"/>
+            <Button fx:id="btnConsola" onAction="#handleToggleConsola" styleClass="btn-consola" text="Consola ▾" />
+            <Button fx:id="btnServidor" minWidth="180" onAction="#handleToggleServidor" styleClass="btn-iniciar" text="▶  Iniciar servidor" />
          </HBox>
 
          <!-- ── Consola desplegable (arranca cerrada, el controlador anima el alto) ── -->
-         <VBox fx:id="panelConsola" styleClass="panel-consola"
-               minHeight="0" prefHeight="0" maxHeight="0">
+         <VBox fx:id="panelConsola" maxHeight="0" minHeight="0" prefHeight="0" styleClass="panel-consola">
             <HBox alignment="CENTER_LEFT">
-               <Label text="Consola del servidor" styleClass="consola-titulo"/>
-               <Region HBox.hgrow="ALWAYS"/>
-               <Button text="Limpiar" styleClass="btn-link" onAction="#handleLimpiarConsola"/>
+               <Label styleClass="consola-titulo" text="Consola del servidor" />
+               <Region HBox.hgrow="ALWAYS" />
+               <Button onAction="#handleLimpiarConsola" styleClass="btn-link" text="Limpiar" />
             </HBox>
-            <TextArea fx:id="txtConsola" styleClass="consola"
-                      editable="false" wrapText="true"
-                      promptText="Esperando eventos..."
-                      minHeight="170" VBox.vgrow="ALWAYS"/>
+            <TextArea fx:id="txtConsola" editable="false" minHeight="170" promptText="Esperando eventos..." styleClass="consola" wrapText="true" VBox.vgrow="ALWAYS" />
          </VBox>
 
-         <Region minHeight="20" maxHeight="20"/>
+         <Region maxHeight="20" minHeight="20" />
 
          <!-- ── Barra de acciones ── -->
-         <HBox styleClass="barra-acciones" spacing="10" alignment="CENTER_LEFT">
-            <TextField fx:id="txtBuscar"
-                       promptText="Buscar por nombre, cédula o cargo..."
-                       styleClass="campo-busqueda"
-                       prefWidth="340"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <Button text="Actualizar" styleClass="btn-secundario" onAction="#handleRecargar"/>
-            <Button text="+ Nuevo Empleado" styleClass="btn-primario" onAction="#handleNuevo"/>
+         <HBox alignment="CENTER_LEFT" spacing="10" styleClass="barra-acciones">
+            <TextField fx:id="txtBuscar" prefWidth="340" promptText="Buscar por nombre, cédula o cargo..." styleClass="campo-busqueda" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button onAction="#handleRecargar" styleClass="btn-secundario" text="Actualizar" />
+            <Button onAction="#handleNuevo" styleClass="btn-primario" text="+ Nuevo Empleado" />
          </HBox>
 
-         <Region minHeight="14" maxHeight="14"/>
+         <Region maxHeight="14" minHeight="14" />
 
          <!-- ── Tabla ── -->
          <TableView fx:id="tablaEmpleados" styleClass="tabla" VBox.vgrow="ALWAYS">
             <columns>
-               <TableColumn fx:id="colCedula" text="Cédula" prefWidth="140"/>
-               <TableColumn fx:id="colNombre" text="Nombre" prefWidth="260"/>
-               <TableColumn fx:id="colCargo"  text="Cargo"  prefWidth="180"/>
+               <TableColumn fx:id="colCedula" prefWidth="140" text="Cédula" />
+               <TableColumn fx:id="colNombre" prefWidth="260" text="Nombre" />
+               <TableColumn fx:id="colCargo" prefWidth="180" text="Cargo" />
             </columns>
             <placeholder>
-               <Label text="No hay empleados registrados." styleClass="seccion-subtitulo"/>
+               <Label styleClass="seccion-subtitulo" text="No hay empleados registrados." />
             </placeholder>
          </TableView>
       </VBox>
    </VBox>
 
    <!-- ── Panel derecho: formulario ── -->
-   <VBox fx:id="panelForm" visible="false" managed="false" styleClass="panel-form" prefWidth="320" minWidth="320" maxWidth="320" spacing="0">
+   <VBox fx:id="panelForm" managed="false" maxWidth="320" minWidth="320" prefWidth="320" spacing="0" styleClass="panel-form" visible="false">
 
       <HBox alignment="CENTER_LEFT" spacing="8">
-         <Label fx:id="lblTituloForm" text="Nuevo empleado" HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="form-titulo"/>
-         <Button text="✕ Cerrar" styleClass="btn-link" onAction="#handleCerrarForm"/>
+         <Label fx:id="lblTituloForm" maxWidth="Infinity" styleClass="form-titulo" text="Nuevo empleado" HBox.hgrow="ALWAYS" />
+         <Button onAction="#handleCerrarForm" styleClass="btn-link" text="✕ Cerrar" />
       </HBox>
-      <Region minHeight="22" maxHeight="22"/>
+      <Region maxHeight="22" minHeight="22" />
 
-      <Label text="Cédula" styleClass="form-label"/>
-      <Region minHeight="5" maxHeight="5"/>
-      <TextField fx:id="txtCedula" promptText="Ej: 1234567890" styleClass="campo"/>
+      <Label styleClass="form-label" text="Cédula" />
+      <Region maxHeight="5" minHeight="5" />
+      <TextField fx:id="txtCedula" promptText="Ej: 1234567890" styleClass="campo" />
 
-      <Region minHeight="14" maxHeight="14"/>
+      <Region maxHeight="14" minHeight="14" />
 
-      <Label text="Nombre" styleClass="form-label"/>
-      <Region minHeight="5" maxHeight="5"/>
-      <TextField fx:id="txtNombre" promptText="Ej: Juan Pérez" styleClass="campo"/>
+      <Label styleClass="form-label" text="Nombre" />
+      <Region maxHeight="5" minHeight="5" />
+      <TextField fx:id="txtNombre" promptText="Ej: Juan Pérez" styleClass="campo" />
 
-      <Region minHeight="14" maxHeight="14"/>
+      <Region maxHeight="14" minHeight="14" />
 
-      <Label text="Cargo" styleClass="form-label"/>
-      <Region minHeight="5" maxHeight="5"/>
-      <ComboBox fx:id="cmbCargo" styleClass="combo-campo" maxWidth="Infinity"
-                editable="true" promptText="Selecciona o escribe el cargo..."/>
+      <Label styleClass="form-label" text="Cargo" />
+      <Region maxHeight="5" minHeight="5" />
+      <ComboBox fx:id="cmbCargo" editable="true" maxWidth="Infinity" promptText="Selecciona o escribe el cargo..." styleClass="combo-campo" />
 
-      <Region minHeight="14" maxHeight="14"/>
+      <Region maxHeight="14" minHeight="14" />
 
-      <Label text="Contraseña" styleClass="form-label"/>
-      <Region minHeight="5" maxHeight="5"/>
-      <PasswordField fx:id="txtContrasena" promptText="Contraseña" styleClass="campo"/>
+      <Label styleClass="form-label" text="Contraseña" />
+      <Region maxHeight="5" minHeight="5" />
+      <PasswordField fx:id="txtContrasena" promptText="Contraseña" styleClass="campo" />
 
-      <Region minHeight="6" maxHeight="6"/>
+      <Region maxHeight="6" minHeight="6" />
 
-      <Label fx:id="lblMensaje" styleClass="form-label" wrapText="true"
-             visible="false" managed="false"/>
+      <Label fx:id="lblMensaje" managed="false" styleClass="form-label" visible="false" wrapText="true" />
 
-      <Region VBox.vgrow="ALWAYS"/>
-      <Pane styleClass="separador"/>
-      <Region minHeight="16" maxHeight="16"/>
+      <Region VBox.vgrow="ALWAYS" />
+      <Pane styleClass="separador" />
+      <Region maxHeight="16" minHeight="16" />
 
       <HBox spacing="10">
-         <Button fx:id="btnGuardar" text="Registrar" styleClass="btn-primario"
-                 onAction="#handleGuardar" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-         <Button text="Limpiar" styleClass="btn-secundario" onAction="#handleNuevo"/>
+         <Button fx:id="btnGuardar" maxWidth="Infinity" onAction="#handleGuardar" styleClass="btn-primario" text="Registrar" HBox.hgrow="ALWAYS" />
+         <Button onAction="#handleNuevo" styleClass="btn-secundario" text="Limpiar" />
       </HBox>
-      <Region minHeight="10" maxHeight="10"/>
-      <Button fx:id="btnEliminar" text="Eliminar empleado" styleClass="btn-peligro"
-              disable="true" maxWidth="Infinity" onAction="#handleEliminar"/>
+      <Region maxHeight="10" minHeight="10" />
+      <Button fx:id="btnEliminar" disable="true" maxWidth="Infinity" onAction="#handleEliminar" styleClass="btn-peligro" text="Eliminar empleado" />
    </VBox>
 </HBox>
