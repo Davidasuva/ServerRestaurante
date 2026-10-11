@@ -63,16 +63,16 @@ public class RmiGateway {
             try {
                 return call.apply(stub);
             } catch (ServerException e) {
+                // Si el servidor no pudo leer lo que le enviamos (clase distinta), es un problema de contrato, no de negocio.
+                ApiException serialization = diagnoseSerialization(e);
+                if (serialization != null) throw serialization;
                 // La lógica del servidor lanzó una RemoteException (mensaje de negocio para el usuario).
                 throw fromServerMessage(rootMessage(e), false, e);
             } catch (RemoteException e) {
-                // Fallo de conexión / stub caducado.
+                // Fallo de conexión / stub caducado / respuesta que no se pudo deserializar.
                 stubs.remove(binding);
-                if (isContractMismatch(e)) {
-                    LOG.log(Level.SEVERE, "Las clases de server.model de este proyecto no coinciden con las del servidor RMI "
-                            + "(revisa serialVersionUID / versión). Ver README.", e);
-                    throw new ApiException(Kind.UNAVAILABLE, "El servidor RMI usa una versión incompatible del contrato.", e);
-                }
+                ApiException serialization = diagnoseSerialization(e);
+                if (serialization != null) throw serialization; // no tiene sentido reintentar: volvería a fallar igual
                 if (attempt >= 2) {
                     LOG.log(Level.WARNING, "RMI no disponible en " + describe(), e);
                     throw new ApiException(Kind.UNAVAILABLE, "El servidor del restaurante no está disponible.", e);
@@ -103,11 +103,47 @@ public class RmiGateway {
         }
     }
 
-    private static boolean isContractMismatch(Throwable t) {
-        for (Throwable c = t; c != null; c = c.getCause()) {
-            if (c instanceof InvalidClassException || c instanceof ClassNotFoundException) return true;
+    /**
+     * Distingue por qué RMI no pudo (de)serializar algo. Solo es un problema de contrato cuando la clase que falta o
+     * no coincide es de {@code server.model}; si el servidor lanzó una excepción de OTRA clase (p. ej. Hikari/PostgreSQL
+     * cuando se cae la base de datos), este cliente no la tiene en el classpath y RMI la reporta como ClassNotFoundException,
+     * pero la causa real es un fallo interno del servidor, no un contrato distinto.
+     *
+     * @return el ApiException a lanzar, o null si el fallo no es de serialización (es un problema de conexión normal).
+     */
+    private static ApiException diagnoseSerialization(RemoteException e) {
+        for (Throwable c = e; c != null; c = c.getCause()) {
+            if (c instanceof InvalidClassException ice) {
+                LOG.log(Level.SEVERE, "La clase " + ice.classname + " no es compatible con la del servidor RMI (" + ice.getMessage() + "). "
+                        + "Regenera el jar del contrato desde el servidor y borra la carpeta ~/.m2/repository/edu/project/restaurant "
+                        + "para que Maven no use una copia vieja.", e);
+                return new ApiException(Kind.UNAVAILABLE, "El servidor RMI usa una versión incompatible del contrato.", e);
+            }
+            if (c instanceof ClassNotFoundException cnf) {
+                String name = className(cnf);
+                if (name.startsWith("server.model.")) {
+                    LOG.log(Level.SEVERE, "El servidor envió la clase " + name + " y no está en el jar del contrato de este proyecto. "
+                            + "Regenera el jar del contrato con la versión actual del servidor.", e);
+                    return new ApiException(Kind.UNAVAILABLE, "El servidor RMI usa una versión incompatible del contrato.", e);
+                }
+                boolean baseDeDatos = name.contains("hikari") || name.contains("postgresql") || name.startsWith("java.sql.") || name.contains(".sql.");
+                LOG.log(Level.SEVERE, "El servidor RMI falló internamente y lanzó " + name + ", una clase que este cliente no tiene "
+                        + "(el contrato NO es el problema). Revisa la consola del servidor: "
+                        + (baseDeDatos ? "lo más probable es que no pueda conectarse a la base de datos." : "ahí está el error original."), e);
+                return baseDeDatos
+                        ? new ApiException(Kind.UNAVAILABLE, "El servidor del restaurante no puede conectarse a su base de datos.", e)
+                        : new ApiException(Kind.INTERNAL, "El servidor del restaurante falló al procesar la solicitud.", e);
+            }
         }
-        return false;
+        return null;
+    }
+
+    /** ClassNotFoundException de RMI: el mensaje es "nombre.de.Clase (no security manager: RMI class loader disabled)". */
+    private static String className(ClassNotFoundException e) {
+        String message = e.getMessage();
+        if (message == null || message.isBlank()) return "(desconocida)";
+        int space = message.indexOf(' ');
+        return space < 0 ? message : message.substring(0, space);
     }
 
     private static String rootMessage(ServerException e) {

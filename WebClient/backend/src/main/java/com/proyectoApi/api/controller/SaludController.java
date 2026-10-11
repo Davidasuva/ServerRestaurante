@@ -31,7 +31,14 @@ public class SaludController {
         } catch (ApiException e) {
             body.put("rmi", "no disponible");
             body.put("detalle", e.getMessage());
+            body.put("causa", rootCause(e).getClass().getName()); // solo el tipo (no el mensaje): ayuda a ver si es red, contrato o base de datos
         }
         return body;
+    }
+
+    private static Throwable rootCause(Throwable t) {
+        Throwable root = t;
+        while (root.getCause() != null && root.getCause() != root) root = root.getCause();
+        return root;
     }
 }

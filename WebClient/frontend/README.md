@@ -16,13 +16,16 @@ Los datos de la API se escapan antes de pintarse (`utils/format.js → esc`).
 
 ## Estados del pedido (`<order-status>`)
 
-| BD (servidor) | API | Pantalla |
+| Servidor (`Pedido.Estado`) | API | Pantalla |
 |---|---|---|
-| Pendiente | `EN_COLA` | En cola (punto pulsante en el paso 1) |
-| En preparación | `PREPARANDOSE` | En preparación (barra al 50 %) |
-| Listo | `PREPARADO` | Listo: todo verde y botón «Confirmar pedido recibido» |
-| Entregado / Pagado | `ENTREGADO` | Entregado (deja de consultar) |
-| Cancelado | `CANCELADO` | Todo en rojo, el último paso pasa a «CANCELADO» (deja de consultar) |
+| `PENDIENTE` | `PENDIENTE` | Pedido recibido, en espera de que el personal lo confirme (punto pulsante en el paso 1) |
+| `EN_COLA` | `EN_COLA` | En cola (punto pulsante en el paso 1) |
+| `PREPARANDOSE` | `PREPARANDOSE` | En preparación (barra al 50 %) |
+| `PREPARADO` | `PREPARADO` | Listo: todo verde y botón «Confirmar pedido recibido» |
+| `ENTREGADO` | `ENTREGADO` | Entregado (deja de consultar) |
+| `CANCELADO` | `CANCELADO` | Todo en rojo, el último paso pasa a «CANCELADO» (deja de consultar) |
+
+Un pedido creado desde la web nace como `PENDIENTE`. La fila de espera (`posicionCola`) cuenta los pedidos `PENDIENTE` y `EN_COLA`; `pedidosEnPreparacion` cuenta los `PREPARANDOSE`.
 
 La configuración de textos/iconos está en `js/services/order-status-config.js`; los sinónimos aceptados en `normalizeStatus` (`js/services/mappers.js`).
 El CSS de cada paso usa los ids `#step-cola`, `#step-preparandose` y `#step-entregado`: si cambias el HTML del componente, conserva esos ids.

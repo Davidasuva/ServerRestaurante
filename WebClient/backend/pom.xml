@@ -19,6 +19,15 @@
     <maven.compiler.release>21</maven.compiler.release>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>contrato-local</id>
+      <url>file:${project.basedir}/repo</url>
+      <releases><enabled>true</enabled><updatePolicy>never</updatePolicy></releases>
+      <snapshots><enabled>false</enabled></snapshots>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
