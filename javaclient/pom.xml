@@ -14,8 +14,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.release>26</maven.compiler.release>
   </properties>
 
   <dependencies>
@@ -30,17 +29,17 @@
     <dependency>
     <groupId>org.openjfx</groupId>
     <artifactId>javafx-controls</artifactId>
-    <version>21</version>
+    <version>26</version>
 </dependency>
 <dependency>
     <groupId>org.openjfx</groupId>
     <artifactId>javafx-fxml</artifactId>
-    <version>21</version>
+    <version>26</version>
 </dependency>
 <dependency>
     <groupId>org.openjfx</groupId>
     <artifactId>javafx-media</artifactId>
-    <version>21</version>
+    <version>26</version>
 </dependency>
   </dependencies>
 
@@ -59,7 +58,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
+          <version>3.13.0</version>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
