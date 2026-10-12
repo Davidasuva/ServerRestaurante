@@ -1,0 +1,88 @@
+/* ==========================================================================
+   Carbón y Sazón — Panel del API (misma paleta que el Server)
+   ========================================================================== */
+
+.root {
+    -fx-font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 13px;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-accent: #f0541e;
+}
+
+.raiz {
+    -fx-background-color: #141414;
+}
+
+.label {
+    -fx-text-fill: #f2f2f2;
+}
+
+.card {
+    -fx-background-color: #1f1f1f;
+    -fx-background-radius: 18;
+    -fx-border-color: #2f2f2f;
+    -fx-border-radius: 18;
+    -fx-padding: 40 30 14 30;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.55), 40, 0.1, 0, 12);
+}
+
+.logo-texto {
+    -fx-text-fill: #f0541e;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.subtitulo {
+    -fx-text-fill: #8f8f8f;
+    -fx-font-size: 14px;
+}
+
+.label-estado {
+    -fx-text-fill: #f2f2f2;
+    -fx-font-size: 14px;
+}
+
+.punto-apagado  { -fx-fill: #8f8f8f; }
+.punto-iniciando { -fx-fill: #f5a623; }
+.punto-encendido { -fx-fill: #34c759; }
+
+.label-urls {
+    -fx-text-fill: #8f8f8f;
+    -fx-font-size: 12px;
+    -fx-line-spacing: 3;
+}
+
+.label-error {
+    -fx-text-fill: #ef4444;
+    -fx-font-size: 12px;
+}
+
+/* Botón principal (iniciar) */
+.btn-ingresar {
+    -fx-background-color: #f0541e;
+    -fx-background-radius: 10;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+.btn-ingresar:hover   { -fx-background-color: #ff6a33; }
+.btn-ingresar:pressed { -fx-background-color: #d9440f; }
+.btn-ingresar:disabled {
+    -fx-background-color: #6e3a2b;
+    -fx-text-fill: #cfa99c;
+    -fx-opacity: 1;
+}
+
+/* Botón de apagar */
+.btn-apagar {
+    -fx-background-color: #ef4444;
+}
+.btn-apagar:hover   { -fx-background-color: #f76565; }
+.btn-apagar:pressed { -fx-background-color: #c93232; }
+.btn-apagar:disabled {
+    -fx-background-color: #6b3030;
+    -fx-text-fill: #d7a3a3;
+    -fx-opacity: 1;
+}
