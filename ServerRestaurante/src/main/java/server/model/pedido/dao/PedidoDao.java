@@ -361,33 +361,57 @@ public class PedidoDao implements PedidoDaoInterface {
         }
     }
 
-    private void liberarProducto(Connection conn, int pedidoId, int productoId) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement(
-                "UPDATE ingrediente i SET cantidad = i.cantidad + 1 " +
-                        "FROM inventario_pedido ip " +
-                        "WHERE ip.id_pedido = ? AND ip.id_producto = ? " +
-                        "AND ip.id_ingrediente = i.id AND ip.cantidad > 0")) {
-            stmt.setInt(1, pedidoId);
-            stmt.setInt(2, productoId);
-            stmt.executeUpdate();
+
+    private void liberarProducto(Connection conn, int idPedido, int idProducto) throws SQLException {
+        String sqlDevolverIngredientes = """
+        UPDATE ingrediente i
+        SET cantidad = i.cantidad + 1
+        FROM inventario_pedido ip
+        WHERE ip.id_pedido = ?
+          AND ip.id_producto = ?
+          AND ip.id_ingrediente = i.id
+          AND ip.cantidad > 0
+        """;
+
+        try (PreparedStatement ps =
+                     conn.prepareStatement(sqlDevolverIngredientes)) {
+
+            ps.setInt(1, idPedido);
+            ps.setInt(2, idProducto);
+            ps.executeUpdate();
         }
 
-        try (PreparedStatement stmt = conn.prepareStatement(
-                "UPDATE inventario_pedido SET cantidad = cantidad - 1 " +
-                        "WHERE id_pedido = ? AND id_producto = ?")) {
-            stmt.setInt(1, pedidoId);
-            stmt.setInt(2, productoId);
-            stmt.executeUpdate();
+        String sqlEliminarUltimaUnidad = """
+        DELETE FROM inventario_pedido
+        WHERE id_pedido = ?
+          AND id_producto = ?
+          AND cantidad = 1
+        """;
+
+        try (PreparedStatement ps =
+                     conn.prepareStatement(sqlEliminarUltimaUnidad)) {
+
+            ps.setInt(1, idPedido);
+            ps.setInt(2, idProducto);
+            ps.executeUpdate();
         }
-        try (PreparedStatement stmt = conn.prepareStatement(
-                "DELETE FROM inventario_pedido " +
-                        "WHERE id_pedido = ? AND id_producto = ? AND cantidad <= 0")) {
-            stmt.setInt(1, pedidoId);
-            stmt.setInt(2, productoId);
-            stmt.executeUpdate();
+
+        String sqlReducirCantidad = """
+        UPDATE inventario_pedido
+        SET cantidad = cantidad - 1
+        WHERE id_pedido = ?
+          AND id_producto = ?
+          AND cantidad > 1
+        """;
+
+        try (PreparedStatement ps =
+                     conn.prepareStatement(sqlReducirCantidad)) {
+
+            ps.setInt(1, idPedido);
+            ps.setInt(2, idProducto);
+            ps.executeUpdate();
         }
     }
-
     @Override
     public Map<Integer, Integer> buscarInventarioReservado(int pedidoId) throws SQLException {
         String sql = "SELECT id_ingrediente, SUM(cantidad) AS total FROM inventario_pedido " +
