@@ -304,6 +304,35 @@
     -fx-background-color: #8f8f8f;
 }
 
+/* ---------- TextArea de formularios (Descripción) ----------
+   El TextArea tiene un "content" interno con fondo blanco por defecto
+   (-fx-control-inner-background); sin esto el texto claro no se veía. */
+.text-area.campo {
+    -fx-control-inner-background: #181818;
+    -fx-background-color: #181818;
+    -fx-background-radius: 10;
+    -fx-border-color: #2f2f2f;
+    -fx-border-radius: 10;
+    -fx-text-fill: #f2f2f2;
+    -fx-padding: 0;
+    -fx-pref-height: 66;
+}
+.text-area.campo:focused {
+    -fx-border-color: #f0541e;
+}
+.text-area.campo .scroll-pane,
+.text-area.campo .viewport {
+    -fx-background-color: transparent;
+}
+.text-area.campo .content {
+    -fx-background-color: #181818;
+    -fx-background-radius: 10;
+    -fx-padding: 6 10 6 10;
+}
+.text-area.campo .text {
+    -fx-fill: #f2f2f2;
+}
+
 /* Lista desplegable (popup) */
 .combo-box-popup > .list-view {
     -fx-background-color: #1f1f1f;

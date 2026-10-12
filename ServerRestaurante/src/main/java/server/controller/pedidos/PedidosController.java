@@ -1,5 +1,12 @@
 package server.controller.pedidos;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Callable;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,6 +26,8 @@ import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
 import server.controller.BarraPaginacion;
 import server.controller.SeccionBaseController;
+import server.model.empleado.Empleado;
+import server.model.empleado.EmpleadoInterface;
 import server.model.mesa.Mesa;
 import server.model.mesa.MesaInterface;
 import server.model.pedido.Pedido;
@@ -26,157 +35,195 @@ import server.model.pedido.PedidoInterface;
 import server.model.producto.Producto;
 import server.model.producto.ProductoInterface;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-
-public class PedidosController extends SeccionBaseController {
-
+public class PedidosController
+        extends SeccionBaseController {
     private static final List<String> METODOS_PAGO = List.of("Ninguno", "Efectivo", "Tarjeta");
     private static final String TODOS = "Todos";
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final StringConverter<Mesa> CONVERTIDOR_MESA = new StringConverter<Mesa>(){
 
-    /** mesas y productos son null cuando no se recargaron (solo se recargan al refrescar, no al cambiar de página). */
-    private record Carga(BarraPaginacion.Pagina<Pedido> pedidos, List<Mesa> mesas, List<Producto> productos) {}
-    private record Detalle(List<Producto> productos, List<String> encargados) {}
+        @Override
+        public String toString(Mesa m4) {
+            return m4 == null ? "" : "Mesa " + m4.getId();
+        }
 
-    private static final StringConverter<Mesa> CONVERTIDOR_MESA = new StringConverter<>() {
-        @Override public String toString(Mesa m) { return m == null ? "" : "Mesa " + m.getId(); }
-        @Override public Mesa fromString(String s) { return null; }
+        @Override
+        public Mesa fromString(String s2) {
+            return null;
+        }
     };
+    private static final StringConverter<Producto> CONVERTIDOR_PRODUCTO = new StringConverter<Producto>(){
 
-    private static final StringConverter<Producto> CONVERTIDOR_PRODUCTO = new StringConverter<>() {
-        @Override public String toString(Producto p) {
+        @Override
+        public String toString(Producto p) {
             return p == null ? "" : p.getNombre() + " — " + MONEDA.format(p.getPrecio());
         }
-        @Override public Producto fromString(String s) { return null; }
-    };
 
+        @Override
+        public Producto fromString(String s2) {
+            return null;
+        }
+    };
+    private static final StringConverter<Empleado> CONVERTIDOR_EMPLEADO = new StringConverter<Empleado>(){
+
+        @Override
+        public String toString(Empleado e) {
+            return e == null ? "" : e.getNombre() + " (" + e.getCargo() + ")";
+        }
+
+        @Override
+        public Empleado fromString(String s2) {
+            return null;
+        }
+    };
     private final ObservableList<Pedido> datos = FXCollections.observableArrayList();
     private final ObservableList<Mesa> mesas = FXCollections.observableArrayList();
     private final ObservableList<Producto> productosDisponibles = FXCollections.observableArrayList();
     private final ObservableList<Producto> productosPedido = FXCollections.observableArrayList();
-    private final ObservableList<String> encargadosPedido = FXCollections.observableArrayList();
+    private final ObservableList<Empleado> empleadosDisponibles = FXCollections.observableArrayList();
+    private final ObservableList<Empleado> encargadosPedido = FXCollections.observableArrayList();
     private FilteredList<Pedido> filtrados;
     private Pedido seleccionado;
-
-    @FXML private TextField txtBuscar;
-    @FXML private ComboBox<String> cmbFiltroEstado;
-    @FXML private TableView<Pedido> tablaPedidos;
-    @FXML private TableColumn<Pedido, Integer> colId;
-    @FXML private TableColumn<Pedido, String> colFecha;
-    @FXML private TableColumn<Pedido, Integer> colMesa;
-    @FXML private TableColumn<Pedido, String> colEstado;
-    @FXML private TableColumn<Pedido, String> colPago;
-    @FXML private TableColumn<Pedido, Float> colTotal;
-
-    @FXML private Label lblTituloForm;
-    @FXML private TextField txtId;
-    @FXML private ComboBox<Mesa> cmbMesa;
-    @FXML private Label lblFecha;
-    @FXML private Label lblTotal;
-    @FXML private ComboBox<Pedido.Estado> cmbEstado;
-    @FXML private ComboBox<String> cmbPago;
-    @FXML private VBox boxProductos;
-    @FXML private ListView<Producto> lstProductos;
-    @FXML private ComboBox<Producto> cmbProducto;
-    @FXML private ListView<String> lstEncargados;
-    @FXML private Button btnGuardar;
-    @FXML private Button btnEliminar;
-
-    private final BarraPaginacion paginacion = new BarraPaginacion(() -> cargar(null, null));
+    @FXML
+    private TextField txtBuscar;
+    @FXML
+    private ComboBox<String> cmbFiltroEstado;
+    @FXML
+    private TableView<Pedido> tablaPedidos;
+    @FXML
+    private TableColumn<Pedido, Integer> colId;
+    @FXML
+    private TableColumn<Pedido, String> colFecha;
+    @FXML
+    private TableColumn<Pedido, Integer> colMesa;
+    @FXML
+    private TableColumn<Pedido, String> colEstado;
+    @FXML
+    private TableColumn<Pedido, String> colPago;
+    @FXML
+    private TableColumn<Pedido, Float> colTotal;
+    @FXML
+    private Label lblTituloForm;
+    @FXML
+    private TextField txtId;
+    @FXML
+    private ComboBox<Mesa> cmbMesa;
+    @FXML
+    private Label lblFecha;
+    @FXML
+    private Label lblTotal;
+    @FXML
+    private ComboBox<Pedido.Estado> cmbEstado;
+    @FXML
+    private ComboBox<String> cmbPago;
+    @FXML
+    private VBox boxProductos;
+    @FXML
+    private ListView<Producto> lstProductos;
+    @FXML
+    private ComboBox<Producto> cmbProducto;
+    @FXML
+    private VBox boxEncargados;
+    @FXML
+    private ListView<Empleado> lstEncargados;
+    @FXML
+    private ComboBox<Empleado> cmbEncargado;
+    @FXML
+    private Button btnGuardar;
+    @FXML
+    private Button btnEliminar;
+    private final BarraPaginacion paginacion = new BarraPaginacion(() -> this.cargar(null, null));
 
     @Override
     protected void alIniciar() {
-        configurarTabla();
-        paginacion.instalarDebajoDe(tablaPedidos);
-        configurarFormulario();
-        limpiarFormulario();
-        refrescar();
+        this.configurarTabla();
+        this.paginacion.instalarDebajoDe(this.tablaPedidos);
+        this.configurarFormulario();
+        this.limpiarFormulario();
+        this.refrescar();
     }
 
     private void configurarTabla() {
-        colId.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getId()));
-        colFecha.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(formatearFecha(c.getValue().getFechaPedido())));
-        colMesa.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(idMesa(c.getValue())));
-        colEstado.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(textoEstado(c.getValue())));
-        colPago.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getMetodoPago()));
-        colTotal.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getPrecioTotal()));
-        colTotal.setCellFactory(col -> new TableCell<>() {
+        this.colId.setCellValueFactory(c -> new ReadOnlyObjectWrapper<Integer>(((Pedido)c.getValue()).getId()));
+        this.colFecha.setCellValueFactory(c -> new ReadOnlyObjectWrapper<String>(PedidosController.formatearFecha(((Pedido)c.getValue()).getFechaPedido())));
+        this.colMesa.setCellValueFactory(c -> new ReadOnlyObjectWrapper<Integer>(PedidosController.idMesa((Pedido)c.getValue())));
+        this.colEstado.setCellValueFactory(c -> new ReadOnlyObjectWrapper<String>(PedidosController.textoEstado((Pedido)c.getValue())));
+        this.colPago.setCellValueFactory(c -> new ReadOnlyObjectWrapper<String>(((Pedido)c.getValue()).getMetodoPago()));
+        this.colTotal.setCellValueFactory(c -> new ReadOnlyObjectWrapper<Float>(Float.valueOf(((Pedido)c.getValue()).getPrecioTotal())));
+        this.colTotal.setCellFactory(col -> new TableCell<Pedido, Float>(){
+
             @Override
             protected void updateItem(Float total, boolean vacio) {
                 super.updateItem(total, vacio);
-                setText(vacio || total == null ? null : MONEDA.format(total));
+                this.setText(vacio || total == null ? null : MONEDA.format(total));
             }
         });
-        tablaPedidos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-        tablaPedidos.setPlaceholder(new Label("No hay pedidos para mostrar"));
-
-        filtrados = new FilteredList<>(datos, p -> true);
-        SortedList<Pedido> ordenados = new SortedList<>(filtrados);
-        ordenados.comparatorProperty().bind(tablaPedidos.comparatorProperty());
-        tablaPedidos.setItems(ordenados);
-
-        txtBuscar.textProperty().addListener((obs, o, n) -> aplicarFiltro());
-        cmbFiltroEstado.valueProperty().addListener((obs, o, n) -> aplicarFiltro());
-
-        tablaPedidos.getSelectionModel().selectedItemProperty().addListener((obs, anterior, nuevo) -> {
+        this.tablaPedidos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        this.tablaPedidos.setPlaceholder(new Label("No hay pedidos para mostrar"));
+        this.filtrados = new FilteredList<Pedido>(this.datos, p -> true);
+        SortedList<Pedido> ordenados = new SortedList<Pedido>((ObservableList<Pedido>)this.filtrados);
+        ordenados.comparatorProperty().bind(this.tablaPedidos.comparatorProperty());
+        this.tablaPedidos.setItems(ordenados);
+        this.txtBuscar.textProperty().addListener((obs, o, n) -> this.aplicarFiltro());
+        this.cmbFiltroEstado.valueProperty().addListener((obs, o, n) -> this.aplicarFiltro());
+        this.tablaPedidos.getSelectionModel().selectedItemProperty().addListener((obs, anterior, nuevo) -> {
             if (nuevo != null) {
-                cargarEnFormulario(nuevo);
+                this.cargarEnFormulario((Pedido)nuevo);
             }
         });
     }
 
     private void configurarFormulario() {
-        cmbMesa.setItems(mesas);
-        cmbMesa.setConverter(CONVERTIDOR_MESA);
-        cmbPago.getItems().setAll(METODOS_PAGO);
-        cmbProducto.setItems(productosDisponibles);
-        cmbProducto.setConverter(CONVERTIDOR_PRODUCTO);
-        lstProductos.setItems(productosPedido);
-        lstProductos.setPlaceholder(new Label("Sin productos"));
-        lstProductos.setCellFactory(l -> new ListCell<>() {
+        this.cmbMesa.setItems(this.mesas);
+        this.cmbMesa.setConverter(CONVERTIDOR_MESA);
+        this.cmbPago.getItems().setAll((Collection<String>)METODOS_PAGO);
+        this.cmbProducto.setItems(this.productosDisponibles);
+        this.cmbProducto.setConverter(CONVERTIDOR_PRODUCTO);
+        this.lstProductos.setItems(this.productosPedido);
+        this.lstProductos.setPlaceholder(new Label("Sin productos"));
+        this.lstProductos.setCellFactory(l -> new ListCell<Producto>(){
+
             @Override
             protected void updateItem(Producto p, boolean vacio) {
                 super.updateItem(p, vacio);
-                setText(vacio || p == null ? null : CONVERTIDOR_PRODUCTO.toString(p));
+                this.setText(vacio || p == null ? null : CONVERTIDOR_PRODUCTO.toString(p));
             }
         });
-        lstEncargados.setItems(encargadosPedido);
-        lstEncargados.setPlaceholder(new Label("Sin encargados"));
+        this.cmbEncargado.setItems(this.empleadosDisponibles);
+        this.cmbEncargado.setConverter(CONVERTIDOR_EMPLEADO);
+        this.lstEncargados.setItems(this.encargadosPedido);
+        this.lstEncargados.setPlaceholder(new Label("Sin encargados"));
+        this.lstEncargados.setCellFactory(l -> new ListCell<Empleado>(){
 
-        // Los estados salen directamente del enum (su toString muestra el texto, p. ej. "En Cola").
-        cmbEstado.getItems().setAll(Pedido.Estado.values());
-
-        List<String> filtro = new ArrayList<>();
+            @Override
+            protected void updateItem(Empleado e, boolean vacio) {
+                super.updateItem(e, vacio);
+                this.setText(vacio || e == null ? null : CONVERTIDOR_EMPLEADO.toString(e));
+            }
+        });
+        this.cmbEstado.getItems().setAll(Pedido.Estado.values());
+        ArrayList<String> filtro = new ArrayList<String>();
         filtro.add(TODOS);
         for (Pedido.Estado e : Pedido.Estado.values()) {
             filtro.add(e.getTexto());
         }
-        cmbFiltroEstado.getItems().setAll(filtro);
-        cmbFiltroEstado.setValue(TODOS);
+        this.cmbFiltroEstado.getItems().setAll((Collection<String>)filtro);
+        this.cmbFiltroEstado.setValue(TODOS);
     }
 
     private void aplicarFiltro() {
-        String q = txtBuscar.getText() == null ? "" : txtBuscar.getText().trim().toLowerCase();
-        String estado = cmbFiltroEstado.getValue();
+        String q = this.txtBuscar.getText() == null ? "" : this.txtBuscar.getText().trim().toLowerCase();
+        String estado = (String)this.cmbFiltroEstado.getValue();
         boolean todos = estado == null || TODOS.equals(estado);
-        filtrados.setPredicate(p -> (todos || estado.equalsIgnoreCase(textoEstado(p)))
-                && (q.isEmpty()
-                || String.valueOf(p.getId()).contains(q)
-                || String.valueOf(idMesa(p)).contains(q)
-                || textoEstado(p).toLowerCase().contains(q)
-                || nvl(p.getMetodoPago()).toLowerCase().contains(q)));
+        this.filtrados.setPredicate(p -> !(!todos && !estado.equalsIgnoreCase(PedidosController.textoEstado(p)) || !q.isEmpty() && !String.valueOf(p.getId()).contains(q) && !String.valueOf(PedidosController.idMesa(p)).contains(q) && !PedidosController.textoEstado(p).toLowerCase().contains(q) && !PedidosController.nvl(p.getMetodoPago()).toLowerCase().contains(q)));
     }
 
     private static String textoEstado(Pedido p) {
         return p.getEstado() == null ? "" : p.getEstado().getTexto();
     }
 
-    private static String nvl(String s) {
-        return s == null ? "" : s;
+    private static String nvl(String s2) {
+        return s2 == null ? "" : s2;
     }
 
     private static String formatearFecha(LocalDateTime f) {
@@ -187,267 +234,313 @@ public class PedidosController extends SeccionBaseController {
         return p.getMesaAsignada() == null ? 0 : p.getMesaAsignada().getId();
     }
 
-    // ───────────────────────── Formulario ─────────────────────────
-
     private void cargarEnFormulario(Pedido p) {
-        abrirForm();
-        seleccionado = p;
-        lblTituloForm.setText("Pedido #" + p.getId());
-        txtId.setText(String.valueOf(p.getId()));
-        txtId.setDisable(true);
-        cmbMesa.setValue(mesas.stream().filter(m -> m.getId() == idMesa(p)).findFirst().orElse(p.getMesaAsignada()));
-        cmbMesa.setDisable(true); // la mesa no se cambia desde aquí
-        lblFecha.setText(formatearFecha(p.getFechaPedido()));
-        lblTotal.setText(MONEDA.format(p.getPrecioTotal()));
-        cmbEstado.setDisable(false);
-        cmbEstado.setValue(p.getEstado());
-        cmbPago.setDisable(false);
-        cmbPago.setValue(p.getMetodoPago());
-        btnGuardar.setText("Aplicar cambios");
-        btnEliminar.setDisable(false);
-        boxProductos.setDisable(false);
-        ocultarMensaje();
-        cargarDetalle(p.getId());
+        this.abrirForm();
+        this.seleccionado = p;
+        this.lblTituloForm.setText("Pedido #" + p.getId());
+        this.txtId.setText(String.valueOf(p.getId()));
+        this.txtId.setDisable(true);
+        this.cmbMesa.setValue(this.mesas.stream().filter(m4 -> m4.getId() == PedidosController.idMesa(p)).findFirst().orElse(p.getMesaAsignada()));
+        this.cmbMesa.setDisable(true);
+        this.lblFecha.setText(PedidosController.formatearFecha(p.getFechaPedido()));
+        this.lblTotal.setText(MONEDA.format(p.getPrecioTotal()));
+        this.cmbEstado.setDisable(false);
+        this.cmbEstado.setValue(p.getEstado());
+        this.cmbPago.setDisable(false);
+        this.cmbPago.setValue(p.getMetodoPago());
+        this.btnGuardar.setText("Aplicar cambios");
+        this.btnEliminar.setDisable(false);
+        this.boxProductos.setDisable(false);
+        this.boxEncargados.setDisable(false);
+        this.ocultarMensaje();
+        this.cargarDetalle(p.getId());
     }
 
     private void limpiarFormulario() {
-        seleccionado = null;
-        tablaPedidos.getSelectionModel().clearSelection();
-        lblTituloForm.setText("Nuevo pedido");
-        txtId.clear();
-        txtId.setDisable(false);
-        cmbMesa.setValue(null);
-        cmbMesa.setDisable(false);
-        lblFecha.setText("Se asigna al registrar");
-        lblTotal.setText(MONEDA.format(0));
-        // Un pedido nuevo siempre nace Pendiente y sin pago (así no consume inventario).
-        cmbEstado.setValue(Pedido.Estado.PENDIENTE);
-        cmbEstado.setDisable(true);
-        cmbPago.setValue("Ninguno");
-        cmbPago.setDisable(true);
-        productosPedido.clear();
-        encargadosPedido.clear();
-        cmbProducto.setValue(null);
-        boxProductos.setDisable(true); // primero hay que registrar el pedido
-        btnGuardar.setText("Registrar");
-        btnEliminar.setDisable(true);
-        ocultarMensaje();
+        this.seleccionado = null;
+        this.tablaPedidos.getSelectionModel().clearSelection();
+        this.lblTituloForm.setText("Nuevo pedido");
+        this.txtId.clear();
+        this.txtId.setDisable(false);
+        this.cmbMesa.setValue(null);
+        this.cmbMesa.setDisable(false);
+        this.lblFecha.setText("Se asigna al registrar");
+        this.lblTotal.setText(MONEDA.format(0L));
+        this.cmbEstado.setValue(Pedido.Estado.PENDIENTE);
+        this.cmbEstado.setDisable(true);
+        this.cmbPago.setValue("Ninguno");
+        this.cmbPago.setDisable(true);
+        this.productosPedido.clear();
+        this.encargadosPedido.clear();
+        this.cmbProducto.setValue(null);
+        this.boxProductos.setDisable(true);
+        this.cmbEncargado.setValue(null);
+        this.boxEncargados.setDisable(true);
+        this.btnGuardar.setText("Registrar");
+        this.btnEliminar.setDisable(true);
+        this.ocultarMensaje();
     }
 
     @Override
     protected void alCerrarForm() {
-        limpiarFormulario();
+        this.limpiarFormulario();
     }
 
     @FXML
     private void handleNuevo() {
-        limpiarFormulario();
-        abrirForm();
-        txtId.requestFocus();
+        this.limpiarFormulario();
+        this.abrirForm();
+        this.txtId.requestFocus();
     }
 
     @FXML
     public void handleRecargar() {
-        refrescar();
+        this.refrescar();
     }
-
-    // ───────────────────────── Datos ─────────────────────────
 
     @Override
     public void refrescar() {
-        cargar(null, null, true);
+        this.cargar(null, null, true);
     }
 
-    /** Recarga la página actual de pedidos; si se indica, reselecciona ese pedido y muestra el mensaje de éxito. */
     private void cargar(Integer idASeleccionar, String mensajeOk) {
-        cargar(idASeleccionar, mensajeOk, false);
+        this.cargar(idASeleccionar, mensajeOk, false);
     }
 
-    /**
-     * Carga la página actual de pedidos. Las mesas y los productos de los combos (que necesitan la lista completa)
-     * solo se recargan cuando recargarCombos es true, no al cambiar de página.
-     */
     private void cargar(Integer idASeleccionar, String mensajeOk, boolean recargarCombos) {
-        final int pagina = paginacion.getPagina();
-        final int tamano = paginacion.getTamano();
-        ejecutar(() -> {
-            PedidoInterface ps = servicio(model.getPedidoService());
-            BarraPaginacion.Pagina<Pedido> pedidos =
-                    BarraPaginacion.leer(pagina, tamano, ps.contar(), ps::getPedidos);
-            List<Mesa> listaMesas = null;
-            List<Producto> listaProductos = null;
+        int pagina = this.paginacion.getPagina();
+        int tamano = this.paginacion.getTamano();
+        this.ejecutar(() -> {
+            PedidoInterface ps = PedidosController.servicio(this.model.getPedidoService());
+            BarraPaginacion.Pagina<Pedido> pedidos = BarraPaginacion.leer(pagina, tamano, ps.contar(), ps::getPedidos);
+            List listaMesas = null;
+            List listaProductos = null;
+            List listaEmpleados = null;
             if (recargarCombos) {
-                MesaInterface ms = servicio(model.getMesaService());
-                ProductoInterface prs = servicio(model.getProductoService());
+                MesaInterface ms = PedidosController.servicio(this.model.getMesaService());
+                ProductoInterface prs = PedidosController.servicio(this.model.getProductoService());
                 int totalM = ms.contar();
                 int totalPr = prs.contar();
-                listaMesas = totalM == 0 ? List.<Mesa>of() : ms.getMesa(0, totalM - 1);
-                listaProductos = totalPr == 0 ? List.<Producto>of() : prs.getProductos(0, totalPr - 1);
+                listaMesas = totalM == 0 ? List.of() : ms.getMesa(0, totalM - 1);
+                listaProductos = totalPr == 0 ? List.of() : prs.getProductos(0, totalPr - 1);
+                EmpleadoInterface es = PedidosController.servicio(this.model.getEmpleadoService());
+                int totalE = es.contar();
+                listaEmpleados = totalE == 0 ? List.of() : es.getEmpleados(0, totalE - 1);
             }
-            return new Carga(pedidos, listaMesas, listaProductos);
+            return new Carga(pedidos, listaMesas, listaProductos, listaEmpleados);
         }, carga -> {
-            paginacion.mostrar(carga.pedidos());
+            this.paginacion.mostrar(carga.pedidos());
             List<Pedido> lista = carga.pedidos().items();
-            datos.setAll(lista);
+            this.datos.setAll((Collection<Pedido>)lista);
             if (carga.mesas() != null) {
-                mesas.setAll(carga.mesas());
+                this.mesas.setAll((Collection<Mesa>)carga.mesas());
             }
             if (carga.productos() != null) {
-                productosDisponibles.setAll(carga.productos());
+                this.productosDisponibles.setAll((Collection<Producto>)carga.productos());
+            }
+            if (carga.empleados() != null) {
+                this.empleadosDisponibles.setAll((Collection<Empleado>)carga.empleados());
             }
             if (idASeleccionar != null) {
-                lista.stream().filter(p -> p.getId() == idASeleccionar).findFirst()
-                        .ifPresentOrElse(
-                                p -> tablaPedidos.getSelectionModel().select(p),
-                                () -> { if (seleccionado == null) limpiarFormulario(); }); // quedó en otra página
+                lista.stream().filter(p -> p.getId() == idASeleccionar.intValue()).findFirst().ifPresentOrElse(p -> this.tablaPedidos.getSelectionModel().select(p), () -> {
+                    if (this.seleccionado == null) {
+                        this.limpiarFormulario();
+                    }
+                });
             }
             if (mensajeOk != null) {
-                mostrarMensaje(mensajeOk, false); // después de seleccionar, porque cargarEnFormulario oculta el mensaje
+                this.mostrarMensaje(mensajeOk, false);
             }
         });
     }
 
-    /** Productos y encargados del pedido (solo lectura). */
     private void cargarDetalle(int idPedido) {
-        ejecutar(() -> {
-            PedidoInterface s = servicio(model.getPedidoService());
-            List<Producto> productos = listaOVacia(() -> s.getProductosPerPedido(idPedido));
-            List<String> encargados = listaOVacia(() -> s.getEncargadosPerPedido(idPedido).stream()
-                    .map(e -> e.getNombre() + " (" + e.getCargo() + ")")
-                    .toList());
+        this.ejecutar(() -> {
+            PedidoInterface s2 = PedidosController.servicio(this.model.getPedidoService());
+            List<Producto> productos = PedidosController.listaOVacia(() -> s2.getProductosPerPedido(idPedido));
+            List<Empleado> encargados = PedidosController.listaOVacia(() -> s2.getEncargadosPerPedido(idPedido));
             return new Detalle(productos, encargados);
         }, detalle -> {
-            if (seleccionado != null && seleccionado.getId() == idPedido) {
-                productosPedido.setAll(detalle.productos());
-                encargadosPedido.setAll(detalle.encargados());
+            if (this.seleccionado != null && this.seleccionado.getId() == idPedido) {
+                this.productosPedido.setAll((Collection<Producto>)detalle.productos());
+                this.encargadosPedido.setAll((Collection<Empleado>)detalle.encargados());
             }
         });
     }
 
-    /**
-     * PedidoService lanza excepción cuando un pedido no tiene productos o encargados,
-     * y aquí eso es un caso normal (lista vacía), no un error para el usuario.
-     */
     private static <T> List<T> listaOVacia(Callable<List<T>> consulta) {
         try {
             return consulta.call();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return List.of();
         }
     }
 
-    // ───────────────────────── Acciones ─────────────────────────
-
     @FXML
     private void handleGuardar() {
-        if (seleccionado == null) {
-            registrarNuevo();
+        if (this.seleccionado == null) {
+            this.registrarNuevo();
         } else {
-            aplicarCambios();
+            this.aplicarCambios();
         }
     }
 
     private void registrarNuevo() {
         int id;
         try {
-            id = Integer.parseInt(txtId.getText().trim());
-            if (id <= 0) throw new NumberFormatException();
-        } catch (NumberFormatException ex) {
-            mostrarMensaje("El id debe ser un entero positivo.", true);
+            id = Integer.parseInt(this.txtId.getText().trim());
+            if (id <= 0) {
+                throw new NumberFormatException();
+            }
+        }
+        catch (NumberFormatException ex) {
+            this.mostrarMensaje("El id debe ser un entero positivo.", true);
             return;
         }
-        Mesa mesa = cmbMesa.getValue();
+        Mesa mesa = (Mesa)this.cmbMesa.getValue();
         if (mesa == null) {
-            mostrarMensaje("Selecciona la mesa del pedido.", true);
+            this.mostrarMensaje("Selecciona la mesa del pedido.", true);
             return;
         }
-
-        final Pedido nuevo = new Pedido(id, LocalDateTime.now(), mesa);
-        ejecutar(() -> servicio(model.getPedidoService()).registrarPedido(nuevo),
-                r -> cargar(r.getId(), "Pedido registrado."));
+        Pedido nuevo = new Pedido(id, LocalDateTime.now(), mesa);
+        this.ejecutar(() -> PedidosController.servicio(this.model.getPedidoService()).registrarPedido(nuevo), r -> this.cargar(r.getId(), "Pedido registrado."));
     }
 
     private void aplicarCambios() {
-        final Pedido original = seleccionado;
-        final Pedido.Estado estado = cmbEstado.getValue();
-        final String pago = cmbPago.getEditor().getText().trim();
-
-        if (estado == null) { mostrarMensaje("Selecciona un estado.", true); return; }
-        if (pago.isEmpty()) { mostrarMensaje("Selecciona o escribe un método de pago.", true); return; }
-
-        final boolean cambiaEstado = estado != original.getEstado();
-        final boolean cambiaPago = !pago.equals(original.getMetodoPago());
-        if (!cambiaEstado && !cambiaPago) {
-            mostrarMensaje("No hay cambios que aplicar.", true);
+        boolean cambiaPago;
+        Pedido original = this.seleccionado;
+        Pedido.Estado estado = this.cmbEstado.getValue();
+        String pago = this.cmbPago.getEditor().getText().trim();
+        if (estado == null) {
+            this.mostrarMensaje("Selecciona un estado.", true);
             return;
         }
-
-        ejecutar(() -> {
-            PedidoInterface s = servicio(model.getPedidoService());
-            // Cambiar el estado pasa por setPedidoStatus para que se ajuste el inventario.
-            // La interfaz sigue recibiendo texto; el servicio lo convierte con Pedido.Estado.desdeTexto(...).
-            if (cambiaEstado && !s.setPedidoStatus(original.getId(), estado.getTexto())) {
+        if (pago.isEmpty()) {
+            this.mostrarMensaje("Selecciona o escribe un método de pago.", true);
+            return;
+        }
+        boolean cambiaEstado = estado != original.getEstado();
+        boolean bl = cambiaPago = !pago.equals(original.getMetodoPago());
+        if (!cambiaEstado && !cambiaPago) {
+            this.mostrarMensaje("No hay cambios que aplicar.", true);
+            return;
+        }
+        this.ejecutar(() -> {
+            PedidoInterface s2 = PedidosController.servicio(this.model.getPedidoService());
+            if (cambiaEstado && !s2.setPedidoStatus(original.getId(), estado.getTexto())) {
                 throw new IllegalStateException("No se pudo cambiar el estado del pedido.");
             }
-            if (cambiaPago && !s.setPaymentMethodPerPedido(original.getId(), pago)) {
+            if (cambiaPago && !s2.setPaymentMethodPerPedido(original.getId(), pago)) {
                 throw new IllegalStateException("No se pudo cambiar el método de pago.");
             }
             return original.getId();
-        }, id -> cargar(id, "Pedido actualizado."));
+        }, id -> this.cargar((Integer)id, "Pedido actualizado."));
     }
 
     @FXML
     private void handleAgregarProducto() {
-        if (seleccionado == null) {
-            mostrarMensaje("Primero registra o selecciona un pedido.", true);
+        if (this.seleccionado == null) {
+            this.mostrarMensaje("Primero registra o selecciona un pedido.", true);
             return;
         }
-        final Producto producto = cmbProducto.getValue();
+        Producto producto = (Producto)this.cmbProducto.getValue();
         if (producto == null) {
-            mostrarMensaje("Selecciona el producto que quieres agregar.", true);
+            this.mostrarMensaje("Selecciona el producto que quieres agregar.", true);
             return;
         }
-        final int idPedido = seleccionado.getId();
-        ejecutar(() -> servicio(model.getPedidoService()).addProductoPerPedido(idPedido, producto), ok -> {
-            if (ok) {
-                cargar(idPedido, "Producto agregado al pedido.");
+        int idPedido = this.seleccionado.getId();
+        this.ejecutar(() -> PedidosController.servicio(this.model.getPedidoService()).addProductoPerPedido(idPedido, producto), ok -> {
+            if (ok.booleanValue()) {
+                this.cargar(idPedido, "Producto agregado al pedido.");
             } else {
-                mostrarMensaje("No se pudo agregar el producto al pedido.", true);
+                this.mostrarMensaje("No se pudo agregar el producto al pedido.", true);
             }
         });
     }
 
     @FXML
     private void handleQuitarProducto() {
-        if (seleccionado == null) {
+        if (this.seleccionado == null) {
             return;
         }
-        final Producto producto = lstProductos.getSelectionModel().getSelectedItem();
+        Producto producto = (Producto)this.lstProductos.getSelectionModel().getSelectedItem();
         if (producto == null) {
-            mostrarMensaje("Selecciona en la lista el producto que quieres quitar.", true);
+            this.mostrarMensaje("Selecciona en la lista el producto que quieres quitar.", true);
             return;
         }
-        final int idPedido = seleccionado.getId();
-        ejecutar(() -> servicio(model.getPedidoService()).removeProductoPerPedido(idPedido, producto), ok -> {
-            if (ok) {
-                cargar(idPedido, "Producto quitado del pedido.");
+        int idPedido = this.seleccionado.getId();
+        this.ejecutar(() -> PedidosController.servicio(this.model.getPedidoService()).removeProductoPerPedido(idPedido, producto), ok -> {
+            if (ok.booleanValue()) {
+                this.cargar(idPedido, "Producto quitado del pedido.");
             } else {
-                mostrarMensaje("No se pudo quitar el producto del pedido.", true);
+                this.mostrarMensaje("No se pudo quitar el producto del pedido.", true);
+            }
+        });
+    }
+
+    @FXML
+    private void handleAgregarEncargado() {
+        if (this.seleccionado == null) {
+            this.mostrarMensaje("Primero registra o selecciona un pedido.", true);
+            return;
+        }
+        Empleado empleado = (Empleado)this.cmbEncargado.getValue();
+        if (empleado == null) {
+            this.mostrarMensaje("Selecciona el encargado que quieres agregar.", true);
+            return;
+        }
+        if (this.encargadosPedido.contains(empleado)) {
+            this.mostrarMensaje("Ese empleado ya es encargado de este pedido.", true);
+            return;
+        }
+        int idPedido = this.seleccionado.getId();
+        this.ejecutar(() -> PedidosController.servicio(this.model.getPedidoService()).addEncargadoPerPedido(idPedido, empleado), ok -> {
+            if (ok.booleanValue()) {
+                this.cmbEncargado.setValue(null);
+                this.cargar(idPedido, "Encargado agregado al pedido.");
+            } else {
+                this.mostrarMensaje("No se pudo agregar el encargado al pedido.", true);
+            }
+        });
+    }
+
+    @FXML
+    private void handleQuitarEncargado() {
+        if (this.seleccionado == null) {
+            return;
+        }
+        Empleado empleado = (Empleado)this.lstEncargados.getSelectionModel().getSelectedItem();
+        if (empleado == null) {
+            this.mostrarMensaje("Selecciona en la lista el encargado que quieres quitar.", true);
+            return;
+        }
+        int idPedido = this.seleccionado.getId();
+        this.ejecutar(() -> PedidosController.servicio(this.model.getPedidoService()).removeEncargadoPerPedido(idPedido, empleado), ok -> {
+            if (ok.booleanValue()) {
+                this.cargar(idPedido, "Encargado quitado del pedido.");
+            } else {
+                this.mostrarMensaje("No se pudo quitar el encargado del pedido.", true);
             }
         });
     }
 
     @FXML
     private void handleEliminar() {
-        if (seleccionado == null) {
+        if (this.seleccionado == null) {
             return;
         }
-        final Pedido objetivo = seleccionado;
-        confirmar("Eliminar pedido", "¿Eliminar el pedido #" + objetivo.getId() + "?", () ->
-                ejecutar(() -> servicio(model.getPedidoService()).removePedido(objetivo.getId()), ok -> {
-                    limpiarFormulario();
-                    mostrarMensaje(ok ? "Pedido eliminado." : "No se eliminó ningún pedido.", !ok);
-                    refrescar();
-                }));
+        Pedido objetivo = this.seleccionado;
+        this.confirmar("Eliminar pedido", "¿Eliminar el pedido #" + objetivo.getId() + "?", () -> this.ejecutar(() -> PedidosController.servicio(this.model.getPedidoService()).removePedido(objetivo.getId()), ok -> {
+            this.limpiarFormulario();
+            this.mostrarMensaje(ok ? "Pedido eliminado." : "No se eliminó ningún pedido.", !ok);
+            this.refrescar();
+        }));
+    }
+
+    private record Detalle(List<Producto> productos, List<Empleado> encargados) {
+    }
+
+    private record Carga(BarraPaginacion.Pagina<Pedido> pedidos, List<Mesa> mesas, List<Producto> productos, List<Empleado> empleados) {
     }
 }

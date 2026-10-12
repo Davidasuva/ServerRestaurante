@@ -1,15 +1,4 @@
-/* ==========================================================================
-   Carbón y Sazón — Tema oscuro para el Server (JavaFX CSS)
 
-   Paleta
-     Fondo ............ #141414      Superficie ....... #1f1f1f
-     Superficie 2 ..... #262626      Borde ............ #2f2f2f
-     Campo ............ #181818      Texto ............ #f2f2f2
-     Texto apagado .... #8f8f8f      Acento ........... #f0541e
-     Verde ............ #34c759      Rojo ............. #ef4444
-   ========================================================================== */
-
-/* ---------- Base ---------- */
 .root {
     -fx-font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     -fx-font-size: 12px;
@@ -74,7 +63,6 @@
     -fx-opacity: 1;
 }
 
-/* ---------- Barra de navegación ---------- */
 .navbar {
     -fx-background-color: #181818;
     -fx-border-color: transparent transparent #2a2a2a transparent;
@@ -302,6 +290,34 @@
 }
 .combo-campo .arrow {
     -fx-background-color: #8f8f8f;
+}
+
+/* ---------- TextArea de formularios (Descripción) ----------
+*/
+.text-area.campo {
+    -fx-control-inner-background: #181818;
+    -fx-background-color: #181818;
+    -fx-background-radius: 10;
+    -fx-border-color: #2f2f2f;
+    -fx-border-radius: 10;
+    -fx-text-fill: #f2f2f2;
+    -fx-padding: 0;
+    -fx-pref-height: 66;
+}
+.text-area.campo:focused {
+    -fx-border-color: #f0541e;
+}
+.text-area.campo .scroll-pane,
+.text-area.campo .viewport {
+    -fx-background-color: transparent;
+}
+.text-area.campo .content {
+    -fx-background-color: #181818;
+    -fx-background-radius: 10;
+    -fx-padding: 6 10 6 10;
+}
+.text-area.campo .text {
+    -fx-fill: #f2f2f2;
 }
 
 /* Lista desplegable (popup) */
