@@ -37,7 +37,7 @@ import server.model.producto.ProductoInterface;
 
 public class PedidosController
         extends SeccionBaseController {
-    private static final List<String> METODOS_PAGO = List.of("Ninguno", "Efectivo", "Tarjeta","Transferencia","Nequi");
+    private static final List<String> METODOS_PAGO = List.of("Ninguno", "Efectivo", "Tarjeta","Transferencia","Nequi","Pez Bacano Coins");
     private static final String TODOS = "Todos";
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final StringConverter<Mesa> CONVERTIDOR_MESA = new StringConverter<Mesa>(){
