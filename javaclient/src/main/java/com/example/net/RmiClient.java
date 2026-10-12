@@ -1,5 +1,7 @@
 package com.example.net;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -31,12 +33,23 @@ public final class RmiClient {
 
     static {
         Properties p = new Properties();
-        try (InputStream in = RmiClient.class.getResourceAsStream(ARCHIVO)) {
-            if (in != null) {
+        // 1) Un client.properties junto al ejecutable (carpeta de trabajo) manda sobre el que va dentro del JAR,
+        //    así se puede cambiar la IP del servidor en cada equipo sin recompilar.
+        File externo = new File("client.properties");
+        if (externo.isFile()) {
+            try (InputStream in = new FileInputStream(externo)) {
                 p.load(in);
+            } catch (IOException e) {
+                System.err.println("[RmiClient] No se pudo leer " + externo.getAbsolutePath() + ": " + e.getMessage());
             }
-        } catch (IOException e) {
-            System.err.println("[RmiClient] No se pudo leer " + ARCHIVO + ": " + e.getMessage());
+        } else {
+            try (InputStream in = RmiClient.class.getResourceAsStream(ARCHIVO)) {
+                if (in != null) {
+                    p.load(in);
+                }
+            } catch (IOException e) {
+                System.err.println("[RmiClient] No se pudo leer " + ARCHIVO + ": " + e.getMessage());
+            }
         }
         IP = p.getProperty("SERVER_IP", "localhost").trim();
         PUERTO = Integer.parseInt(p.getProperty("SERVER_PORT", "1808").trim());

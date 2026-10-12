@@ -9,13 +9,19 @@ import com.example.model.PedidoVista;
 import com.example.util.Alerta;
 import com.example.util.Async;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.util.Duration;
 
-/** Cocina: "En cola" -> "En preparación" -> Listos. */
-public class CocinaController extends NavController {
+/** Cocina: "En cola" -> "En preparación" -> Listos. Se actualiza sola cada pocos segundos. */
+public class CocinaController {
+
+    private static final Duration INTERVALO = Duration.seconds(5);
 
     private record Tablero(List<PedidoVista> cola, List<PedidoVista> preparando) {}
 
@@ -24,18 +30,37 @@ public class CocinaController extends NavController {
     @FXML private Label lblCountCola;
     @FXML private Label lblCountPrep;
 
+    private boolean cargando;
+
     @FXML
     private void initialize() {
-        refrescar();
+        refrescar(false);
+
+        Timeline automatico = new Timeline(new KeyFrame(INTERVALO, e -> refrescar(true)));
+        automatico.setCycleCount(Animation.INDEFINITE);
+        automatico.play();
     }
 
-    private void refrescar() {
+    /** @param silencioso true en la actualización automática: no molesta con alertas si el servidor no responde */
+    private void refrescar(boolean silencioso) {
+        if (silencioso && cargando) {
+            return;
+        }
+        cargando = true;
         Async.ejecutar(
                 () -> new Tablero(
                         ModeloRmi.listarPedidosPorEstado(EstadoPedido.EN_COLA),
                         ModeloRmi.listarPedidosPorEstado(EstadoPedido.PREPARANDO)),
-                this::pintar,
-                this::errorAlCargar);
+                tablero -> {
+                    cargando = false;
+                    pintar(tablero);
+                },
+                mensaje -> {
+                    cargando = false;
+                    if (!silencioso) {
+                        mostrarError(mensaje);
+                    }
+                });
     }
 
     private void pintar(Tablero t) {
@@ -61,18 +86,13 @@ public class CocinaController extends NavController {
                     ModeloRmi.cambiarEstado(p.getId(), nuevo);
                     return null;
                 },
-                v -> refrescar(),
+                v -> refrescar(false),
                 mensaje -> {
                     mostrarError(mensaje);
-                    refrescar();
+                    refrescar(false);
                 });
     }
 
-    private void errorAlCargar(String mensaje) {
-        mostrarError(mensaje);
-    }
-
-    /** Solo muestra el error si el usuario sigue en esta vista. */
     private void mostrarError(String mensaje) {
         Scene escena = gridCola.getScene();
         if (escena != null && escena.getWindow() != null) {

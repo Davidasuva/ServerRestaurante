@@ -33,9 +33,9 @@ import server.model.producto.Producto;
 
 /**
  * Caja: elegir mesa, agregar/quitar productos y ver la factura en vivo.
- * Mesas y productos vienen del servidor (ModeloRmi). Hereda de NavController para conservar las pestañas.
+ * Mesas y productos vienen del servidor (ModeloRmi).
  */
-public class CajaController extends NavController {
+public class CajaController {
 
     private static final String[] METODOS_PAGO = {"Nequi", "Transferencia", "Efectivo"};
     private static final DecimalFormat PESOS = crearFormato();

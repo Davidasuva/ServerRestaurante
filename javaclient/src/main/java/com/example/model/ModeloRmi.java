@@ -12,10 +12,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.example.net.RmiClient;
 
+import server.model.empleado.Empleado;
 import server.model.mesa.Mesa;
 import server.model.pedido.Pedido;
 import server.model.pedido.PedidoInterface;
@@ -148,6 +150,42 @@ public final class ModeloRmi {
     /** El pedido ya fue entregado: sale de Listos. */
     public static void archivarPedido(int pedidoId) throws ModeloException {
         cambiar(pedidoId, Pedido.Estado.ENTREGADO);
+    }
+
+    // ------------------------------------------------------------------ login
+
+    /**
+     * Valida un empleado contra el servidor: la cédula debe existir y la contraseña coincidir.
+     * Sirve cualquier empleado, sin importar el cargo.
+     */
+    public static Empleado autenticar(int cedula, String clave) throws ModeloException {
+        Empleado empleado;
+        try {
+            empleado = RmiClient.empleados().getEmpleadoByCedula(cedula);
+        } catch (RemoteException e) {
+            if (esNoEncontrado(e)) {
+                throw new ModeloException("Cédula o contraseña incorrectas", e);
+            }
+            throw fallo(e);
+        }
+        if (empleado == null || empleado.getContrasena() == null || !empleado.getContrasena().equals(clave)) {
+            throw new ModeloException("Cédula o contraseña incorrectas");
+        }
+        return empleado;
+    }
+
+    /** El servidor avisa «No se encontr...» con una excepción cuando no existe el registro. */
+    private static boolean esNoEncontrado(Throwable e) {
+        for (Throwable t = e; t != null; t = t.getCause()) {
+            String m = t.getMessage();
+            if (m != null) {
+                String minuscula = m.toLowerCase(Locale.ROOT);
+                if (minuscula.startsWith("no se encontr") || minuscula.contains("no encontrad")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     // ------------------------------------------------------------------ internos

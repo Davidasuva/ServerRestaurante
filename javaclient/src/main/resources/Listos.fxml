@@ -23,21 +23,6 @@
                   <Insets bottom="0.0" left="20.0" right="0.0" top="20.0" />
                </HBox.margin>
             </Label>
-            <Button mnemonicParsing="false" prefWidth="60.0" styleClass="tab-button" onAction="#irCaja" text="Caja">
-               <HBox.margin>
-                  <Insets bottom="0.0" left="30.0" right="10.0" top="20.0" />
-               </HBox.margin>
-            </Button>
-            <Button mnemonicParsing="false" prefWidth="60.0" styleClass="tab-button" onAction="#irCocina" text="Cocina">
-               <HBox.margin>
-                  <Insets bottom="0.0" left="0.0" right="10.0" top="20.0" />
-               </HBox.margin>
-            </Button>
-            <Button mnemonicParsing="false" prefWidth="70.0" styleClass="tab-button, tab-active" onAction="#irListos" text="Listos">
-               <HBox.margin>
-                  <Insets bottom="0.0" left="0.0" right="0.0" top="20.0" />
-               </HBox.margin>
-            </Button>
          </children>
       </HBox>
 

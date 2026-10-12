@@ -9,29 +9,56 @@ import com.example.model.PedidoVista;
 import com.example.util.Alerta;
 import com.example.util.Async;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.util.Duration;
 
-/** Listos para reclamar: DESHACER regresa a preparación, Archivar lo quita. */
-public class ListosController extends NavController {
+/**
+ * Televisión / Listos para reclamar: DESHACER regresa a preparación, Archivar lo quita.
+ * Se actualiza sola cada pocos segundos.
+ */
+public class ListosController {
 
     private static final int COLUMNAS = 4;
+    private static final Duration INTERVALO = Duration.seconds(5);
 
     @FXML private GridPane gridListos;
     @FXML private Label lblCountListos;
 
+    private boolean cargando;
+
     @FXML
     private void initialize() {
-        refrescar();
+        refrescar(false);
+
+        Timeline automatico = new Timeline(new KeyFrame(INTERVALO, e -> refrescar(true)));
+        automatico.setCycleCount(Animation.INDEFINITE);
+        automatico.play();
     }
 
-    private void refrescar() {
+    /** @param silencioso true en la actualización automática: no molesta con alertas si el servidor no responde */
+    private void refrescar(boolean silencioso) {
+        if (silencioso && cargando) {
+            return;
+        }
+        cargando = true;
         Async.ejecutar(
                 () -> ModeloRmi.listarPedidosPorEstado(EstadoPedido.LISTO),
-                this::pintar,
-                this::mostrarError);
+                lista -> {
+                    cargando = false;
+                    pintar(lista);
+                },
+                mensaje -> {
+                    cargando = false;
+                    if (!silencioso) {
+                        mostrarError(mensaje);
+                    }
+                });
     }
 
     private void pintar(List<PedidoVista> lista) {
@@ -58,14 +85,13 @@ public class ListosController extends NavController {
                     accion.ejecutar();
                     return null;
                 },
-                v -> refrescar(),
+                v -> refrescar(false),
                 mensaje -> {
                     mostrarError(mensaje);
-                    refrescar();
+                    refrescar(false);
                 });
     }
 
-    /** Solo muestra el error si el usuario sigue en esta vista. */
     private void mostrarError(String mensaje) {
         Scene escena = gridListos.getScene();
         if (escena != null && escena.getWindow() != null) {
