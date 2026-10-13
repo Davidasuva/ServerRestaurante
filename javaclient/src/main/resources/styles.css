@@ -1,0 +1,380 @@
+.root {
+    /* Paleta */
+    -color-background: #1e1e1e;
+    -color-surface: #272727;
+    -color-surface-dark: #111111;
+    -color-surface-icon: #29292b;
+    -color-surface-disabled: #252527;
+
+    -color-text-primary: #f4f4f4;
+    -color-text-on-accent: #ffffff;
+    -color-text-muted: #89898f;
+    -color-text-secondary: #94949a;
+    -color-text-disabled: #96969c;
+    -color-text-total: #a6a6ad;
+    -color-icon-muted: #9b9ba1;
+
+    -color-accent: #ff5722;
+    -color-accent-hover: rgba(255, 86, 34, 0.745);
+    -color-accent-soft: rgba(255, 86, 34, 0.22);
+    -color-accent-subtle: rgba(255, 86, 34, 0.145);
+    -color-accent-dark: #2c1913;
+    -color-accent-border: #5e2919;
+
+    -color-success: #00c950;
+    -color-border: #272727;
+    -color-border-light: rgba(244, 244, 244, 0.227);
+    -color-overlay: rgba(0, 0, 0, 0.68);
+
+    /* Fondo y fuente base */
+    -fx-background-color: -color-background;
+    -fx-font-family: "Inter 24pt";
+    -fx-text-fill: -color-text-primary;
+}
+
+.label {
+    -fx-text-fill: -color-text-primary;
+}
+
+.text-field {
+    -fx-background-color: -color-surface;
+    -fx-text-fill: -color-text-primary;
+    -fx-prompt-text-fill: -color-text-muted;
+    -fx-background-radius: 20;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 20;
+    -fx-padding: 8 16;
+}
+
+.text-field:focused {
+    -fx-border-color: -color-accent;
+}
+
+.button {
+    -fx-background-color: -color-accent;
+    -fx-text-fill: -color-text-on-accent;
+    -fx-font-weight: bold;
+    -fx-background-radius: 11;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: -color-accent-hover;
+}
+
+/* Barra superior */
+.app-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-text-fill: -color-accent;
+}
+
+.tab-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -color-text-secondary;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.tab-button:hover {
+    -fx-background-color: -color-surface;
+}
+
+.tab-active {
+    -fx-background-color: -color-accent;
+    -fx-text-fill: -color-text-on-accent;
+}
+
+/* Títulos de sección */
+.section-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.field-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-secondary;
+}
+
+/* Historial de pedidos */
+.historial-container {
+    -fx-background-color: transparent;
+}
+
+.tarjeta-pedido {
+    -fx-background-color: -color-surface;
+    -fx-background-radius: 12;
+    -fx-padding: 16;
+}
+
+.id-pedido {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.badge-pagado {
+    -fx-background-color: -color-success;
+    -fx-background-radius: 12;
+    -fx-padding: 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.badge-pendiente {
+    -fx-background-color: #b8860b;
+    -fx-background-radius: 12;
+    -fx-padding: 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.texto-secundario {
+    -fx-text-fill: -color-text-secondary;
+}
+
+.precio {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-text-fill: -color-accent;
+}
+
+/* Tarjetas de producto */
+.product-card {
+    -fx-background-color: -color-surface;
+    -fx-background-radius: 12;
+}
+
+.product-image {
+    -fx-background-radius: 12 12 0 0;
+}
+
+.product-name {
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-primary;
+    -fx-font-size: 13px;
+}
+
+.product-price {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-accent;
+}
+
+.qty-button {
+    -fx-background-color: -color-surface-icon;
+    -fx-text-fill: -color-text-primary;
+    -fx-background-radius: 6;
+    -fx-min-width: 22;
+    -fx-min-height: 22;
+    -fx-max-width: 22;
+    -fx-max-height: 22;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+}
+
+.qty-button:hover {
+    -fx-background-color: -color-surface-disabled;
+}
+
+.qty-value {
+    -fx-text-fill: -color-text-primary;
+    -fx-font-weight: bold;
+}
+
+/* ScrollPane transparente */
+.scroll-transparent,
+.scroll-transparent > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-transparent .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+/* ChoiceBox (selector de mesa) */
+.choice-box {
+    -fx-background-color: -color-surface;
+    -fx-background-radius: 20;
+    -fx-border-color: -color-border;
+    -fx-border-radius: 20;
+    -fx-mark-color: -color-text-primary;
+}
+
+.choice-box .label {
+    -fx-text-fill: -color-text-primary;
+    -fx-padding: 4 10;
+}
+
+/* Desplegable de ChoiceBox (mesa y método de pago) */
+.choice-box .context-menu {
+    -fx-background-color: -color-surface;
+    -fx-background-radius: 12;
+    -fx-border-color: -color-border-light;
+    -fx-border-radius: 12;
+    -fx-padding: 4;
+}
+
+.choice-box .context-menu .menu-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-padding: 6 10;
+}
+
+.choice-box .context-menu .menu-item .label {
+    -fx-text-fill: -color-text-primary;
+}
+
+.choice-box .context-menu .menu-item:focused {
+    -fx-background-color: -color-accent-subtle;
+}
+
+.choice-box .context-menu .menu-item:focused .label {
+    -fx-text-fill: -color-accent;
+}
+
+/* Factura */
+.factura-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 17px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.factura-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: -color-text-secondary;
+}
+
+.factura-header-label {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-muted;
+}
+
+.factura-item-name {
+    -fx-font-size: 13px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.factura-item-value {
+    -fx-font-size: 13px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.factura-total-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.factura-total-value {
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-text-fill: -color-accent;
+}
+
+.divider {
+    -fx-background-color: -color-border-light;
+}
+
+/* ===== Cocina ===== */
+.kitchen-column-header {
+    -fx-background-color: -color-surface;
+    -fx-background-radius: 12 12 0 0;
+    -fx-padding: 14 12 14 12;
+    -fx-border-width: 0 0 3 0;
+}
+
+.col-queue {
+    -fx-border-color: transparent transparent #3b82f6 transparent;
+}
+
+.col-prep {
+    -fx-border-color: transparent transparent #eab308 transparent;
+}
+
+.col-ready {
+    -fx-border-color: transparent transparent #22c55e transparent;
+}
+
+.count-badge {
+    -fx-background-color: -color-surface-dark;
+    -fx-background-radius: 8;
+    -fx-padding: 2 8 2 8;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.id-pedido-lg {
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-text-fill: -color-text-primary;
+}
+
+.undo-button {
+    -fx-background-color: -color-surface-dark;
+    -fx-text-fill: -color-text-primary;
+    -fx-background-radius: 8;
+    -fx-font-size: 9px;
+    -fx-padding: 5 10 5 10;
+}
+
+.undo-button:hover {
+    -fx-background-color: -color-surface-disabled;
+}
+
+.badge-mesa {
+    -fx-background-color: -color-accent-subtle;
+    -fx-text-fill: -color-accent;
+    -fx-background-radius: 8;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.time-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-secondary;
+}
+
+.items-box {
+    -fx-background-color: -color-surface-dark;
+    -fx-background-radius: 10;
+    -fx-padding: 14;
+}
+
+.bullet {
+    -fx-text-fill: -color-accent;
+    -fx-font-weight: bold;
+}
+
+.order-item {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text-primary;
+}
+
+.archive-button {
+    -fx-background-color: -color-accent-dark;
+    -fx-border-color: -color-accent-border;
+    -fx-border-radius: 11;
+    -fx-text-fill: -color-accent;
+}
+
+.archive-button:hover {
+    -fx-background-color: -color-accent-border;
+}
+
+
+/* ===== Login ===== */
+.error-label {
+    -fx-text-fill: #ef4444;
+    -fx-font-size: 12px;
+}
