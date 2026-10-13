@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Estado del Pedido - Carbón y Sazón</title>
+    <link rel="icon" type="image/png" href="../assets/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/status.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" />
+</head>
+
+<body class="status-body">
+    <!-- Lee ?id= y ?mesa= de la URL; consulta GET /api/pedidos/{id}/estado -->
+    <order-status class="status-screen" data-state="EN_COLA"></order-status>
+
+    <script src="../js/restaurant-config.js"></script>
+    <script type="module" src="../js/pages/status-page.js"></script>
+</body>
+
+</html>

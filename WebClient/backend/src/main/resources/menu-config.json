@@ -1,0 +1,110 @@
+{
+  "_comentario": "Datos del menú que la BD no guarda. Los productos se asocian por NOMBRE. Los ingredientes base no se pueden quitar; opcionesBebida muestra la selección en bebidas.",
+  "adicionales": [
+    {
+      "nombre": "Porción de Papa a la Francesa",
+      "precio": 8000
+    },
+    {
+      "nombre": "Porción de Papa Criolla",
+      "precio": 8000
+    },
+    {
+      "nombre": "Extra de Queso Gratinado",
+      "precio": 5000
+    },
+    {
+      "nombre": "Extra de Tocineta",
+      "precio": 6000
+    },
+    {
+      "nombre": "Extra de Carne",
+      "precio": 9000
+    },
+    {
+      "nombre": "Extra de Pollo",
+      "precio": 9000
+    }
+  ],
+  "productos": {
+    "Hamburguesa Rústica": {
+      "ingredientesBase": [
+        "Carne de res al carbón (200g)",
+        "Pan brioche artesanal"
+      ]
+    },
+    "Hamburguesa Carbón y Queso": {
+      "ingredientesBase": [
+        "Doble carne de res (300g)",
+        "Pan brioche artesanal"
+      ]
+    },
+    "Perro Caliente Especial Carbón": {
+      "ingredientesBase": [
+        "Salchicha manguera a la parrilla",
+        "Pan de perro artesanal"
+      ]
+    },
+    "Perro Suizo Ahumado": {
+      "ingredientesBase": [
+        "Salchicha Suiza a la parrilla",
+        "Pan de perro artesanal"
+      ]
+    },
+    "Salchipapa Clásica": {
+      "ingredientesBase": [
+        "Papa a la francesa crocante",
+        "Salchicha manguera salteada"
+      ]
+    },
+    "Salchipapa Sazonada": {
+      "ingredientesBase": [
+        "Papa criolla dorada",
+        "Salchicha suiza",
+        "Chorizo artesanal al carbón"
+      ]
+    },
+    "Papa Loca Carbón y Sazón": {
+      "ingredientesBase": [
+        "Cama doble de papa a la francesa y papa criolla",
+        "Carne desmechada de res",
+        "Pollo desmechado al carbón"
+      ]
+    },
+    "Papa Loca BBQ Pork": {
+      "ingredientesBase": [
+        "Papa a la francesa",
+        "Cerdo desmechado en salsa BBQ ahumada"
+      ]
+    },
+    "Desgranado Mixto": {
+      "ingredientesBase": [
+        "Maíz dulce tierno desgranado a la parrilla",
+        "Pollo al carbón picado",
+        "Carne de res picada"
+      ]
+    },
+    "Desgranado Ranchero": {
+      "ingredientesBase": [
+        "Maíz dulce tierno desgranado",
+        "Chorizo artesanal al carbón",
+        "Carne de res en cubos"
+      ]
+    },
+    "Gaseosa Personal": {
+      "opcionesBebida": [
+        "Coca-Cola",
+        "Pepsi",
+        "Colombiana",
+        "Sprite",
+        "Quatro"
+      ]
+    },
+    "Jugo Natural en Agua o Leche": {
+      "opcionesBebida": [
+        "Agua",
+        "Leche entera"
+      ]
+    }
+  }
+}

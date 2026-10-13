@@ -1,0 +1,682 @@
+/* ==========================================================================
+    PANEL DE RESUMEN DEL PEDIDO (CARRITO / DETALLES)
+   ========================================================================== */
+
+body.pedido-abierto {
+    overflow: hidden;
+}
+
+/* Overlay y Panel Deslizable */
+.pedido-overlay {
+    position: fixed;
+    z-index: 20;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    background-color: var(--color-overlay);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.pedido-overlay.abierto {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.panel-pedido {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+    background-color: var(--color-surface-dark);
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.panel-pedido.arrastrando {
+    transition: none;
+}
+
+.pedido-overlay.abierto .panel-pedido {
+    transform: translateY(0);
+}
+
+/* Tirador de arrastre */
+.arrastre-pedido {
+    display: grid;
+    width: 100%;
+    height: 28px;
+    flex: 0 0 auto;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: grab;
+    touch-action: none;
+}
+
+.arrastre-pedido:active {
+    cursor: grabbing;
+}
+
+.arrastre-pedido span {
+    width: 44px;
+    height: 5px;
+    border-radius: 999px;
+    background-color: var(--color-text-secondary);
+    opacity: 0.8;
+    transition:
+        width 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.arrastre-pedido:hover span,
+.arrastre-pedido:focus-visible span {
+    width: 56px;
+    background-color: var(--color-text-primary);
+}
+
+.arrastre-pedido:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -4px;
+}
+
+/* Encabezado del panel */
+.panel-pedido-header {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(68px + env(safe-area-inset-top));
+    padding: env(safe-area-inset-top) 16px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.panel-pedido-header h1 {
+    font-size: 16px;
+}
+
+/* Lista de ítems del pedido */
+.lista-pedido {
+    min-height: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px 14px;
+    overflow-y: auto;
+}
+
+.lista-pedido[hidden] {
+    display: none;
+}
+
+.pedido-item {
+    flex: 0 0 auto;
+    border: 0;
+    border-radius: 12px;
+    background-color: var(--color-surface);
+    overflow: hidden;
+}
+
+.pedido-item.eliminando {
+    animation: remove-order-item 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    pointer-events: none;
+}
+
+.pedido-item-resumen {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 8px;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+}
+
+.pedido-item.sin-edicion .pedido-item-resumen {
+    cursor: pointer;
+}
+
+.pedido-item-descripcion {
+    overflow: hidden;
+    max-height: 900px;
+    margin: 0;
+    padding: 4px 20px 14px;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    line-height: 1.45;
+    text-align: center;
+}
+
+.pedido-item-descripcion > p {
+    margin: 0 0 12px;
+}
+
+.bebida-opciones {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    text-align: left;
+}
+
+.bebida-opciones legend {
+    margin-bottom: 6px;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.pedido-item-descripcion.animar {
+    max-height: 0;
+    opacity: 0.35;
+    transform: translateY(-8px);
+    animation: expand-order-item 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.pedido-item-descripcion.cerrando {
+    animation: collapse-order-item 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.pedido-item-resumen:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+}
+
+.pedido-item-resumen img {
+    width: 54px;
+    height: 54px;
+    border-radius: 9px;
+    object-fit: cover;
+}
+
+.pedido-item-info {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.pedido-item-info strong {
+    overflow: hidden;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pedido-item-info span {
+    color: var(--color-accent);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.pedido-item-cantidad {
+    min-width: 32px;
+    padding: 5px 7px;
+    border-radius: 8px;
+    background-color: var(--color-surface-icon);
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.eliminar-pedido {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    flex: 0 0 auto;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background-color: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.eliminar-pedido:hover,
+.eliminar-pedido:focus-visible {
+    background-color: var(--color-accent-soft);
+    color: var(--color-accent);
+    outline: 0;
+    transform: scale(1.08);
+}
+
+.eliminar-pedido .material-symbols-outlined {
+    font-size: 18px;
+}
+
+/* Editor interactivo de ingredientes y adicionales */
+.pedido-editor {
+    overflow: hidden;
+    padding: 4px 12px 14px;
+    border-top: 1px solid var(--color-border);
+}
+
+.pedido-editor.animar {
+    max-height: 0;
+    animation: expand-order-item 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.pedido-editor.cerrando {
+    max-height: 900px;
+    animation: collapse-order-item 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes expand-order-item {
+    from {
+        max-height: 0;
+        opacity: 0.35;
+        transform: translateY(-8px);
+    }
+
+    to {
+        max-height: 900px;
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes collapse-order-item {
+    from {
+        max-height: 900px;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        max-height: 0;
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes remove-order-item {
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+.pedido-editor h3 {
+    margin: 14px 0 8px;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.ingredientes-lista,
+.adicionales-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ingrediente-fila,
+.adicional-fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 36px;
+    padding: 7px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 9px;
+    background-color: var(--color-surface-dark);
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: 12px;
+    text-align: left;
+}
+
+.ingrediente-fila input {
+    position: relative;
+    appearance: none;
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    border: 2px solid var(--color-accent);
+    border-radius: 50%;
+    background-color: var(--color-surface-dark);
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.ingrediente-fila input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    content: "";
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+    transition:
+        opacity 0.18s ease,
+        transform 0.2s ease;
+}
+
+.ingrediente-fila input:checked {
+    border-color: var(--color-accent);
+    background-color: transparent;
+    transform: scale(1.05);
+}
+
+.ingrediente-fila input:checked::after {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.ingrediente-fila input:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.ingrediente-fila.ingrediente-base {
+    cursor: not-allowed;
+    opacity: 0.82;
+}
+
+.ingrediente-fila.ingrediente-base input:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.ingrediente-fila span {
+    flex: 1;
+}
+
+.ingrediente-fila small {
+    color: var(--color-text-muted);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.ingrediente-fila {
+    cursor: pointer;
+}
+
+.adicional-fila {
+    min-height: 58px;
+    cursor: default;
+}
+
+.adicional-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.adicional-info strong {
+    color: var(--color-text-primary);
+    font-size: 12px;
+}
+
+.adicional-info small {
+    color: var(--color-accent);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.adicional-fila.seleccionado {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent-dark);
+    color: var(--color-text-primary);
+}
+
+.selector-adicional {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background-color: var(--color-surface);
+}
+
+.cambiar-adicional {
+    display: grid;
+    width: 25px;
+    height: 25px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background-color: var(--color-surface-icon);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    font: inherit;
+    font-size: 16px;
+    line-height: 1;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.cambiar-adicional:hover:not(:disabled) {
+    background-color: var(--color-accent);
+    transform: scale(1.06);
+}
+
+.cambiar-adicional:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+.cantidad-adicional {
+    min-width: 14px;
+    color: var(--color-text-primary);
+    font-size: 12px;
+    text-align: center;
+}
+
+.pedido-editor-footer {
+    display: block;
+    margin-top: 16px;
+}
+
+.guardar-edicion {
+    width: 100%;
+    padding: 12px;
+    border: 0;
+    border-radius: 9px;
+    background-color: var(--color-accent);
+    color: var(--color-text-on-accent);
+    cursor: pointer;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.cerrar-pedido {
+    display: grid;
+    width: 28px;
+    height: 36px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+
+/* Estado de pedido vacío */
+.pedido-vacio {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+    transform: translateY(-6vh);
+    transition:
+        opacity 0.4s ease,
+        transform 0.4s ease;
+}
+
+.pedido-vacio[hidden] {
+    display: none;
+}
+
+.pedido-vacio.preparando-entrada {
+    opacity: 0;
+    transform: translateY(calc(-6vh + 10px));
+}
+
+.pedido-vacio-icono {
+    display: grid;
+    width: 66px;
+    height: 66px;
+    margin-bottom: 20px;
+    border-radius: 50%;
+    place-items: center;
+    background-color: var(--color-surface-icon);
+    color: var(--color-icon-muted);
+}
+
+.pedido-vacio-icono .material-symbols-outlined {
+    font-size: 32px;
+}
+
+.pedido-vacio h2 {
+    font-size: 18px;
+}
+
+.pedido-vacio p {
+    max-width: 280px;
+    margin-top: 8px;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.volver-menu {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+    padding: 11px 16px;
+    border: 1px solid var(--color-accent-border);
+    border-radius: 11px;
+    background-color: var(--color-accent-dark);
+    color: var(--color-accent);
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    transition: 0.2s all ease-in;
+}
+
+.volver-menu:hover {
+    background-color: var(--color-accent);
+    color: var(--color-text-on-accent);
+    transition: 0.2s all ease-in;
+    cursor: pointer;
+}
+
+.volver-menu .material-symbols-outlined {
+    font-size: 16px;
+}
+
+/* Pie del panel de pedido (Total y Confirmar) */
+.panel-pedido-footer {
+    flex: 0 0 auto;
+    padding: 18px 14px 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--color-border);
+}
+
+.total-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6px 16px;
+    color: var(--color-text-secondary);
+    font-size: 11px;
+}
+
+.total-panel strong {
+    color: var(--color-text-total);
+    font-size: 14px;
+}
+
+.confirmar-pedido {
+    width: 100%;
+    padding: 14px;
+    border: 0;
+    border-radius: 12px;
+    background-color: var(--color-surface-disabled);
+    color: var(--color-text-disabled);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.confirmar-pedido:not(:disabled) {
+    background-color: var(--color-accent);
+    color: var(--color-text-on-accent);
+    cursor: pointer;
+}
+
+/* Toast de notificación de pedido */
+.pedido-toast {
+    position: fixed;
+    z-index: 50;
+    right: 16px;
+    bottom: calc(128px + env(safe-area-inset-bottom));
+    left: 16px;
+    padding: 12px 16px;
+    border: 1px solid var(--color-accent-border);
+    border-radius: 10px;
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    font-size: 12px;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.pedido-toast.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.pedido-toast.success {
+    border-color: var(--color-success);
+}
+
+.pedido-toast.error {
+    border-color: var(--color-error);
+}

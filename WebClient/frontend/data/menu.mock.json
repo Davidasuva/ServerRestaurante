@@ -1,0 +1,599 @@
+[
+  {
+    "id": 1,
+    "nombre": "Hamburguesa Rústica",
+    "descripcion": "Carne de res al carbón con cheddar ahumado, tocineta crocante y cebolla caramelizada.",
+    "precio": 28000,
+    "imagen": "1.jpg",
+    "categoria": "Hamburguesas",
+    "ingredientes": [
+      {
+        "id": 1,
+        "nombre": "Carne de res al carbón (200g)",
+        "base": true
+      },
+      {
+        "id": 2,
+        "nombre": "Queso cheddar ahumado",
+        "base": false
+      },
+      {
+        "id": 3,
+        "nombre": "Tocineta crocante",
+        "base": false
+      },
+      {
+        "id": 4,
+        "nombre": "Cebolla caramelizada",
+        "base": false
+      },
+      {
+        "id": 5,
+        "nombre": "Lechuga crespa",
+        "base": false
+      },
+      {
+        "id": 6,
+        "nombre": "Tomate chonto",
+        "base": false
+      },
+      {
+        "id": 7,
+        "nombre": "Salsa BBQ con toque de miel",
+        "base": false
+      },
+      {
+        "id": 8,
+        "nombre": "Pan brioche artesanal",
+        "base": true
+      }
+    ],
+    "opcionesBebida": []
+  },
+  {
+    "id": 2,
+    "nombre": "Hamburguesa Carbón y Queso",
+    "descripcion": "Doble carne de res con doble queso fundido, pepinillos dulces y salsa de la casa.",
+    "precio": 32000,
+    "imagen": "2.jpg",
+    "categoria": "Hamburguesas",
+    "ingredientes": [
+      {
+        "id": 9,
+        "nombre": "Doble carne de res (300g)",
+        "base": true
+      },
+      {
+        "id": 10,
+        "nombre": "Doble queso doble crema fundido",
+        "base": false
+      },
+      {
+        "id": 11,
+        "nombre": "Pepinillos dulces",
+        "base": false
+      },
+      {
+        "id": 12,
+        "nombre": "Cebolla picada",
+        "base": false
+      },
+      {
+        "id": 13,
+        "nombre": "Salsa de la casa",
+        "base": false
+      },
+      {
+        "id": 8,
+        "nombre": "Pan brioche artesanal",
+        "base": true
+      }
+    ],
+    "opcionesBebida": []
+  },
+  {
+    "id": 3,
+    "nombre": "Perro Caliente Especial Carbón",
+    "descripcion": "Salchicha manguera a la parrilla con queso costeño, tocineta, fósforos de papa y salsas.",
+    "precio": 20000,
+    "imagen": "3.jpg",
+    "categoria": "Perros Calientes",
+    "ingredientes": [
+      {
+        "id": 14,
+        "nombre": "Salchicha manguera a la parrilla",
+        "base": true
+      },
+      {
+        "id": 15,
+        "nombre": "Queso costeño rallado",
+        "base": false
+      },
+      {
+        "id": 16,
+        "nombre": "Tocineta picada",
+        "base": false
+      },
+      {
+        "id": 17,
+        "nombre": "Cebolla cabezona picada",
+        "base": false
+      },
+      {
+        "id": 18,
+        "nombre": "Fósforos de papa",
+        "base": false
+      },
+      {
+        "id": 19,
+        "nombre": "Salsa tártara",
+        "base": false
+      },
+      {
+        "id": 20,
+        "nombre": "Salsa de piña",
+        "base": false
+      },
+      {
+        "id": 21,
+        "nombre": "Pan de perro artesanal",
+        "base": true
+      }
+    ],
+    "opcionesBebida": []
+  },
+  {
+    "id": 4,
+    "nombre": "Perro Suizo Ahumado",
+    "descripcion": "Salchicha suiza ahumada a la parrilla con queso fundido, maíz y tocineta.",
+    "precio": 23000,
+    "imagen": "4.jpg",
+    "categoria": "Perros Calientes",
+    "ingredientes": [
+      {
+        "id": 22,
+        "nombre": "Salchicha Suiza a la parrilla",
+        "base": true
+      },
+      {
+        "id": 23,
+        "nombre": "Queso doble crema fundido",
+        "base": false
+      },
+      {
+        "id": 24,
+        "nombre": "Maíz tierno",
+        "base": false
+      },
+      {
+        "id": 16,
+        "nombre": "Tocineta picada",
+        "base": false
+      },
+      {
+        "id": 25,
+        "nombre": "Salsa showy",
+        "base": false
+      },
+      {
+        "id": 21,
+        "nombre": "Pan de perro artesanal",
+        "base": true
+      }
+    ],
+    "opcionesBebida": []
+  },
+  {
+    "id": 5,
+    "nombre": "Salchipapa Clásica",
+    "descripcion": "Papa a la francesa crocante con salchicha manguera, queso costeño y salsas clásicas.",
+    "precio": 18000,
+    "imagen": "5.jpg",
+    "categoria": "Salchipapas",
+    "ingredientes": [
+      {
+        "id": 26,
+        "nombre": "Papa a la francesa crocante",
+        "base": true
+      },
+      {
+        "id": 27,
+        "nombre": "Salchicha manguera salteada",
+        "base": true
+      },
+      {
+        "id": 15,
+        "nombre": "Queso costeño rallado",
+        "base": false
+      },
+      {
+        "id": 28,
+        "nombre": "Salsa de tomate",
+        "base": false
+      },
+      {
+        "id": 29,
+        "nombre": "Mayonesa",
+        "base": false
+      },
+      {
+        "id": 30,
+        "nombre": "Salsa rosada",
+        "base": false
+      }
+    ],
+    "opcionesBebida": []
+  },
+  {
+    "id": 6,
+    "nombre": "Salchipapa Sazonada",
+    "descripcion": "Papa criolla dorada con salchicha suiza, chorizo artesanal, queso y maíz dulce.",
+    "precio": 25000,
+    "imagen": "6.jpg",
+    "categoria": "Salchipapas",
+    "ingredientes": [
+      {
+        "id": 31,
+        "nombre": "Papa criolla dorada",
+        "base": true
+      },
+      {
+        "id": 32,
+        "nombre": "Salchicha suiza",
+        "base": true
+      },
+      {
+        "id": 33,
+        "nombre": "Chorizo artesanal al carbón",
+        "base": true
+      },
+      {
+        "id": 23,
+        "nombre": "Queso doble crema fundido",
+        "base": false
+      },
+      {
+        "id": 34,
+        "nombre": "Maíz dulce tierno",
+        "base": false
+      },
+      {
+        "id": 35,
+        "nombre": "Salsa tártara de la casa",
+        "base": false
+      }
+    ],
+    "opcionesBebida": []
+  },
+  {
+    "id": 7,
+    "nombre": "Papa Loca Carbón y Sazón",
+    "descripcion": "Doble cama de papas con carnes al carbón, tocineta, queso gratinado y guacamole.",
+    "precio": 34000,
+    "imagen": "7.jpg",
+    "categoria": "Papas Locas",
+    "ingredientes": [
+      {
+        "id": 36,
+        "nombre": "Cama doble de papa a la francesa y papa criolla",
+        "base": true
+      },
+      {
+        "id": 37,
+        "nombre": "Carne desmechada de res",
+        "base": true
+      },
+      {
+        "id": 38,
+        "nombre": "Pollo desmechado al carbón",
+        "base": true
+      },
+      {
+        "id": 3,
+        "nombre": "Tocineta crocante",
+        "base": false
+      },
+      {
+        "id": 39,
+        "nombre": "Queso doble crema gratinado",
+        "base": false
+      },
+      {
+        "id": 24,
+        "nombre": "Maíz tierno",
+        "base": false
+      },
+      {
+        "id": 18,
+        "nombre": "Fósforos de papa",
+        "base": false
+      },
+      {
+        "id": 40,
+        "nombre": "Guacamole fresco",
+        "base": false
+      },
+      {
+        "id": 13,
+        "nombre": "Salsa de la casa",
+        "base": false
+      }
+    ],
+    "opcionesBebida": []
+  },
+  {
+    "id": 8,
+    "nombre": "Papa Loca BBQ Pork",
+    "descripcion": "Papa a la francesa con cerdo desmechado en BBQ ahumada, cheddar y cebolla crispy.",
+    "precio": 31000,
+    "imagen": "8.jpg",
+    "categoria": "Papas Locas",
+    "ingredientes": [
+      {
+        "id": 41,
+        "nombre": "Papa a la francesa",
+        "base": true
+      },
+      {
+        "id": 42,
+        "nombre": "Cerdo desmechado en salsa BBQ ahumada",
+        "base": true
+      },
+      {
+        "id": 43,
+        "nombre": "Queso cheddar fundido",
+        "base": false
+      },
+      {
+        "id": 44,
+        "nombre": "Cebolla en crispy",
+        "base": false
+      },
+      {
+        "id": 25,
+        "nombre": "Salsa showy",
+        "base": false
+      },
+      {
+        "id": 45,
+        "nombre": "Cilantro fresco",
+        "base": false
+      }
+    ],
+    "opcionesBebida": []
+  },
+  {
+    "id": 9,
+    "nombre": "Desgranado Mixto",
+    "descripcion": "Maíz dulce a la parrilla con pollo y res al carbón, quesos, tocineta y salsas.",
+    "precio": 26000,
+    "imagen": "9.jpg",
+    "categoria": "Desgranados",
+    "ingredientes": [
+      {
+        "id": 46,
+        "nombre": "Maíz dulce tierno desgranado a la parrilla",
+        "base": true
+      },
+      {
+        "id": 47,
+        "nombre": "Pollo al carbón picado",
+        "base": true
+      },
+      {
+        "id": 48,
+        "nombre": "Carne de res picada",
+        "base": true
+      },
+      {
+        "id": 15,
+        "nombre": "Queso costeño rallado",
+        "base": false
+      },
+      {
+        "id": 49,
+        "nombre": "Queso doble crema derretido",
+        "base": false
+      },
+      {
+        "id": 18,
+        "nombre": "Fósforos de papa",
+        "base": false
+      },
+      {
+        "id": 16,
+        "nombre": "Tocineta picada",
+        "base": false
+      },
+      {
+        "id": 19,
+        "nombre": "Salsa tártara",
+        "base": false
+      },
+      {
+        "id": 20,
+        "nombre": "Salsa de piña",
+        "base": false
+      }
+    ],
+    "opcionesBebida": []
+  },
+  {
+    "id": 10,
+    "nombre": "Desgranado Ranchero",
+    "descripcion": "Maíz dulce con chorizo y carne al carbón, jalapeños, queso gratinado y BBQ ahumada.",
+    "precio": 28000,
+    "imagen": "10.jpg",
+    "categoria": "Desgranados",
+    "ingredientes": [
+      {
+        "id": 50,
+        "nombre": "Maíz dulce tierno desgranado",
+        "base": true
+      },
+      {
+        "id": 33,
+        "nombre": "Chorizo artesanal al carbón",
+        "base": true
+      },
+      {
+        "id": 51,
+        "nombre": "Carne de res en cubos",
+        "base": true
+      },
+      {
+        "id": 52,
+        "nombre": "Jalapeños picados",
+        "base": false
+      },
+      {
+        "id": 39,
+        "nombre": "Queso doble crema gratinado",
+        "base": false
+      },
+      {
+        "id": 18,
+        "nombre": "Fósforos de papa",
+        "base": false
+      },
+      {
+        "id": 53,
+        "nombre": "Salsa BBQ ahumada",
+        "base": false
+      }
+    ],
+    "opcionesBebida": []
+  },
+  {
+    "id": 11,
+    "nombre": "Limonada de Coco Artesanal",
+    "descripcion": "Limonada cremosa y refrescante con coco, leche condensada y hielo frappé.",
+    "precio": 10000,
+    "imagen": "11.jpg",
+    "categoria": "Bebidas",
+    "ingredientes": [
+      {
+        "id": 54,
+        "nombre": "Zumo de limón criollo",
+        "base": false
+      },
+      {
+        "id": 55,
+        "nombre": "Crema de coco",
+        "base": false
+      },
+      {
+        "id": 56,
+        "nombre": "Leche condensada",
+        "base": false
+      },
+      {
+        "id": 57,
+        "nombre": "Hielo frappé",
+        "base": false
+      }
+    ],
+    "opcionesBebida": []
+  },
+  {
+    "id": 12,
+    "nombre": "Limonada Cerezada",
+    "descripcion": "Limonada fresca con jarabe artesanal de cereza y cerezas al marrasquino.",
+    "precio": 9000,
+    "imagen": "12.jpg",
+    "categoria": "Bebidas",
+    "ingredientes": [
+      {
+        "id": 58,
+        "nombre": "Zumo de limón fresco",
+        "base": false
+      },
+      {
+        "id": 59,
+        "nombre": "Jarabe artesanal de cereza",
+        "base": false
+      },
+      {
+        "id": 60,
+        "nombre": "Cerezas al marrasquino",
+        "base": false
+      },
+      {
+        "id": 61,
+        "nombre": "Hielo",
+        "base": false
+      }
+    ],
+    "opcionesBebida": []
+  },
+  {
+    "id": 13,
+    "nombre": "Gaseosa Personal",
+    "descripcion": "Gaseosa personal de 400 ml, con sabor a elección.",
+    "precio": 5000,
+    "imagen": "13.jpg",
+    "categoria": "Bebidas",
+    "ingredientes": [],
+    "opcionesBebida": [
+      "Coca-Cola",
+      "Pepsi",
+      "Colombiana",
+      "Sprite",
+      "Quatro"
+    ]
+  },
+  {
+    "id": 14,
+    "nombre": "Jugo Natural en Agua o Leche",
+    "descripcion": "Jugo natural preparado con fruta, disponible en agua o leche y endulzado al gusto.",
+    "precio": 8000,
+    "imagen": "14.jpg",
+    "categoria": "Bebidas",
+    "ingredientes": [
+      {
+        "id": 62,
+        "nombre": "Pulpa natural de fruta (Mora",
+        "base": false
+      },
+      {
+        "id": 63,
+        "nombre": "Mango",
+        "base": false
+      },
+      {
+        "id": 64,
+        "nombre": "Lulo",
+        "base": false
+      },
+      {
+        "id": 65,
+        "nombre": "Maracuyá)",
+        "base": false
+      },
+      {
+        "id": 66,
+        "nombre": "Agua",
+        "base": false
+      },
+      {
+        "id": 67,
+        "nombre": "Leche entera",
+        "base": false
+      },
+      {
+        "id": 68,
+        "nombre": "Endulzante al gusto",
+        "base": false
+      },
+      {
+        "id": 61,
+        "nombre": "Hielo",
+        "base": false
+      }
+    ],
+    "opcionesBebida": [
+      "Agua",
+      "Leche entera"
+    ]
+  }
+]

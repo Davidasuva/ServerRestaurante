@@ -1,0 +1,7 @@
+/* Archivo principal de estilos - Importación modular por pantallas y componentes */
+@import url("./base.css");
+@import url("./tables.css");
+@import url("./products.css");
+@import url("./order-summary.css");
+@import url("./checkout.css");
+@import url("./status.css");
